@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Golf Tracker">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Golf Tracker">
+<meta name="theme-color" content="#1a7a4a">
+<meta name="description" content="ゴルフ練習データ管理アプリ">
+
+<!-- PWA Manifest (inline) -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22:%22Golf%20Tracker%22,
+  %22short_name%22:%22Golf%22,
+  %22description%22:%22%E3%82%B4%E3%83%AB%E3%83%95%E7%B7%B4%E7%BF%92%E3%83%87%E3%83%BC%E3%82%BF%E7%AE%A1%E7%90%86%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%23ffffff%22,
+  %22theme_color%22:%22%231a7a4a%22,
+  %22orientation%22:%22portrait%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a7a4a'/%3E%3Ccircle cx='256' cy='180' r='60' fill='white'/%3E%3Cellipse cx='256' cy='180' rx='60' ry='60' fill='none' stroke='%23a8d8be' stroke-width='6'/%3E%3Crect x='248' y='236' width='16' height='180' rx='8' fill='white'/%3E%3Cellipse cx='220' cy='416' rx='60' ry='12' fill='%23145e38'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
+}">
+
+<!-- Apple Touch Icon (golf ball + flag SVG → data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a7a4a'/%3E%3Ccircle cx='256' cy='180' r='60' fill='white'/%3E%3Crect x='248' y='236' width='16' height='180' rx='8' fill='white'/%3E%3Cellipse cx='220' cy='416' rx='60' ry='12' fill='%23145e38'/%3E%3C/svg%3E">
+
+<title>Golf Tracker</title>
+<style>
+:root{
+  --green:#1a7a4a;--green-light:#e8f5ee;--green-mid:#5dab7f;
+  --amber:#c47a00;--amber-light:#fff8e6;
+  --red:#d93025;--red-light:#fdecea;
+  --blue:#1a6fbd;--blue-light:#e8f0fb;
+  --purple:#534AB7;--purple-light:#EEEDFE;
+  --gray0:#ffffff;--gray1:#f5f5f5;--gray2:#e8e8e8;--gray3:#b0b0b0;
+  --gray4:#6b6b6b;--gray5:#222222;
+  --radius:12px;--radius-sm:8px;--radius-full:999px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-top:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--gray1);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif}
+body{display:flex;flex-direction:column}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top)}
+.topbar{background:var(--gray0);border-bottom:1px solid var(--gray2);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:17px;font-weight:600;color:var(--gray5)}
+.topbar-sub{font-size:11px;color:var(--gray4);margin-top:1px}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 6px}
+.bottomnav{background:var(--gray0);border-top:1px solid var(--gray2);display:flex;padding-bottom:calc(6px + var(--safe-bottom));flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:var(--gray3)}
+.nav-btn.active{color:var(--green)}
+.nav-label{font-size:10px;font-weight:500}
+.section{display:none}.section.active{display:block}
+
+/* Cards */
+.card{background:var(--gray0);border-radius:var(--radius);padding:12px;margin-bottom:8px;border:1px solid var(--gray2)}
+.card-title{font-size:13px;font-weight:600;color:var(--gray5);margin-bottom:10px}
+.card-sub{font-size:11px;color:var(--gray4);margin-top:-6px;margin-bottom:10px}
+
+/* Form */
+.form-row{display:grid;gap:8px;margin-bottom:8px}
+.form-row.c2{grid-template-columns:1fr 1fr}
+.form-row.c3{grid-template-columns:1fr 1fr 1fr}
+.fg label{font-size:11px;font-weight:500;color:var(--gray4);display:block;margin-bottom:3px}
+select,input[type=text],input[type=number],input[type=date]{
+  width:100%;height:40px;border:1px solid var(--gray2);border-radius:var(--radius-sm);
+  background:var(--gray1);font-size:15px;padding:0 10px;color:var(--gray5);
+  -webkit-appearance:none;appearance:none;font-family:inherit}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6b6b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+input:focus,select:focus{outline:none;border-color:var(--green);background:var(--gray0)}
+
+/* ── Shot row list ── */
+.shot-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+
+/* dist mode row: badge | distErr | dirErr | ★ */
+.shot-row{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+/* club mode row: badge | distErr | dirErr | dist-stepper | ★ */
+.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+
+.row-chip  {background:#e0f4eb!important;border-color:#1a7a4a!important}
+.row-A     {background:#e8f0fb!important;border-color:#1a6fbd!important}
+.row-B     {background:#edf6e0!important;border-color:#5a9e28!important}
+.row-C     {background:#fff8e6!important;border-color:#c47a00!important}
+.row-D     {background:#fdecea!important;border-color:#d93025!important}
+
+.sr-num{font-size:12px;font-weight:700;color:var(--gray3);text-align:center}
+
+/* Live rating badge */
+.sr-badge{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;background:var(--gray2);color:var(--gray3);transition:background .15s,color .15s}
+.sb-chip{background:#e0f4eb;color:#1a7a4a}
+.sb-A   {background:#e8f0fb;color:#1a6fbd}
+.sb-B   {background:#edf6e0;color:#3d7016}
+.sb-C   {background:#fff8e6;color:#c47a00}
+.sb-D   {background:#fdecea;color:#d93025}
+
+/* Flick picker trigger button */
+.pick-btn{width:100%;height:40px;border:1px solid var(--gray2);border-radius:var(--radius-sm);background:var(--gray0);font-size:15px;font-weight:600;color:var(--gray5);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.pick-btn:active{background:var(--gray2)}
+.pick-btn.empty{color:var(--gray3)}
+
+/* Chip button */
+.sr-chip-btn{width:40px;height:40px;border:1.5px solid var(--green);border-radius:var(--radius-sm);background:var(--green-light);color:var(--green);font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.sr-chip-btn.active{background:var(--green);color:#fff}
+
+/* ── Flick Picker overlay ── */
+.picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.picker-sheet{width:100%;max-width:480px;background:var(--gray0);border-radius:var(--radius) var(--radius) 0 0;padding-bottom:calc(16px + var(--safe-bottom))}
+.picker-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray2)}
+.picker-title{font-size:14px;font-weight:600;color:var(--gray5)}
+.picker-done{font-size:15px;font-weight:700;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 8px}
+.picker-cancel{font-size:15px;color:var(--gray4);background:none;border:none;cursor:pointer;padding:4px 8px}
+
+/* ITEM_H=44px, visible=5 items → scroll area=220px, label=28px */
+.picker-body{display:flex;overflow:hidden;position:relative}
+.picker-col{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.picker-col-label{text-align:center;font-size:11px;font-weight:600;color:var(--gray4);height:28px;line-height:28px;flex-shrink:0;border-bottom:1px solid var(--gray2)}
+
+/* scroll area exactly 5×44=220px, snap-padding puts center at 110px from top */
+.picker-scroll{
+  overflow-y:scroll;
+  height:220px;
+  scroll-snap-type:y mandatory;
+  scroll-padding-top:88px; /* (220/2)-(44/2) = 88 */
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.picker-scroll::-webkit-scrollbar{display:none}
+.picker-item{
+  height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:500;color:var(--gray3);
+  scroll-snap-align:start; /* with scroll-padding-top=88, start snaps item centre to middle */
+  flex-shrink:0;
+  transition:color .1s,font-size .1s;
+  user-select:none;
+}
+.picker-item.selected{color:var(--gray5);font-size:21px;font-weight:700}
+
+/* highlight bar: sits at centre of 220px scroll area */
+.picker-highlight{
+  position:absolute;
+  /* label=28px, centre of scroll = 28 + 88 + 22 = 138px from sheet top */
+  top:calc(28px + 88px);
+  left:8px;right:8px;
+  height:44px;
+  border-top:1.5px solid var(--gray2);
+  border-bottom:1.5px solid var(--gray2);
+  border-radius:var(--radius-sm);
+  pointer-events:none;
+  z-index:3;
+}
+
+/* Badge colors */
+.badge-chip{background:#e0f4eb;color:#1a7a4a}
+.badge-A{background:#e8f0fb;color:#1a6fbd}
+.badge-B{background:#edf6e0;color:#3d7016}
+.badge-C{background:#fff8e6;color:#c47a00}
+.badge-D{background:#fdecea;color:#d93025}
+.badge-none{background:var(--gray1);color:var(--gray3)}
+
+/* Quick fill */
+.quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.qb{height:28px;padding:0 10px;border:1px solid var(--gray2);border-radius:var(--radius-full);background:var(--gray0);font-size:11px;color:var(--gray4);cursor:pointer}
+.qb:active{background:var(--gray1)}
+
+/* Legend */
+.legend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:10px}
+.legend-row{display:flex;align-items:baseline;gap:6px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--gray1);font-size:11px}
+.legend-badge{font-weight:700;font-size:12px;width:18px;text-align:center}
+.legend-crit{color:var(--gray4)}
+
+/* Save btn */
+.save-btn{width:100%;height:48px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
+.save-btn:active{background:#145e38}
+
+/* Mode toggle */
+.mode-toggle{display:flex;background:var(--gray2);border-radius:var(--radius-sm);padding:3px;gap:3px;margin-bottom:12px}
+.mt-btn{flex:1;height:32px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--gray4)}
+.mt-btn.active{background:var(--gray0);color:var(--green)}
+
+/* Metrics */
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.metric{background:var(--gray1);border-radius:var(--radius-sm);padding:9px;text-align:center}
+.metric .mv{font-size:20px;font-weight:700;color:var(--gray5)}
+.metric .ml{font-size:10px;color:var(--gray4);margin-top:1px}
+
+/* Score grid */
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.sc{background:var(--gray1);border-radius:var(--radius-sm);padding:9px 5px;text-align:center}
+.sc-val{font-size:18px;font-weight:700}
+.sc-lbl{font-size:9px;color:var(--gray4);margin-top:1px;line-height:1.3}
+.sc-track{height:3px;background:var(--gray2);border-radius:99px;margin-top:5px;overflow:hidden}
+.sc-fill{height:100%;border-radius:99px}
+.gspi-card{background:var(--blue-light);border:1px solid #b5d4f4;border-radius:var(--radius);padding:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.gspi-val{font-size:36px;font-weight:700;color:var(--blue)}
+.gspi-right{text-align:right}
+.gspi-label{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:2px}
+.gspi-grade{font-size:22px;font-weight:700}
+
+/* Bar rows */
+.bar-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--gray2)}
+.bar-row:last-child{border-bottom:none}
+.bar-tag{font-size:13px;font-weight:600;width:48px;flex-shrink:0;color:var(--gray5)}
+.bar-wrap{flex:1;height:8px;background:var(--gray2);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px}
+.bar-pct{font-size:12px;font-weight:600;width:32px;text-align:right}
+.bar-cnt{font-size:11px;color:var(--gray3);width:38px;text-align:right}
+
+/* Club stat */
+.club-stat-card{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius);padding:12px;margin-bottom:8px}
+.csc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.csc-name{font-size:16px;font-weight:700;color:var(--gray5)}
+.csc-meta{font-size:11px;color:var(--gray4)}
+.csc-gspi{font-size:24px;font-weight:700;color:var(--blue)}
+.csc-axes{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.csc-ax{background:var(--gray1);border-radius:var(--radius-sm);padding:6px 4px;text-align:center}
+.csc-av{font-size:14px;font-weight:700}
+.csc-al{font-size:9px;color:var(--gray4);margin-top:1px}
+.csc-track{height:3px;background:var(--gray2);border-radius:99px;margin-top:4px;overflow:hidden}
+.csc-fill{height:100%;border-radius:99px}
+.insight-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:4px}
+.idot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.itext{font-size:12px;color:var(--gray5);line-height:1.5}
+
+/* History */
+.hist-card{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius);padding:11px;margin-bottom:7px}
+.hist-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;gap:6px}
+.hist-date{font-size:13px;font-weight:600;color:var(--gray5)}
+.hist-sub{font-size:11px;color:var(--gray4);margin-top:1px}
+.mini-shots{display:flex;gap:3px;flex-wrap:wrap}
+.mb{font-size:11px;padding:2px 5px;border-radius:var(--radius-full);font-weight:700}
+.del-btn{background:var(--red-light);border:none;border-radius:var(--radius-full);color:var(--red);font-size:11px;font-weight:600;padding:4px 9px;cursor:pointer;flex-shrink:0}
+.hist-memo{font-size:11px;color:var(--gray4);margin-top:5px;padding-top:5px;border-top:1px solid var(--gray2)}
+.hist-score{font-size:18px;font-weight:700}
+
+/* Filter */
+.filter-row{display:flex;gap:7px;margin-bottom:9px}
+.filter-row select{height:34px;font-size:12px}
+
+/* Settings */
+.club-tag-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.club-tag{display:inline-flex;align-items:center;gap:3px;background:var(--gray1);border:1px solid var(--gray2);border-radius:var(--radius-full);padding:5px 10px;font-size:13px;color:var(--gray5)}
+.club-tag button{background:none;border:none;color:var(--gray3);cursor:pointer;font-size:15px;line-height:1;padding:0;margin-left:2px}
+.add-row{display:flex;gap:7px}
+.add-row input{flex:1}
+.add-btn{height:40px;padding:0 14px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.preset-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.preset-btn{height:32px;padding:0 11px;border:1px solid var(--gray2);border-radius:var(--radius-full);background:var(--gray0);font-size:12px;color:var(--gray5);cursor:pointer}
+.sec-hdr{font-size:11px;font-weight:600;color:var(--gray4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;margin-top:2px}
+.no-data{text-align:center;color:var(--gray3);font-size:14px;padding:36px 0}
+.info-card{background:var(--green-light);border:1px solid #a8d8be;border-radius:var(--radius);padding:12px;margin-bottom:8px}
+.info-card p{font-size:12px;color:#2a6045;line-height:1.7;margin-bottom:4px}
+
+/* Toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
+.toast.show{opacity:1}
+
+/* Radar chart container */
+.radar-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
+
+/* Avg dist settings table */
+.avg-dist-table{width:100%;border-collapse:collapse}
+.avg-dist-table tr{border-bottom:1px solid var(--gray2)}
+.avg-dist-table tr:last-child{border-bottom:none}
+.avg-dist-table td{padding:7px 4px;vertical-align:middle}
+.avg-dist-table td:first-child{font-size:14px;font-weight:600;color:var(--gray5);width:56px}
+.avg-dist-table td:last-child{width:44px;text-align:right}
+.avg-dist-input{width:80px;height:34px;border:1px solid var(--gray2);border-radius:var(--radius-sm);background:var(--gray1);font-size:14px;text-align:center;color:var(--gray5);font-family:inherit;-webkit-appearance:none;appearance:none}
+.avg-dist-input:focus{outline:none;border-color:var(--green);background:var(--gray0)}
+.save-avg-btn{height:34px;padding:0 12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.save-avg-btn:active{background:#145e38}
+
+/* Stepper for dist field */
+.dist-stepper{display:flex;align-items:center;gap:0;border:1px solid var(--gray2);border-radius:var(--radius-sm);overflow:hidden;background:var(--gray0)}
+.dist-stepper button{width:28px;height:30px;border:none;background:var(--gray1);color:var(--gray5);font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.dist-stepper button:active{background:var(--gray2)}
+.dist-stepper input{flex:1;height:30px;border:none;border-left:1px solid var(--gray2);border-right:1px solid var(--gray2);background:var(--gray0);font-size:13px;text-align:center;color:var(--gray5);font-family:inherit;-webkit-appearance:none;appearance:none;min-width:0}
+.dist-stepper input:focus{outline:none}
+
+/* GSPI grade table */
+.grade-table{width:100%;border-collapse:collapse;margin-top:4px}
+.grade-table th{font-size:10px;font-weight:600;color:var(--gray4);text-align:left;padding:4px 6px;background:var(--gray1);border-bottom:1px solid var(--gray2)}
+.grade-table td{font-size:12px;padding:7px 6px;border-bottom:1px solid var(--gray2);vertical-align:top;line-height:1.4;color:var(--gray5)}
+.grade-table tr:last-child td{border-bottom:none}
+.grade-pill{display:inline-block;font-size:13px;font-weight:700;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%}
+.grade-bar-wrap{height:5px;background:var(--gray2);border-radius:99px;margin-top:4px;overflow:hidden}
+.grade-bar-fill{height:100%;border-radius:99px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">距離別記録</div>
+      <div class="topbar-sub" id="topbar-sub">距離誤差・方向誤差を数値で入力</div>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+
+    <!-- 距離別記録 -->
+    <div class="section active" id="sec-dist">
+      <div class="card">
+        <div class="form-row c2">
+          <div class="fg"><label>日付</label><input type="date" id="d-date"></div>
+          <div class="fg"><label>場所</label><select id="d-place"><option>インドア</option><option>屋外</option></select></div>
+        </div>
+        <div class="form-row c2">
+          <div class="fg"><label>目標距離 (y)</label>
+            <select id="d-dist">
+              <option>20</option><option>30</option><option>40</option><option>50</option>
+              <option>60</option><option>70</option><option>80</option><option>90</option>
+              <option>100</option><option>110</option><option>120</option><option>130</option>
+              <option>140</option><option>150</option>
+            </select>
+          </div>
+          <div class="fg"><label>クラブ</label><select id="d-club"></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">評価基準</div>
+        <div class="legend-grid">
+          <div class="legend-row"><span class="legend-badge" style="color:#1a7a4a">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#1a6fbd">◎</span><span class="legend-crit">±3y以内・±1m以内</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#3d7016">○</span><span class="legend-crit">±6y以内・±3m以内</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#c47a00">△</span><span class="legend-crit">±10y以内・±6m以内</span></div>
+          <div class="legend-row" style="grid-column:1/-1"><span class="legend-badge" style="color:#d93025">×</span><span class="legend-crit">上記を超えるミス</span></div>
+        </div>
+        <div class="card-title">10球の入力</div>
+        <div class="card-sub">数値をタップしてフリックで選択 — 評価は自動反映</div>
+        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+          <div></div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差(y)</div>
+          <div id="d-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差(y)</div>
+          <div></div>
+        </div>
+        <div class="shot-list" id="d-shot-grid"></div>
+        <div class="quick-row">
+          <button class="qb" onclick="quickFill('d','chip')">全★(チップイン)</button>
+          <button class="qb" onclick="quickFill('d','perf')">全◎相当に設定</button>
+          <button class="qb" onclick="clearShots('d')">クリア</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="fg"><label>メモ</label><input type="text" id="d-memo" placeholder="スイング感覚など"></div>
+      </div>
+      <button class="save-btn" onclick="saveRecord('dist')">保存する</button>
+      <div style="height:14px"></div>
+    </div>
+
+    <!-- クラブ別記録 -->
+    <div class="section" id="sec-club">
+      <div class="card">
+        <div class="form-row c2">
+          <div class="fg"><label>日付</label><input type="date" id="c-date"></div>
+          <div class="fg"><label>場所</label><select id="c-place"><option>インドア</option><option>屋外</option></select></div>
+        </div>
+        <div class="fg"><label>クラブ</label><select id="c-club" onchange="onClubChange()"></select></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">評価基準</div>
+        <div class="legend-grid">
+          <div class="legend-row"><span class="legend-badge" style="color:#1a7a4a">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#1a6fbd">◎</span><span class="legend-crit">±3y以内・±1m以内</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#3d7016">○</span><span class="legend-crit">±6y以内・±3m以内</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#c47a00">△</span><span class="legend-crit">±10y以内・±6m以内</span></div>
+          <div class="legend-row" style="grid-column:1/-1"><span class="legend-badge" style="color:#d93025">×</span><span class="legend-crit">上記を超えるミス</span></div>
+        </div>
+        <div class="card-title">10球の入力</div>
+        <div class="card-sub">数値をタップしてフリックで選択 — 評価は自動反映</div>
+        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+          <div></div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差(y)</div>
+          <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差(y)</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">飛距離(y)</div>
+          <div></div>
+        </div>
+        <div class="shot-list" id="c-shot-grid"></div>
+        <div class="quick-row">
+          <button class="qb" onclick="quickFill('c','chip')">全★(チップイン)</button>
+          <button class="qb" onclick="quickFill('c','perf')">全◎相当に設定</button>
+          <button class="qb" onclick="clearShots('c')">クリア</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="fg"><label>メモ</label><input type="text" id="c-memo" placeholder="スイング感覚など"></div>
+      </div>
+      <button class="save-btn" onclick="saveRecord('club')">保存する</button>
+      <div style="height:14px"></div>
+    </div>
+
+    <!-- 統計 -->
+    <div class="section" id="sec-stats">
+      <div class="mode-toggle">
+        <button class="mt-btn active" id="st-d-btn" onclick="switchStats('dist')">距離別</button>
+        <button class="mt-btn" id="st-c-btn" onclick="switchStats('club')">クラブ別 GSPI</button>
+      </div>
+      <div id="st-dist-view"></div>
+      <div id="st-club-view" style="display:none"></div>
+    </div>
+
+    <!-- 履歴 -->
+    <div class="section" id="sec-history">
+      <div class="filter-row">
+        <select onchange="renderHistory()" id="hf-mode">
+          <option value="all">すべて</option>
+          <option value="dist">距離別</option>
+          <option value="club">クラブ別</option>
+        </select>
+        <select onchange="renderHistory()" id="hf-club">
+          <option value="all">全クラブ</option>
+        </select>
+      </div>
+      <div id="history-list"></div>
+      <div style="height:14px"></div>
+    </div>
+
+    <!-- 設定 -->
+    <div class="section" id="sec-settings">
+      <div class="card">
+        <div class="sec-hdr">登録クラブ</div>
+        <div class="club-tag-wrap" id="club-tag-list"></div>
+        <div class="add-row">
+          <input type="text" id="new-club" placeholder="例: 7I, 52°, Driver" onkeydown="if(event.key==='Enter')addClub()">
+          <button class="add-btn" onclick="addClub()">追加</button>
+        </div>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="loadPreset('iron')">アイアンセット</button>
+          <button class="preset-btn" onclick="loadPreset('wedge')">ウェッジセット</button>
+          <button class="preset-btn" onclick="loadPreset('full')">フルセット</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-hdr">方向誤差の単位</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">入力・表示する単位を選択してください。変更すると記録画面・ピッカーに即反映されます。過去データの数値はそのまま保持されます。</div>
+        <div style="display:flex;background:var(--gray2);border-radius:var(--radius-sm);padding:3px;gap:3px" id="dir-unit-toggle">
+          <button id="unit-btn-y" onclick="setDirUnit('y')" style="flex:1;height:36px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">ヤード (y)</button>
+          <button id="unit-btn-m" onclick="setDirUnit('m')" style="flex:1;height:36px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">メートル (m)</button>
+        </div>
+        <div style="font-size:11px;color:var(--gray4);margin-top:8px" id="unit-note"></div>
+      </div>
+      <div class="card">
+        <div class="sec-hdr">クラブ別 平均飛距離の設定</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">ここで設定した距離がクラブ別記録の飛距離欄に自動入力されます。練習中にピッカーで微調整できます。</div>
+        <div id="avg-dist-table-wrap"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-hdr">GSPIグレード指標</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">Golf Stability &amp; Performance Index — 5軸の加重平均。距離安定性25% / 方向安定性25% / ミス耐性20% / 精度20% / 上振れ力10%</div>
+        <table class="grade-table">
+          <thead><tr>
+            <th style="width:46px">グレード</th>
+            <th style="width:56px">スコア</th>
+            <th>レベル感</th>
+            <th style="width:72px">各軸の目安</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="grade-pill" style="background:#EEEDFE;color:#534AB7">S</span></td>
+              <td><b style="color:#534AB7">90〜100</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:100%;background:#534AB7"></div></div></td>
+              <td>プロ・競技レベル。全球で高精度を維持。ミスがほぼゼロ</td>
+              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±1.5y以内、方向0.5m以内</td>
+            </tr>
+            <tr>
+              <td><span class="grade-pill" style="background:#e8f5ee;color:#1a7a4a">A</span></td>
+              <td><b style="color:#1a7a4a">80〜89</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:88%;background:#1a7a4a"></div></div></td>
+              <td>上級アマ。安定感があり、コースでスコアにつながるレベル</td>
+              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±3y、方向2m以内</td>
+            </tr>
+            <tr>
+              <td><span class="grade-pill" style="background:#edf6e0;color:#3d7016">B</span></td>
+              <td><b style="color:#3d7016">65〜79</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:72%;background:#3d7016"></div></div></td>
+              <td>中級〜上級。良いショットが多いが、たまにミスが混じる</td>
+              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±5y、方向4m以内</td>
+            </tr>
+            <tr>
+              <td><span class="grade-pill" style="background:#fff8e6;color:#c47a00">C</span></td>
+              <td><b style="color:#c47a00">50〜64</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:57%;background:#c47a00"></div></div></td>
+              <td>中級。改善の余地あり。バラつきが大きく一貫性が課題</td>
+              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±7y、方向6m前後</td>
+            </tr>
+            <tr>
+              <td><span class="grade-pill" style="background:#fdecea;color:#d93025">D</span></td>
+              <td><b style="color:#d93025">0〜49</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:40%;background:#d93025"></div></div></td>
+              <td>初〜中級。基礎固めが最優先。インパクトの再現性を集中練習</td>
+              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±10y超、ミス多発</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-card">
+        <div class="sec-hdr" style="color:#1a7a4a">評価の自動計算について</div>
+        <p>距離誤差と方向誤差を数値で入力すると、評価(★◎○△×)が自動で決まります。主観なしで一貫したデータが取れます。</p>
+        <p>チップインは★ボタンを押してください。飛距離欄はクラブ別記録で入力するとGSPI(安定性指標)が正確になります。</p>
+      </div>
+      <div style="height:14px"></div>
+    </div>
+
+  </div>
+
+  <nav class="bottomnav">
+    <button class="nav-btn active" onclick="showTab('dist',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <span class="nav-label">距離別</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('club',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2L8 20M12 2l4 18M8 20h8"/></svg>
+      <span class="nav-label">クラブ別</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('stats',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span class="nav-label">統計</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('history',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span class="nav-label">履歴</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('settings',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span class="nav-label">設定</span>
+    </button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── 評価ロジック ── */
+function calcRating(distErr, dirErr, isChip) {
+  if (isChip) return 'chip';
+  const d = Math.abs(distErr);
+  const r = Math.abs(dirToY(dirErr)); // 常にy換算で評価
+  if (d <= 3 && r <= 3)  return 'A'; // ±3y / ±3y(≈2.7m)
+  if (d <= 6 && r <= 6)  return 'B';
+  if (d <= 10 && r <= 10) return 'C';
+  return 'D';
+}
+
+const RSCORE = {chip:100, A:100, B:75, C:40, D:0};
+const RLABEL = {chip:'★', A:'◎', B:'○', C:'△', D:'×'};
+const RCOLOR = {chip:'#1a7a4a', A:'#1a6fbd', B:'#3d7016', C:'#c47a00', D:'#d93025'};
+const RBADGE = {chip:'badge-chip', A:'badge-A', B:'badge-B', C:'badge-C', D:'badge-D'};
+
+/* ── GSPI ── */
+function calcGSPI(records) {
+  const shots = records.flatMap(r => r.shots);
+  const allDists = records.flatMap(r => r.dists || []).filter(v => v != null && !isNaN(v));
+  const allDistErr = records.flatMap(r => r.distErrs || []).filter(v => v != null && !isNaN(v));
+  const allDirErr  = records.flatMap(r => r.dirErrs  || []).filter(v => v != null && !isNaN(v));
+
+  // 1. 距離安定性: CV法
+  let distStab = 0;
+  if (allDists.length >= 2) {
+    const avg = allDists.reduce((a,v)=>a+v,0)/allDists.length;
+    const sd  = Math.sqrt(allDists.reduce((a,v)=>a+(v-avg)**2,0)/allDists.length);
+    const cv  = avg > 0 ? (sd/avg)*100 : 0;
+    distStab  = Math.max(0, Math.round(100 - cv * 2));
+  } else if (allDistErr.length > 0) {
+    const avgErr = allDistErr.reduce((a,v)=>a+Math.abs(v),0)/allDistErr.length;
+    distStab = Math.max(0, Math.round(100 - avgErr * 6));
+  }
+
+  // 2. 方向安定性: 方向誤差の絶対値平均をy換算 → 0yで100、10yで0
+  let dirStab = 0;
+  if (allDirErr.length > 0) {
+    const avgAbsDir = allDirErr.reduce((a,v)=>a+Math.abs(dirToY(v)),0)/allDirErr.length;
+    dirStab = Math.max(0, Math.round(100 - avgAbsDir * 10));
+  }
+
+  // 3. ミス耐性: ×の割合の二乗で重罰
+  const missRatio = shots.filter(s=>s==='D').length / shots.length;
+  const missTolerance = Math.round((1 - missRatio * missRatio) * 100);
+
+  // 4. 精度スコア: 加重平均
+  const accuracy = Math.round(shots.reduce((a,s)=>a+RSCORE[s],0) / shots.length);
+
+  // 5. 上振れ力: ★+◎の比率
+  const upside = Math.round(shots.filter(s=>s==='chip'||s==='A').length / shots.length * 100);
+
+  const axes = [distStab, dirStab, missTolerance, accuracy, upside];
+  const weights = [0.25, 0.25, 0.20, 0.20, 0.10];
+  const gspi = Math.round(axes.reduce((a,v,i)=>a+v*weights[i], 0));
+
+  return {gspi, axes, distStab, dirStab, missTolerance, accuracy, upside};
+}
+
+function gspiGrade(v) {
+  if (v >= 90) return {g:'S', c:'#534AB7'};
+  if (v >= 80) return {g:'A', c:'#1a7a4a'};
+  if (v >= 65) return {g:'B', c:'#3d7016'};
+  if (v >= 50) return {g:'C', c:'#c47a00'};
+  return {g:'D', c:'#d93025'};
+}
+
+function scoreColor(v) {
+  if (v >= 80) return '#1a7a4a';
+  if (v >= 60) return '#3d7016';
+  if (v >= 45) return '#c47a00';
+  return '#d93025';
+}
+
+/* ── Storage ── */
+function stor(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v))}catch{return null}}
+function getClubs(){return stor('gf_clubs')||['Driver','3W','5W','4I','5I','6I','7I','8I','9I','PW','50°','52°','56°','60°']}
+function saveClubs(c){stor('gf_clubs',c)}
+function getRecords(){return stor('gf_recs')||[]}
+function saveRecs(r){stor('gf_recs',r)}
+function getAvgDists(){return stor('gf_avg_dists')||{}}
+function saveAvgDists(d){stor('gf_avg_dists',d)}
+function getClubAvgDist(club){return getAvgDists()[club]||null}
+
+/* ── 方向誤差の単位 ('y' or 'm') ── */
+function getDirUnit(){return stor('gf_dir_unit')||'y'}
+function saveDirUnit(u){stor('gf_dir_unit',u)}
+function dirUnitLabel(){return getDirUnit()}
+
+/* 方向誤差の評価しきい値 — 単位に関係なくy基準で統一
+   m入力の場合は内部でy換算（×1.0936）して評価
+   ただし簡略化のため: m入力時は m×1.0936≈y とみなす
+   → 実用上ほぼ同数値なので実際は単位ラベルの差だけで評価式は共通 */
+function dirToY(v){ return getDirUnit()==='m' ? v * 1.0936 : v; }
+
+/* ピッカー値リスト */
+function buildDirErrValues(){
+  const u = getDirUnit();
+  const vals = [];
+  if(u==='y'){ for(let v=-20;v<=20;v+=0.5) vals.push(v); }
+  else        { for(let v=-10;v<=10;v+=0.5) vals.push(v); }
+  return vals;
+}
+
+/* ── Avg dist table in settings ── */
+function buildAvgDistTable(){
+  const clubs = getClubs();
+  const avgs = getAvgDists();
+  const wrap = document.getElementById('avg-dist-table-wrap');
+  if(!clubs.length){wrap.innerHTML='<p style="font-size:12px;color:var(--gray3)">クラブを登録してください</p>';return;}
+  wrap.innerHTML = `<table class="avg-dist-table">
+    ${clubs.map(c=>`<tr>
+      <td>${c}</td>
+      <td><input class="avg-dist-input" type="number" inputmode="decimal" id="avgd-${CSS.escape(c)}" placeholder="例: 150" value="${avgs[c]||''}"></td>
+      <td><button class="save-avg-btn" onclick="saveOneAvg('${c.replace(/'/g,"\\'")}')">保存</button></td>
+    </tr>`).join('')}
+  </table>`;
+}
+
+function saveOneAvg(club){
+  const inp = document.getElementById('avgd-'+CSS.escape(club));
+  if(!inp) return;
+  const v = inp.value.trim();
+  const avgs = getAvgDists();
+  if(v===''){delete avgs[club];}
+  else{const n=parseFloat(v);if(isNaN(n)||n<=0){showToast('正しい距離を入力してください');return;}avgs[club]=n;}
+  saveAvgDists(avgs);
+  showToast(`${club} の平均飛距離を保存しました`);
+}
+
+/* ── Club change → autofill avg dist ── */
+function onClubChange(){
+  const club = document.getElementById('c-club').value;
+  const avg = getClubAvgDist(club);
+  if(avg!=null){
+    cShots.forEach(sh=>{ sh.dist=avg; });
+    buildShotGrid('c');
+  }
+}
+
+/* ── Stepper for dist (called from picker +/- if needed) ── */
+function stepDist(i, delta){
+  const sh = cShots[i];
+  const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value)||150);
+  sh.dist = Math.max(0, cur + delta);
+  updateRow('c', i);
+}
+
+/* ── Shot state ── */
+// Each shot: {distErr, dirErr, dist, isChip}
+let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
+let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',dist:'',isChip:false}));
+
+/* ── Flick Picker ── */
+const PICKER_DIST_ERR = [];
+for(let v=-20;v<=20;v+=0.5) PICKER_DIST_ERR.push(v);
+// PICKER_DIR_ERR is dynamic — built per getDirUnit() in openPicker
+const PICKER_DIST = [];
+for(let v=30;v<=350;v++) PICKER_DIST.push(v);
+
+let pickerTarget = null; // {prefix, shotIdx, field}
+let pickerCols = [];     // [{values, scrollEl, getIdx}]
+
+function openPicker(prefix, shotIdx, field){
+  pickerTarget = {prefix, shotIdx, field};
+  const shots = prefix==='c' ? cShots : dShots;
+  const sh = shots[shotIdx];
+
+  let colDefs;
+  if(field==='dist'){
+    const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value)||150);
+    colDefs = [{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
+  } else if(field==='distErr'){
+    const cur = sh.distErr!=='' ? parseFloat(sh.distErr) : 0;
+    colDefs = [{label:'距離誤差 (y)', values:PICKER_DIST_ERR, current:cur}];
+  } else {
+    const cur = sh.dirErr!=='' ? parseFloat(sh.dirErr) : 0;
+    const u = dirUnitLabel();
+    colDefs = [{label:`方向誤差 (${u})`, values:buildDirErrValues(), current:cur}];
+  }
+
+  const title = field==='dist'?'飛距離':field==='distErr'?'距離誤差':`方向誤差 (${dirUnitLabel()})`;
+  buildPickerDOM(title, colDefs);
+}
+
+function buildPickerDOM(title, colDefs){
+  let existing = document.getElementById('picker-overlay');
+  if(existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'picker-overlay';
+  overlay.id = 'picker-overlay';
+  overlay.onclick = e=>{ if(e.target===overlay) closePicker(false); };
+
+  const sheet = document.createElement('div');
+  sheet.className = 'picker-sheet';
+  sheet.innerHTML = `
+    <div class="picker-toolbar">
+      <button class="picker-cancel" onclick="closePicker(false)">キャンセル</button>
+      <span class="picker-title">${title}</span>
+      <button class="picker-done" onclick="closePicker(true)">完了</button>
+    </div>
+    <div class="picker-body" id="picker-body"></div>`;
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  pickerCols = [];
+  const body = document.getElementById('picker-body');
+
+  colDefs.forEach((cd, ci)=>{
+    const col = document.createElement('div');
+    col.className = 'picker-col';
+    col.style.position = 'relative';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'picker-col-label';
+    lbl.textContent = cd.label;
+
+    const scroll = document.createElement('div');
+    scroll.className = 'picker-scroll';
+
+    // PAD=2 so first/last value can reach centre (scroll-padding-top=88 = 2×44)
+    const PAD = 2;
+    for(let p=0;p<PAD;p++){
+      const pad = document.createElement('div');
+      pad.className = 'picker-item';
+      scroll.appendChild(pad);
+    }
+    cd.values.forEach(v=>{
+      const item = document.createElement('div');
+      item.className = 'picker-item';
+      item.textContent = Number.isInteger(v) ? String(v) : v.toFixed(1);
+      scroll.appendChild(item);
+    });
+    for(let p=0;p<PAD;p++){
+      const pad = document.createElement('div');
+      pad.className = 'picker-item';
+      scroll.appendChild(pad);
+    }
+
+    // highlight sits in the col (not inside scroll)
+    const highlight = document.createElement('div');
+    highlight.className = 'picker-highlight';
+
+    col.appendChild(lbl);
+    col.appendChild(scroll);
+    col.appendChild(highlight);
+    body.appendChild(col);
+
+    // Scroll to current value: scrollTop = idx × ITEM_H (snap-start + scroll-padding-top=88=2×44)
+    const ITEM_H = 44;
+    const curIdx = cd.values.findIndex(v=>Math.abs(v-cd.current)<0.01);
+    const targetIdx = curIdx >= 0 ? curIdx : Math.floor(cd.values.length/2);
+    requestAnimationFrame(()=>{
+      scroll.scrollTop = targetIdx * ITEM_H;
+      updatePickerHighlight(scroll);
+    });
+
+    scroll.addEventListener('scroll', ()=>updatePickerHighlight(scroll), {passive:true});
+    pickerCols.push({values:cd.values, scrollEl:scroll});
+  });
+}
+function updatePickerHighlight(scroll){
+  const ITEM_H = 44;
+  const PAD = 2;
+  // which data item index is centred (scrollTop / ITEM_H = PAD-item index)
+  const rawIdx = scroll.scrollTop / ITEM_H;
+  const snapIdx = Math.round(rawIdx); // 0-based among all items including PAD
+  const items = scroll.querySelectorAll('.picker-item');
+  items.forEach((el,i)=>{
+    el.classList.toggle('selected', i === snapIdx + PAD);
+  });
+}
+
+function getPickerValue(col){
+  const ITEM_H = 44;
+  const idx = Math.max(0, Math.min(col.values.length-1, Math.round(col.scrollEl.scrollTop / ITEM_H)));
+  return col.values[idx];
+}
+
+function closePicker(apply){
+  if(apply && pickerTarget){
+    const {prefix, shotIdx, field} = pickerTarget;
+    const val = getPickerValue(pickerCols[0]);
+    const shots = prefix==='c' ? cShots : dShots;
+    shots[shotIdx][field] = val;
+    updateRow(prefix, shotIdx);
+  }
+  const el = document.getElementById('picker-overlay');
+  if(el) el.remove();
+  pickerTarget = null;
+}
+
+/* ── Row builder ── */
+const ROW_RATING_CLS = {chip:'row-chip',A:'row-A',B:'row-B',C:'row-C',D:'row-D'};
+const BADGE_CLS = {chip:'sb-chip',A:'sb-A',B:'sb-B',C:'sb-C',D:'sb-D'};
+const BADGE_LABEL = {chip:'★',A:'◎',B:'○',C:'△',D:'×'};
+
+function getRating(sh){
+  if(sh.isChip) return 'chip';
+  if(sh.distErr===''||sh.dirErr==='') return null;
+  return calcRating(sh.distErr, sh.dirErr, false);
+}
+
+function fmtVal(v){ return (v===''||v==null) ? '–' : (Number.isInteger(parseFloat(v)) ? parseFloat(v) : parseFloat(v).toFixed(1)); }
+
+function buildShotGrid(prefix){
+  const isClub = prefix==='c';
+  const shots = isClub ? cShots : dShots;
+  const g = document.getElementById(`${prefix}-shot-grid`);
+  g.innerHTML = '';
+  shots.forEach((sh,i) => {
+    const row = document.createElement('div');
+    buildRowInner(row, prefix, i, sh, isClub);
+    g.appendChild(row);
+  });
+}
+
+function buildRowInner(row, prefix, i, sh, isClub){
+  const rating = getRating(sh);
+  const rCls = rating ? ROW_RATING_CLS[rating] : '';
+  const bCls = rating ? BADGE_CLS[rating] : '';
+  const bLbl = rating ? BADGE_LABEL[rating] : '–';
+  const base = isClub ? 'shot-row-club' : 'shot-row';
+  row.className = base + (rCls ? ' '+rCls : '');
+  row.id = `${prefix}-row-${i}`;
+
+  const deVal = fmtVal(sh.distErr);
+  const drVal = fmtVal(sh.dirErr);
+  const du = dirUnitLabel();
+  const chipActive = sh.isChip ? ' active' : '';
+  const chipDis = sh.isChip ? ' style="opacity:.4;pointer-events:none"' : '';
+
+  if(isClub){
+    const distVal = sh.dist!==''&&sh.dist!=null ? sh.dist : '';
+    const distShow = distVal!=='' ? distVal+'y' : '–';
+    row.innerHTML = `
+      <div class="sr-num">${i+1}</div>
+      <div class="sr-badge ${bCls}">${bLbl}</div>
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}y</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}${du}</button>
+      <button class="pick-btn${distShow==='–'?' empty':''}" onclick="openPicker('c',${i},'dist')">${distShow}</button>
+      <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>`;
+  } else {
+    row.innerHTML = `
+      <div class="sr-num">${i+1}</div>
+      <div class="sr-badge ${bCls}">${bLbl}</div>
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('d',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}y</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('d',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}${du}</button>
+      <button class="sr-chip-btn${chipActive}" onclick="toggleChip('d',${i})">★</button>`;
+  }
+}
+
+function updateRow(prefix, i){
+  const shots = prefix==='c' ? cShots : dShots;
+  const sh = shots[i];
+  const isClub = prefix==='c';
+  const row = document.getElementById(`${prefix}-row-${i}`);
+  if(!row) return;
+  buildRowInner(row, prefix, i, sh, isClub);
+}
+
+function setShotField(prefix, i, field, val){
+  const shots = prefix==='c' ? cShots : dShots;
+  shots[i][field] = val===''?'':parseFloat(val);
+  updateRow(prefix, i);
+}
+
+function toggleChip(prefix, i){
+  const shots = prefix==='c' ? cShots : dShots;
+  shots[i].isChip = !shots[i].isChip;
+  if(shots[i].isChip){ shots[i].distErr=0; shots[i].dirErr=0; }
+  updateRow(prefix, i);
+}
+
+function refreshBadge(prefix, i){ updateRow(prefix, i); }
+
+function quickFill(prefix, type){
+  const shots = prefix==='c' ? cShots : dShots;
+  shots.forEach(sh=>{
+    if(type==='chip'){ sh.isChip=true; sh.distErr=0; sh.dirErr=0; }
+    else { sh.isChip=false; sh.distErr=2; sh.dirErr=0.5; }
+  });
+  buildShotGrid(prefix);
+}
+
+function clearShots(prefix){
+  if(prefix==='d') dShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
+  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',dist:'',isChip:false}));
+  buildShotGrid(prefix);
+}
+
+function getShotData(prefix) {
+  const shots = prefix === 'c' ? cShots : dShots;
+  const ratings = [], distErrs = [], dirErrs = [], dists = [];
+  for (const sh of shots) {
+    if (!sh.isChip && (sh.distErr === '' || sh.dirErr === '')) return null;
+    ratings.push(sh.isChip ? 'chip' : calcRating(sh.distErr, sh.dirErr, false));
+    distErrs.push(sh.isChip ? 0 : parseFloat(sh.distErr));
+    dirErrs.push(sh.isChip ? 0 : parseFloat(sh.dirErr));
+    if (prefix === 'c') dists.push(sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : null);
+  }
+  return {ratings, distErrs, dirErrs, dists: prefix === 'c' ? dists : null};
+}
+
+/* ── Save ── */
+function saveRecord(mode) {
+  const prefix = mode === 'dist' ? 'd' : 'c';
+  const date = document.getElementById(`${prefix}-date`).value;
+  const place = document.getElementById(`${prefix}-place`).value;
+  const club = document.getElementById(`${prefix}-club`).value;
+  const memo = document.getElementById(`${prefix}-memo`).value.trim();
+  if (!date) { showToast('日付を入力してください'); return; }
+  const data = getShotData(prefix);
+  if (!data) { showToast('全球の誤差を入力してください'); return; }
+  const rec = {
+    id: Date.now(), mode, date, place, club, memo,
+    shots: data.ratings, distErrs: data.distErrs, dirErrs: data.dirErrs,
+    dists: data.dists
+  };
+  if (mode === 'dist') rec.targetDist = parseInt(document.getElementById('d-dist').value);
+  const arr = getRecords(); arr.push(rec); saveRecs(arr);
+  showToast(`${mode==='dist'?document.getElementById('d-dist').value+'y ':club+' '}を保存しました`);
+  clearShots(prefix);
+  document.getElementById(`${prefix}-memo`).value = '';
+}
+
+/* ── Stats ── */
+let statsMode = 'dist';
+let radarChart = null;
+
+function switchStats(m) {
+  statsMode = m;
+  document.getElementById('st-d-btn').className = 'mt-btn' + (m==='dist'?' active':'');
+  document.getElementById('st-c-btn').className = 'mt-btn' + (m==='club'?' active':'');
+  document.getElementById('st-dist-view').style.display = m==='dist'?'block':'none';
+  document.getElementById('st-club-view').style.display = m==='club'?'block':'none';
+  renderStats();
+}
+
+function renderStats() {
+  renderDistStats(getRecords().filter(r=>r.mode==='dist'));
+  renderClubStats(getRecords().filter(r=>r.mode==='club'));
+}
+
+function renderDistStats(recs) {
+  const div = document.getElementById('st-dist-view');
+  if (!recs.length) { div.innerHTML='<p class="no-data">距離別データがまだありません</p>'; return; }
+  const allS = recs.flatMap(r=>r.shots);
+  const g = calcGSPI(recs);
+  const gr = gspiGrade(g.gspi);
+  const chips = allS.filter(s=>s==='chip').length;
+  const byDist = {};
+  recs.forEach(r=>{const k=r.targetDist||r.dist;if(!byDist[k])byDist[k]=[];byDist[k].push(r);});
+  const dists = Object.keys(byDist).map(Number).sort((a,b)=>a-b);
+  let html = `
+    <div class="gspi-card">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:2px">距離別 GSPI</div>
+        <div class="gspi-val">${g.gspi}</div>
+      </div>
+      <div class="gspi-right">
+        <div class="gspi-grade" style="color:${gr.c}">Grade ${gr.g}</div>
+        <div style="font-size:10px;color:var(--gray4);margin-top:2px">${recs.length}セッション / ★${chips}</div>
+      </div>
+    </div>
+    <div class="score-grid">
+      ${[['距離安定性',g.distStab],['方向安定性',g.dirStab],['ミス耐性',g.missTolerance],['精度',g.accuracy],['上振れ力',g.upside]].map(([l,v])=>`
+        <div class="sc">
+          <div class="sc-val" style="color:${scoreColor(v)}">${v}</div>
+          <div class="sc-lbl">${l}</div>
+          <div class="sc-track"><div class="sc-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      ${dists.map(d=>{
+        const dr = byDist[d];
+        const gs = calcGSPI(dr);
+        const col = scoreColor(gs.gspi);
+        const cp = dr.flatMap(r=>r.shots).filter(s=>s==='chip').length;
+        const avgDErr = dr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+        const avgDE = avgDErr.length ? (avgDErr.reduce((a,v)=>a+Math.abs(v),0)/avgDErr.length).toFixed(1) : '-';
+        return `<div class="bar-row">
+          <span class="bar-tag">${d}y</span>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${gs.gspi}%;background:${col}"></div></div>
+          <span class="bar-pct" style="color:${col}">${gs.gspi}</span>
+          <span class="bar-cnt">${dr.length}回${cp?' ★'+cp:''}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  div.innerHTML = html;
+}
+
+function renderClubStats(recs) {
+  const div = document.getElementById('st-club-view');
+  if (!recs.length) { div.innerHTML='<p class="no-data">クラブ別データがまだありません</p>'; return; }
+  const byClub = {};
+  recs.forEach(r=>{if(!byClub[r.club])byClub[r.club]=[];byClub[r.club].push(r);});
+
+  const overallG = calcGSPI(recs);
+  const gr = gspiGrade(overallG.gspi);
+  const allS = recs.flatMap(r=>r.shots);
+  const chips = allS.filter(s=>s==='chip').length;
+
+  let html = `
+    <div class="gspi-card">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:2px">クラブ別 総合 GSPI</div>
+        <div class="gspi-val">${overallG.gspi}</div>
+      </div>
+      <div class="gspi-right">
+        <div class="gspi-grade" style="color:${gr.c}">Grade ${gr.g}</div>
+        <div style="font-size:10px;color:var(--gray4);margin-top:2px">${recs.length}セッション / ★${chips}</div>
+      </div>
+    </div>`;
+
+  const axisLabels = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
+  const radarDatasets = [];
+  const clubColors = ['#1D9E75','#378ADD','#D85A30','#7F77DD','#BA7517','#D4537E'];
+  const clubNames = Object.keys(byClub);
+
+  clubNames.forEach((club, ci) => {
+    const cr = byClub[club];
+    const g = calcGSPI(cr);
+    const gr = gspiGrade(g.gspi);
+    const allS2 = cr.flatMap(r=>r.shots);
+    const cp = allS2.filter(s=>s==='chip').length;
+    const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+    const avgDist = validDists.length ? Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length) : null;
+    const avgDistErr = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+    const avgDE = avgDistErr.length ? (avgDistErr.reduce((a,v)=>a+Math.abs(v),0)/avgDistErr.length).toFixed(1) : '-';
+    const avgDirErr = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+    const avgDir = avgDirErr.length ? (avgDirErr.reduce((a,v)=>a+Math.abs(v),0)/avgDirErr.length).toFixed(1) : '-';
+
+    const insights = [];
+    if (g.distStab < 50) insights.push({c:'#d93025', t:`飛距離のバラつきが大きい（誤差平均${avgDE}y）。インパクトの再現性を重点練習`});
+    else if (g.distStab >= 80) insights.push({c:'#1a7a4a', t:`飛距離が非常に安定（誤差平均${avgDE}y）`});
+    if (g.dirStab < 50) insights.push({c:'#d93025', t:`方向のバラつきが大きい（誤差平均${avgDir}m）。フェース向きを確認`});
+    else if (g.dirStab >= 80) insights.push({c:'#1a7a4a', t:`方向性が安定（誤差平均${avgDir}m）`});
+    if (g.upside >= 50) insights.push({c:'#534AB7', t:`上振れ力が高い。チップイン・完璧ショットが頻出`});
+    if (!insights.length) insights.push({c:'#888780', t:'データが増えると詳細インサイトが表示されます'});
+
+    const col = clubColors[ci % clubColors.length];
+    radarDatasets.push({
+      label: club,
+      data: g.axes,
+      borderColor: col,
+      backgroundColor: col + '22',
+      pointBackgroundColor: col,
+      borderWidth: 2,
+      pointRadius: 3
+    });
+
+    html += `<div class="club-stat-card">
+      <div class="csc-head">
+        <div>
+          <div class="csc-name">${club}</div>
+          <div class="csc-meta">${cr.length}回${cp?' / ★×'+cp:''}${avgDist?' / 平均'+avgDist+'y':''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="csc-gspi">${g.gspi}</div>
+          <div style="font-size:11px;font-weight:700;color:${gr.c}">Grade ${gr.g}</div>
+        </div>
+      </div>
+      <div class="csc-axes">
+        ${g.axes.map((v,i)=>`<div class="csc-ax">
+          <div class="csc-av" style="color:${scoreColor(v)}">${v}</div>
+          <div class="csc-al">${axisLabels[i]}</div>
+          <div class="csc-track"><div class="csc-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div>
+        </div>`).join('')}
+      </div>
+      <div style="border-top:1px solid var(--gray2);padding-top:8px;margin-top:2px">
+        ${insights.map(it=>`<div class="insight-row"><div class="idot" style="background:${it.c}"></div><div class="itext">${it.t}</div></div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  if (clubNames.length >= 2) {
+    html += `<div class="card" style="margin-top:4px">
+      <div class="card-title" style="margin-bottom:8px">クラブ比較レーダー</div>
+      <div class="radar-wrap"><canvas id="radar-chart" role="img" aria-label="クラブ別5軸レーダーチャート">レーダーチャート</canvas></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+        ${clubNames.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--gray4)"><span style="width:10px;height:10px;border-radius:2px;background:${clubColors[i%clubColors.length]};display:inline-block"></span>${c}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  div.innerHTML = html;
+
+  if (clubNames.length >= 2) {
+    if (radarChart) radarChart.destroy();
+    radarChart = new Chart(document.getElementById('radar-chart'), {
+      type: 'radar',
+      data: { labels: axisLabels, datasets: radarDatasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 25, font: { size: 9 }, backdropColor: 'transparent', color: '#888780' },
+          grid: { color: 'rgba(136,135,128,0.2)' },
+          pointLabels: { font: { size: 10 }, color: '#444441' }
+        }}
+      }
+    });
+  }
+}
+
+/* ── History ── */
+function renderHistory() {
+  const mf = document.getElementById('hf-mode').value;
+  const cf = document.getElementById('hf-club').value;
+  let recs = getRecords();
+  if (mf !== 'all') recs = recs.filter(r=>r.mode===mf);
+  if (cf !== 'all') recs = recs.filter(r=>r.club===cf);
+  recs = [...recs].sort((a,b)=>b.id-a.id);
+  const div = document.getElementById('history-list');
+  if (!recs.length) { div.innerHTML='<p class="no-data">記録がありません</p>'; return; }
+  div.innerHTML = recs.map(r => {
+    const g = calcGSPI([r]);
+    const gr = gspiGrade(g.gspi);
+    const chips = r.shots.filter(s=>s==='chip').length;
+    const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
+    const validDists = (r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+    const avgDist = validDists.length ? Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length) : null;
+    const avgDE = (r.distErrs||[]).filter(v=>v!=null);
+    const avgDEval = avgDE.length ? (avgDE.reduce((a,v)=>a+Math.abs(v),0)/avgDE.length).toFixed(1) : null;
+    return `<div class="hist-card">
+      <div class="hist-head">
+        <div class="hist-left">
+          <div class="hist-date">${r.date} <span style="font-size:10px;background:var(--gray1);border:1px solid var(--gray2);padding:1px 5px;border-radius:99px;margin-left:3px">${r.place}</span></div>
+          <div class="hist-sub">${r.mode==='club'?r.club:(r.targetDist||r.dist)+'y / '+r.club}${avgDist?' / 平均'+avgDist+'y':''}${avgDEval?' / 誤差avg±'+avgDEval+'y':''}${chips?' / ★×'+chips:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="text-align:right">
+            <div class="hist-score" style="color:${gr.c}">${g.gspi}</div>
+            <div style="font-size:10px;font-weight:700;color:${gr.c}">Grade ${gr.g}</div>
+          </div>
+          <button class="del-btn" onclick="deleteRec(${r.id})">削除</button>
+        </div>
+      </div>
+      <div class="mini-shots">${badges}</div>
+      ${r.memo?`<div class="hist-memo">${r.memo}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteRec(id) {
+  if (!confirm('この記録を削除しますか?')) return;
+  saveRecs(getRecords().filter(r=>r.id!==id));
+  renderHistory();
+}
+
+/* ── Settings ── */
+function buildClubSelects() {
+  const clubs = getClubs();
+  const opt = clubs.map(c=>`<option>${c}</option>`).join('');
+  ['d-club','c-club'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opt});
+  const hfc = document.getElementById('hf-club');
+  if (hfc) hfc.innerHTML = '<option value="all">全クラブ</option>' + clubs.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function buildClubTags() {
+  const clubs = getClubs();
+  document.getElementById('club-tag-list').innerHTML = clubs.map((c,i)=>
+    `<div class="club-tag">${c}<button onclick="removeClub(${i})">×</button></div>`
+  ).join('');
+}
+
+function addClub() {
+  const inp = document.getElementById('new-club');
+  const v = inp.value.trim();
+  if (!v) return;
+  const clubs = getClubs();
+  if (clubs.includes(v)) { showToast('すでに登録済みです'); return; }
+  clubs.push(v); saveClubs(clubs); inp.value = '';
+  buildClubTags(); buildClubSelects(); showToast(`${v} を追加しました`);
+}
+
+function removeClub(i) {
+  const clubs = getClubs(); clubs.splice(i,1); saveClubs(clubs);
+  buildClubTags(); buildClubSelects();
+}
+
+function loadPreset(type) {
+  const presets = {
+    iron: ['4I','5I','6I','7I','8I','9I','PW'],
+    wedge: ['48°','50°','52°','54°','56°','58°','60°'],
+    full: ['Driver','3W','5W','4H','5H','4I','5I','6I','7I','8I','9I','PW','50°','52°','56°','60°']
+  };
+  const clubs = getClubs(); let added = 0;
+  presets[type].forEach(c=>{if(!clubs.includes(c)){clubs.push(c);added++;}});
+  saveClubs(clubs); buildClubTags(); buildClubSelects();
+  showToast(added ? `${added}本追加しました` : 'すべて登録済みです');
+}
+
+/* ── Nav ── */
+const TOPBAR = {
+  dist: {t:'距離別記録', s:'距離誤差・方向誤差を数値で入力'},
+  club: {t:'クラブ別記録', s:'飛距離・誤差をすべて数値で記録'},
+  stats:{t:'統計・GSPI分析', s:'5軸スコアでクラブを評価'},
+  history:{t:'履歴', s:'過去の記録を確認・削除'},
+  settings:{t:'設定', s:'クラブを管理する'}
+};
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbar-title').textContent = TOPBAR[tab].t;
+  document.getElementById('topbar-sub').textContent = TOPBAR[tab].s;
+  document.getElementById('main-content').scrollTop = 0;
+  if (tab==='stats') renderStats();
+  if (tab==='history') renderHistory();
+  if (tab==='settings') { buildClubTags(); buildAvgDistTable(); updateDirUnitUI(); }
+}
+
+function setDirUnit(u){
+  saveDirUnit(u);
+  updateDirUnitUI();
+  // rebuild grids so unit label updates immediately
+  buildShotGrid('d');
+  buildShotGrid('c');
+  showToast(`方向誤差の単位を ${u==='y'?'ヤード(y)':'メートル(m)'} に変更しました`);
+}
+
+function updateDirUnitUI(){
+  const u = getDirUnit();
+  const btnY = document.getElementById('unit-btn-y');
+  const btnM = document.getElementById('unit-btn-m');
+  const note = document.getElementById('unit-note');
+  const activeStyle = 'background:var(--gray0);color:var(--green)';
+  const inactiveStyle = 'background:transparent;color:var(--gray4)';
+  if(btnY) btnY.style.cssText = (u==='y' ? activeStyle : inactiveStyle);
+  if(btnM) btnM.style.cssText = (u==='m' ? activeStyle : inactiveStyle);
+  if(note) note.textContent = u==='y'
+    ? '評価基準: ◎±3y以内 / ○±6y以内 / △±10y以内'
+    : '評価基準: ◎±2.7m以内 / ○±5.5m以内 / △±9.1m以内（内部でy換算）';
+  // update column headers
+  const du = u;
+  const dh = document.getElementById('d-dir-hdr');
+  const ch = document.getElementById('c-dir-hdr');
+  if(dh) dh.textContent = `方向誤差(${du})`;
+  if(ch) ch.textContent = `方向誤差(${du})`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ── Init ── */
+function init() {
+  const d = new Date().toISOString().slice(0,10);
+  document.getElementById('d-date').value = d;
+  document.getElementById('c-date').value = d;
+  buildShotGrid('d');
+  buildClubSelects();
+  onClubChange();
+  buildShotGrid('c');
+  updateDirUnitUI();
+}
+
+init();
+
+/* ── PWA: Service Worker (inline Blob) ── */
+(function(){
+  const swCode = `
+const CACHE = 'golf-tracker-v1';
+const ASSETS = ['/'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() =>
+      new Response('<h2>オフライン中です</h2>', {headers:{'Content-Type':'text/html'}})
+    ))
+  );
+});
+`;
+  if ('serviceWorker' in navigator) {
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    const url  = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).then(reg => {
+      console.log('SW registered');
+    }).catch(e => console.warn('SW:', e));
+  }
+})();
+
+/* ── iOS "ホーム画面に追加" バナー ── */
+(function(){
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  const dismissed = localStorage.getItem('gf_install_dismissed');
+  if (!isIOS || isStandalone || dismissed) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.style.cssText = [
+    'position:fixed','bottom:calc(64px + env(safe-area-inset-bottom,0px))','left:10px','right:10px',
+    'background:#1a7a4a','color:#fff','border-radius:12px','padding:12px 14px',
+    'display:flex','align-items:center','gap:10px','z-index:500',
+    'box-shadow:0 4px 20px rgba(0,0,0,.25)','font-family:-apple-system,sans-serif'
+  ].join(';');
+  banner.innerHTML = `
+    <div style="font-size:28px;flex-shrink:0">⛳</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;margin-bottom:2px">ホーム画面に追加</div>
+      <div style="font-size:11px;opacity:.9">Safariの <b>共有ボタン</b> →「<b>ホーム画面に追加</b>」でアプリとして使えます</div>
+    </div>
+    <button onclick="document.getElementById('install-banner').remove();localStorage.setItem('gf_install_dismissed','1')"
+      style="background:rgba(255,255,255,.2);border:none;border-radius:8px;color:#fff;font-size:18px;width:30px;height:30px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">×</button>
+  `;
+  document.body.appendChild(banner);
+
+  // Android / Chrome install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.querySelector('div:nth-child(2) div:first-child').textContent = 'アプリをインストール';
+    banner.querySelector('div:nth-child(2) div:last-child').textContent = 'タップしてホーム画面に追加できます';
+    banner.style.cursor = 'pointer';
+    banner.addEventListener('click', () => {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { banner.remove(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
