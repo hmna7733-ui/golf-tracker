@@ -254,7 +254,10 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .info-card{background:var(--green-light);border:1px solid #a8d8be;border-radius:var(--radius);padding:12px;margin-bottom:8px}
 .info-card p{font-size:12px;color:#2a6045;line-height:1.7;margin-bottom:4px}
 
-/* Toast */
+.update-btn{background:none;border:1.5px solid var(--green);border-radius:var(--radius-full);color:var(--green);font-size:12px;font-weight:600;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.update-btn:active{background:var(--green-light)}
+.update-btn.has-update{background:var(--green);color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,122,74,.4)}50%{box-shadow:0 0 0 6px rgba(26,122,74,0)}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
 .toast.show{opacity:1}
 
@@ -297,6 +300,10 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="topbar-title" id="topbar-title">距離別記録</div>
       <div class="topbar-sub" id="topbar-sub">距離誤差・方向誤差を数値で入力</div>
     </div>
+    <button class="update-btn" id="update-btn" onclick="checkUpdate()" title="アップデートを確認">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      <span id="update-btn-label">更新</span>
+    </button>
   </div>
 
   <div class="content" id="main-content">
@@ -1304,18 +1311,17 @@ function init() {
 
 init();
 
-/* ── PWA: Service Worker (inline Blob) ── */
+/* ── PWA: Service Worker ── */
 (function(){
+  if (!('serviceWorker' in navigator)) return;
+
   const swCode = `
 const CACHE = 'golf-tracker-v1';
-const ASSETS = ['/'];
-
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(['./'])).then(() => self.skipWaiting())
   );
 });
-
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -1323,7 +1329,6 @@ self.addEventListener('activate', e => {
     ).then(() => self.clients.claim())
   );
 });
-
 self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).catch(() =>
@@ -1331,15 +1336,83 @@ self.addEventListener('fetch', e => {
     ))
   );
 });
+self.addEventListener('message', e => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
+});
 `;
-  if ('serviceWorker' in navigator) {
-    const blob = new Blob([swCode], {type: 'application/javascript'});
-    const url  = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(url).then(reg => {
-      console.log('SW registered');
-    }).catch(e => console.warn('SW:', e));
-  }
+
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  const url  = URL.createObjectURL(blob);
+
+  navigator.serviceWorker.register(url).then(reg => {
+    // 新しいSWが待機中 → 更新ボタンを光らせる
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateReady();
+        }
+      });
+    });
+    // 起動時にアップデートチェック
+    reg.update();
+    window._swReg = reg;
+  }).catch(e => console.warn('SW:', e));
+
+  // コントローラーが変わったらリロード
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
 })();
+
+/* ── アップデート確認ボタン ── */
+function checkUpdate(){
+  const btn = document.getElementById('update-btn');
+  const lbl = document.getElementById('update-btn-label');
+
+  if (btn.classList.contains('has-update')) {
+    // 待機中SWを即時適用してリロード
+    if (window._swReg && window._swReg.waiting) {
+      window._swReg.waiting.postMessage('skipWaiting');
+    } else {
+      window.location.reload(true);
+    }
+    return;
+  }
+
+  // アップデート確認中
+  lbl.textContent = '確認中…';
+  btn.style.opacity = '.6';
+
+  if (window._swReg) {
+    window._swReg.update().then(() => {
+      setTimeout(() => {
+        if (!btn.classList.contains('has-update')) {
+          lbl.textContent = '最新版です';
+          btn.style.opacity = '1';
+          setTimeout(() => { lbl.textContent = '更新'; }, 2000);
+        }
+      }, 1500);
+    }).catch(() => {
+      // オフライン時は強制リロード
+      lbl.textContent = '更新';
+      btn.style.opacity = '1';
+      window.location.reload(true);
+    });
+  } else {
+    // SW非対応 → ハードリロード
+    window.location.reload(true);
+  }
+}
+
+function showUpdateReady(){
+  const btn = document.getElementById('update-btn');
+  const lbl = document.getElementById('update-btn-label');
+  btn.classList.add('has-update');
+  lbl.textContent = '更新あり！';
+  btn.style.opacity = '1';
+  showToast('新しいバージョンがあります。「更新あり！」をタップしてください');
+}
 
 /* ── iOS "ホーム画面に追加" バナー ── */
 (function(){
