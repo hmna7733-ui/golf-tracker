@@ -132,12 +132,16 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
   height:44px;
   display:flex;align-items:center;justify-content:center;
   font-size:17px;font-weight:500;color:var(--gray3);
-  scroll-snap-align:start; /* with scroll-padding-top=88, start snaps item centre to middle */
+  scroll-snap-align:start;
   flex-shrink:0;
   transition:color .1s,font-size .1s;
   user-select:none;
+  padding:0 4px;
+  text-align:center;
 }
+.picker-item.long-text{font-size:14px;}
 .picker-item.selected{color:var(--gray5);font-size:21px;font-weight:700}
+.picker-item.selected.long-text{font-size:16px;}
 
 /* highlight bar: sits at centre of 220px scroll area */
 .picker-highlight{
@@ -258,8 +262,53 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .update-btn:active{background:var(--green-light)}
 .update-btn.has-update{background:var(--green);color:#fff;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,122,74,.4)}50%{box-shadow:0 0 0 6px rgba(26,122,74,0)}}
+/* ── Home screen ── */
+#sec-home{background:var(--gray1)}
+.home-hero{background:linear-gradient(160deg,#0d4a2a 0%,#1a7a4a 55%,#2a9e60 100%);padding:32px 20px 28px;color:#fff;position:relative;overflow:hidden}
+.home-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05)}
+.home-hero::after{content:'';position:absolute;bottom:-60px;left:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
+.home-greeting{font-size:11px;opacity:.65;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.home-title{font-size:24px;font-weight:700;letter-spacing:-.3px;margin-bottom:16px}
+.home-gspi-row{display:flex;gap:8px;position:relative;z-index:1}
+.home-gspi-block{background:rgba(255,255,255,.13);border-radius:14px;padding:12px 14px;flex:1.4}
+.home-gspi-label{font-size:10px;opacity:.65;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.home-gspi-val{font-size:38px;font-weight:700;line-height:1}
+.home-gspi-grade{font-size:12px;font-weight:600;opacity:.8;margin-top:3px}
+.home-stat{background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.home-stat-val{font-size:22px;font-weight:700}
+.home-stat-lbl{font-size:10px;opacity:.6;margin-top:2px}
+.home-menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 12px 4px}
+.home-menu-card{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s;display:flex;flex-direction:column;gap:6px}
+.home-menu-card:active{transform:scale(.96)}
+.home-menu-card.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;padding:12px 16px}
+.home-menu-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.home-menu-name{font-size:14px;font-weight:700;color:var(--gray5);margin-bottom:1px}
+.home-menu-desc{font-size:11px;color:var(--gray4);line-height:1.45}
+.home-recent{padding:4px 12px 16px}
+.home-sec-lbl{font-size:10px;font-weight:700;color:var(--gray4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-top:2px}
+.home-rec{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.home-rec-club{font-size:14px;font-weight:700;color:var(--gray5);min-width:44px;flex-shrink:0}
+.home-rec-info{flex:1;min-width:0}
+.home-rec-date{font-size:11px;color:var(--gray4)}
+.home-rec-shots{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+.home-rec-gspi{font-size:17px;font-weight:700;flex-shrink:0}
+
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
 .toast.show{opacity:1}
+
+/* History day group */
+.hist-day-group{margin-bottom:14px}
+.hist-day-label{font-size:11px;font-weight:700;color:var(--gray4);letter-spacing:.6px;text-transform:uppercase;padding:4px 2px 6px;display:flex;align-items:center;gap:8px}
+.hist-day-label::after{content:'';flex:1;height:1px;background:var(--gray2)}
+
+/* Edit modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.modal-sheet{width:100%;max-width:480px;background:var(--gray0);border-radius:var(--radius) var(--radius) 0 0;max-height:90vh;display:flex;flex-direction:column;padding-bottom:calc(12px + var(--safe-bottom))}
+.modal-toolbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;border-bottom:1px solid var(--gray2);flex-shrink:0}
+.modal-title{font-size:15px;font-weight:700;color:var(--gray5)}
+.modal-cancel{font-size:14px;color:var(--gray4);background:none;border:none;cursor:pointer;padding:4px 6px}
+.modal-save{font-size:14px;font-weight:700;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 6px}
+.modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 0;flex:1}
 
 /* Radar chart container */
 .radar-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
@@ -308,6 +357,82 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 
   <div class="content" id="main-content">
 
+    <!-- ホーム -->
+    <div class="section active" id="sec-home">
+      <div class="home-hero">
+        <div class="home-greeting">Golf Tracker</div>
+        <div class="home-title" id="home-title">今日も練習を記録しよう</div>
+        <div class="home-gspi-row">
+          <div class="home-gspi-block">
+            <div class="home-gspi-label">GSPI</div>
+            <div class="home-gspi-val" id="home-gspi-val">—</div>
+            <div class="home-gspi-grade" id="home-gspi-grade">データなし</div>
+          </div>
+          <div class="home-stat">
+            <div class="home-stat-val" id="home-sessions">—</div>
+            <div class="home-stat-lbl">セッション数</div>
+          </div>
+          <div class="home-stat">
+            <div class="home-stat-val" id="home-chips">—</div>
+            <div class="home-stat-lbl">チップイン ★</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-menu-grid">
+        <div class="home-menu-card" onclick="showTab('dist',document.getElementById('nav-dist'))">
+          <div class="home-menu-icon" style="background:#e8f5ee">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div>
+            <div class="home-menu-name">距離別記録</div>
+            <div class="home-menu-desc">20〜150yの<br>固定距離練習</div>
+          </div>
+        </div>
+        <div class="home-menu-card" onclick="showTab('club',document.getElementById('nav-club'))">
+          <div class="home-menu-icon" style="background:#edf6e0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3d7016" stroke-width="2" stroke-linecap="round"><path d="M12 2L8 20M12 2l4 18M8 20h8"/></svg>
+          </div>
+          <div>
+            <div class="home-menu-name">クラブ別記録</div>
+            <div class="home-menu-desc">飛距離・方向性を<br>クラブ別に記録</div>
+          </div>
+        </div>
+        <div class="home-menu-card" onclick="showTab('stats',document.getElementById('nav-stats'))">
+          <div class="home-menu-icon" style="background:#e8f0fb">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a6fbd" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          </div>
+          <div>
+            <div class="home-menu-name">統計・分析</div>
+            <div class="home-menu-desc">GSPI 5軸で<br>パフォーマンス確認</div>
+          </div>
+        </div>
+        <div class="home-menu-card" onclick="showTab('history',document.getElementById('nav-history'))">
+          <div class="home-menu-icon" style="background:#fff8e6">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c47a00" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <div>
+            <div class="home-menu-name">履歴</div>
+            <div class="home-menu-desc">過去の記録を<br>確認・削除</div>
+          </div>
+        </div>
+        <div class="home-menu-card wide" onclick="showTab('settings',document.getElementById('nav-settings'))">
+          <div class="home-menu-icon" style="background:#f5f5f5">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <div>
+            <div class="home-menu-name">設定</div>
+            <div class="home-menu-desc">クラブ管理・平均飛距離・方向誤差単位</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-recent">
+        <div class="home-sec-lbl">最近の記録</div>
+        <div id="home-recent-list"></div>
+      </div>
+    </div>
+
     <!-- 距離別記録 -->
     <div class="section active" id="sec-dist">
       <div class="card">
@@ -342,8 +467,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
           <div></div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
-          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差(y)</div>
-          <div id="d-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差(y)</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+          <div id="d-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
           <div></div>
         </div>
         <div class="shot-list" id="d-shot-grid"></div>
@@ -385,8 +510,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
           <div></div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
-          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差(y)</div>
-          <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差(y)</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+          <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">飛距離(y)</div>
           <div></div>
         </div>
@@ -429,6 +554,18 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       </div>
       <div id="history-list"></div>
       <div style="height:14px"></div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div class="modal-overlay" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditModal()">
+      <div class="modal-sheet">
+        <div class="modal-toolbar">
+          <button class="modal-cancel" onclick="closeEditModal()">キャンセル</button>
+          <span class="modal-title" id="edit-modal-title">記録を編集</span>
+          <button class="modal-save" onclick="saveEdit()">保存</button>
+        </div>
+        <div class="modal-body" id="edit-modal-body"></div>
+      </div>
     </div>
 
     <!-- 設定 -->
@@ -518,7 +655,11 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
   </div>
 
   <nav class="bottomnav">
-    <button class="nav-btn active" onclick="showTab('dist',this)">
+    <button class="nav-btn active" id="nav-home" onclick="showTab('home',this)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">ホーム</span>
+    </button>
+    <button class="nav-btn" id="nav-dist" onclick="showTab('dist',this)">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
       <span class="nav-label">距離別</span>
     </button>
@@ -698,11 +839,41 @@ let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}))
 let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',dist:'',isChip:false}));
 
 /* ── Flick Picker ── */
+// 距離誤差: 手前(マイナス)→オーバー(プラス)、0.5y刻み
 const PICKER_DIST_ERR = [];
-for(let v=-20;v<=20;v+=0.5) PICKER_DIST_ERR.push(v);
-// PICKER_DIR_ERR is dynamic — built per getDirUnit() in openPicker
+for(let v=-20; v<=20; v+=0.5) PICKER_DIST_ERR.push(Math.round(v*10)/10);
+
+// 方向誤差用: 0〜20yの正の値のみ（左右は別コラムで選ぶ）
+function buildDirErrValues(){
+  const u = getDirUnit();
+  const max = u==='y' ? 20 : 10;
+  const vals = [];
+  for(let v=0; v<=max; v+=0.5) vals.push(Math.round(v*10)/10);
+  return vals;
+}
+
+// dirErr の表示文字列: 負=左、正=右、0=センター
+function fmtDirErr(v){
+  const u = dirUnitLabel();
+  if(v===''||v==null) return '–';
+  const n = parseFloat(v);
+  if(n===0) return 'センター';
+  const abs = Number.isInteger(n) ? Math.abs(n) : Math.abs(n).toFixed(1);
+  return n < 0 ? `左${abs}${u}` : `右${abs}${u}`;
+}
+
+// 距離誤差の表示文字列: 負=手前、正=オーバー
+function fmtDistErr(v){
+  if(v===''||v==null) return '–';
+  const n = parseFloat(v);
+  const abs = Number.isInteger(n) ? Math.abs(n) : Math.abs(n).toFixed(1);
+  if(n===0) return 'ジャスト';
+  return n < 0 ? `手前${abs}y` : `オーバー${abs}y`;
+}
+
+// PICKER_DIST_ERR は動的（ラベル用）
 const PICKER_DIST = [];
-for(let v=30;v<=350;v++) PICKER_DIST.push(v);
+for(let v=30; v<=350; v++) PICKER_DIST.push(v);
 
 let pickerTarget = null; // {prefix, shotIdx, field}
 let pickerCols = [];     // [{values, scrollEl, getIdx}]
@@ -711,21 +882,31 @@ function openPicker(prefix, shotIdx, field){
   pickerTarget = {prefix, shotIdx, field};
   const shots = prefix==='c' ? cShots : dShots;
   const sh = shots[shotIdx];
+  const u = dirUnitLabel();
 
-  let colDefs;
+  let colDefs, title;
+
   if(field==='dist'){
     const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value)||150);
     colDefs = [{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
+    title = '飛距離';
   } else if(field==='distErr'){
     const cur = sh.distErr!=='' ? parseFloat(sh.distErr) : 0;
-    colDefs = [{label:'距離誤差 (y)', values:PICKER_DIST_ERR, current:cur}];
+    colDefs = [{label:'手前 ← 0 → オーバー (y)', values:PICKER_DIST_ERR, current:cur}];
+    title = '距離誤差';
   } else {
+    // 方向誤差: 左コラム(0〜max) + 右コラム(0〜max)
     const cur = sh.dirErr!=='' ? parseFloat(sh.dirErr) : 0;
-    const u = dirUnitLabel();
-    colDefs = [{label:`方向誤差 (${u})`, values:buildDirErrValues(), current:cur}];
+    const vals = buildDirErrValues();
+    const leftCur  = cur <= 0 ? Math.abs(cur) : 0;
+    const rightCur = cur >= 0 ? Math.abs(cur) : 0;
+    colDefs = [
+      {label:`← 左 (${u})`, values:vals, current:leftCur, side:'left'},
+      {label:`右 → (${u})`, values:vals, current:rightCur, side:'right'}
+    ];
+    title = '方向誤差';
   }
 
-  const title = field==='dist'?'飛距離':field==='distErr'?'距離誤差':`方向誤差 (${dirUnitLabel()})`;
   buildPickerDOM(title, colDefs);
 }
 
@@ -775,7 +956,15 @@ function buildPickerDOM(title, colDefs){
     cd.values.forEach(v=>{
       const item = document.createElement('div');
       item.className = 'picker-item';
-      item.textContent = Number.isInteger(v) ? String(v) : v.toFixed(1);
+      // distErrは手前/ジャスト/オーバー表示
+      if(pickerTarget && pickerTarget.field==='distErr'){
+        if(v===0) item.textContent = 'ジャスト';
+        else if(v<0) item.textContent = `手前${Math.abs(Number.isInteger(v)?v:parseFloat(v.toFixed(1)))}y`;
+        else item.textContent = `オーバー${Number.isInteger(v)?v:parseFloat(v.toFixed(1))}y`;
+        item.classList.add('long-text');
+      } else {
+        item.textContent = Number.isInteger(v) ? String(v) : v.toFixed(1);
+      }
       scroll.appendChild(item);
     });
     for(let p=0;p<PAD;p++){
@@ -827,10 +1016,37 @@ function getPickerValue(col){
 function closePicker(apply){
   if(apply && pickerTarget){
     const {prefix, shotIdx, field} = pickerTarget;
-    const val = getPickerValue(pickerCols[0]);
-    const shots = prefix==='c' ? cShots : dShots;
-    shots[shotIdx][field] = val;
-    updateRow(prefix, shotIdx);
+
+    let val;
+    if(field==='dirErr'){
+      const leftVal  = getPickerValue(pickerCols[0]);
+      const rightVal = getPickerValue(pickerCols[1]);
+      val = 0;
+      if(rightVal > 0) val = rightVal;
+      if(leftVal > 0)  val = -leftVal;
+      if(leftVal > 0 && rightVal > 0) val = rightVal;
+    } else {
+      val = getPickerValue(pickerCols[0]);
+    }
+
+    if(prefix==='edit'){
+      // 編集モーダル用
+      if(field==='dist') editTarget.dists[shotIdx]=val;
+      else if(field==='distErr'){
+        editTarget.distErrs[shotIdx]=val;
+        if(!editTarget.shots[shotIdx]||editTarget.shots[shotIdx]==='chip') {}
+        else editTarget.shots[shotIdx]=calcRating(val, editTarget.dirErrs[shotIdx], false);
+      } else {
+        editTarget.dirErrs[shotIdx]=val;
+        if(editTarget.shots[shotIdx]&&editTarget.shots[shotIdx]!=='chip')
+          editTarget.shots[shotIdx]=calcRating(editTarget.distErrs[shotIdx], val, false);
+      }
+      updateEditRow(shotIdx);
+    } else {
+      const shots = prefix==='c' ? cShots : dShots;
+      shots[shotIdx][field] = val;
+      updateRow(prefix, shotIdx);
+    }
   }
   const el = document.getElementById('picker-overlay');
   if(el) el.remove();
@@ -871,11 +1087,10 @@ function buildRowInner(row, prefix, i, sh, isClub){
   row.className = base + (rCls ? ' '+rCls : '');
   row.id = `${prefix}-row-${i}`;
 
-  const deVal = fmtVal(sh.distErr);
-  const drVal = fmtVal(sh.dirErr);
+  const deVal = fmtDistErr(sh.distErr);
+  const drVal = fmtDirErr(sh.dirErr);
   const du = dirUnitLabel();
   const chipActive = sh.isChip ? ' active' : '';
-  const chipDis = sh.isChip ? ' style="opacity:.4;pointer-events:none"' : '';
 
   if(isClub){
     const distVal = sh.dist!==''&&sh.dist!=null ? sh.dist : '';
@@ -883,16 +1098,16 @@ function buildRowInner(row, prefix, i, sh, isClub){
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
-      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}y</button>
-      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}${du}</button>
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
       <button class="pick-btn${distShow==='–'?' empty':''}" onclick="openPicker('c',${i},'dist')">${distShow}</button>
       <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>`;
   } else {
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
-      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('d',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}y</button>
-      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('d',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}${du}</button>
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('d',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('d',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
       <button class="sr-chip-btn${chipActive}" onclick="toggleChip('d',${i})">★</button>`;
   }
 }
@@ -1162,31 +1377,62 @@ function renderHistory() {
   recs = [...recs].sort((a,b)=>b.id-a.id);
   const div = document.getElementById('history-list');
   if (!recs.length) { div.innerHTML='<p class="no-data">記録がありません</p>'; return; }
-  div.innerHTML = recs.map(r => {
-    const g = calcGSPI([r]);
-    const gr = gspiGrade(g.gspi);
-    const chips = r.shots.filter(s=>s==='chip').length;
-    const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
-    const validDists = (r.dists||[]).filter(v=>v!=null&&!isNaN(v));
-    const avgDist = validDists.length ? Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length) : null;
-    const avgDE = (r.distErrs||[]).filter(v=>v!=null);
-    const avgDEval = avgDE.length ? (avgDE.reduce((a,v)=>a+Math.abs(v),0)/avgDE.length).toFixed(1) : null;
-    return `<div class="hist-card">
-      <div class="hist-head">
-        <div class="hist-left">
-          <div class="hist-date">${r.date} <span style="font-size:10px;background:var(--gray1);border:1px solid var(--gray2);padding:1px 5px;border-radius:99px;margin-left:3px">${r.place}</span></div>
-          <div class="hist-sub">${r.mode==='club'?r.club:(r.targetDist||r.dist)+'y / '+r.club}${avgDist?' / 平均'+avgDist+'y':''}${avgDEval?' / 誤差avg±'+avgDEval+'y':''}${chips?' / ★×'+chips:''}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="text-align:right">
-            <div class="hist-score" style="color:${gr.c}">${g.gspi}</div>
-            <div style="font-size:10px;font-weight:700;color:${gr.c}">Grade ${gr.g}</div>
+
+  // 日別グループ化
+  const byDate = {};
+  recs.forEach(r => {
+    if (!byDate[r.date]) byDate[r.date] = [];
+    byDate[r.date].push(r);
+  });
+
+  const dates = Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+
+  div.innerHTML = dates.map(date => {
+    const dayRecs = byDate[date];
+    const d = new Date(date);
+    const weekday = ['日','月','火','水','木','金','土'][d.getDay()];
+    const dateLabel = `${d.getMonth()+1}/${d.getDate()}（${weekday}）`;
+    const dayGspi = calcGSPI(dayRecs);
+    const dayGr = gspiGrade(dayGspi.gspi);
+
+    const cards = dayRecs.map(r => {
+      const g = calcGSPI([r]);
+      const gr = gspiGrade(g.gspi);
+      const chips = r.shots.filter(s=>s==='chip').length;
+      const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
+      const validDists = (r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+      const avgDist = validDists.length ? Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length) : null;
+      const label = r.mode==='club' ? r.club : `${r.targetDist||r.dist}y`;
+      return `<div class="hist-card">
+        <div class="hist-head">
+          <div class="hist-left">
+            <div class="hist-date">${label}
+              <span style="font-size:10px;background:var(--gray1);border:1px solid var(--gray2);padding:1px 6px;border-radius:99px;margin-left:4px">${r.place}</span>
+              ${r.club&&r.mode==='dist'?`<span style="font-size:11px;color:var(--gray4);margin-left:4px">${r.club}</span>`:''}
+            </div>
+            <div class="hist-sub">${avgDist?'平均'+avgDist+'y / ':''}${chips?'★×'+chips+' / ':''}GSPI ${g.gspi}</div>
           </div>
-          <button class="del-btn" onclick="deleteRec(${r.id})">削除</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="text-align:right">
+              <div class="hist-score" style="color:${gr.c}">${g.gspi}</div>
+              <div style="font-size:10px;font-weight:700;color:${gr.c}">Grade ${gr.g}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <button class="del-btn" style="background:#e8f0fb;color:#1a6fbd;border:none;border-radius:var(--radius-full);font-size:11px;font-weight:600;padding:4px 9px;cursor:pointer" onclick="openEditModal(${r.id})">編集</button>
+              <button class="del-btn" onclick="deleteRec(${r.id})">削除</button>
+            </div>
+          </div>
         </div>
+        <div class="mini-shots">${badges}</div>
+        ${r.memo?`<div class="hist-memo">${r.memo}</div>`:''}
+      </div>`;
+    }).join('');
+
+    return `<div class="hist-day-group">
+      <div class="hist-day-label">${dateLabel}
+        <span style="font-size:10px;font-weight:600;color:${dayGr.c};margin-left:4px">${dayRecs.length}件 · GSPI ${dayGspi.gspi} Grade ${dayGr.g}</span>
       </div>
-      <div class="mini-shots">${badges}</div>
-      ${r.memo?`<div class="hist-memo">${r.memo}</div>`:''}
+      ${cards}
     </div>`;
   }).join('');
 }
@@ -1195,6 +1441,217 @@ function deleteRec(id) {
   if (!confirm('この記録を削除しますか?')) return;
   saveRecs(getRecords().filter(r=>r.id!==id));
   renderHistory();
+  renderHome();
+}
+
+/* ── 編集モーダル ── */
+let editTarget = null; // {rec, shots, distErrs, dirErrs, dists}
+
+function openEditModal(id){
+  const rec = getRecords().find(r=>r.id===id);
+  if(!rec) return;
+  const isClub = rec.mode==='club';
+
+  // 編集用ステートをコピー
+  editTarget = {
+    id,
+    isClub,
+    shots: [...(rec.shots||[])],
+    distErrs: [...(rec.distErrs||Array(10).fill(0))],
+    dirErrs:  [...(rec.dirErrs||Array(10).fill(0))],
+    dists:    [...(rec.dists||Array(10).fill(null))],
+    memo: rec.memo||'',
+    date: rec.date,
+    place: rec.place,
+    club: rec.club,
+    targetDist: rec.targetDist||rec.dist
+  };
+
+  document.getElementById('edit-modal-title').textContent =
+    isClub ? `${rec.club} を編集` : `${editTarget.targetDist}y を編集`;
+
+  buildEditModalBody();
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function buildEditModalBody(){
+  const {isClub, shots, distErrs, dirErrs, dists, memo, date, place, club, targetDist} = editTarget;
+  const du = dirUnitLabel();
+
+  const colHdr = isClub
+    ? `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+        <div></div><div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">飛距離(y)</div>
+        <div></div></div>`
+    : `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+        <div></div><div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
+        <div></div></div>`;
+
+  const rows = shots.map((s,i)=>{
+    const isChip = s==='chip';
+    const rating = s;
+    const bCls = rating ? BADGE_CLS[rating] : '';
+    const bLbl = rating ? BADGE_LABEL[rating] : '–';
+    const rCls = rating ? ROW_RATING_CLS[rating] : '';
+    const deShow = fmtDistErr(distErrs[i]);
+    const drShow = fmtDirErr(dirErrs[i]);
+    const distShow = dists[i]!=null ? dists[i]+'y' : '–';
+    const base = isClub ? 'shot-row-club' : 'shot-row';
+    const chipActive = isChip?' active':'';
+
+    if(isClub){
+      return `<div class="${base}${rCls?' '+rCls:''}" id="edit-row-${i}">
+        <div class="sr-num">${i+1}</div>
+        <div class="sr-badge ${bCls}">${bLbl}</div>
+        <button class="pick-btn${deShow==='–'?' empty':''}" onclick="openEditPicker(${i},'distErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${deShow}</button>
+        <button class="pick-btn${drShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dirErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${drShow}</button>
+        <button class="pick-btn${distShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dist')">${distShow}</button>
+        <button class="sr-chip-btn${chipActive}" onclick="toggleEditChip(${i})">★</button>
+      </div>`;
+    } else {
+      return `<div class="${base}${rCls?' '+rCls:''}" id="edit-row-${i}">
+        <div class="sr-num">${i+1}</div>
+        <div class="sr-badge ${bCls}">${bLbl}</div>
+        <button class="pick-btn${deShow==='–'?' empty':''}" onclick="openEditPicker(${i},'distErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${deShow}</button>
+        <button class="pick-btn${drShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dirErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${drShow}</button>
+        <button class="sr-chip-btn${chipActive}" onclick="toggleEditChip(${i})">★</button>
+      </div>`;
+    }
+  }).join('');
+
+  document.getElementById('edit-modal-body').innerHTML = `
+    <div class="card" style="margin-bottom:8px">
+      <div class="form-row c2">
+        <div class="fg"><label>日付</label><input type="date" id="edit-date" value="${date}"></div>
+        <div class="fg"><label>場所</label>
+          <select id="edit-place">
+            <option${place==='インドア'?' selected':''}>インドア</option>
+            <option${place==='屋外'?' selected':''}>屋外</option>
+          </select>
+        </div>
+      </div>
+      ${!isClub?`<div class="fg"><label>目標距離 (y)</label><select id="edit-dist">${[20,30,40,50,60,70,80,90,100,110,120,130,140,150].map(v=>`<option${v===targetDist?' selected':''}>${v}</option>`).join('')}</select></div>`:''}
+    </div>
+    <div class="card" style="margin-bottom:8px">
+      ${colHdr}
+      <div class="shot-list">${rows}</div>
+    </div>
+    <div class="card" style="margin-bottom:8px">
+      <div class="fg"><label>メモ</label><input type="text" id="edit-memo" value="${memo}" placeholder="スイング感覚など"></div>
+    </div>
+    <div style="height:8px"></div>`;
+}
+
+function updateEditRow(i){
+  const {isClub, shots, distErrs, dirErrs, dists} = editTarget;
+  const s = shots[i];
+  const isChip = s==='chip';
+  const rating = s || null;
+  const bCls = rating ? BADGE_CLS[rating] : '';
+  const bLbl = rating ? BADGE_LABEL[rating] : '–';
+  const rCls = rating ? ROW_RATING_CLS[rating] : '';
+  const base = isClub ? 'shot-row-club' : 'shot-row';
+  const deShow = fmtDistErr(distErrs[i]);
+  const drShow = fmtDirErr(dirErrs[i]);
+  const distShow = dists[i]!=null ? dists[i]+'y' : '–';
+  const chipActive = isChip?' active':'';
+  const row = document.getElementById(`edit-row-${i}`);
+  if(!row) return;
+  row.className = base + (rCls?' '+rCls:'');
+  row.querySelector('.sr-badge').className = `sr-badge ${bCls}`;
+  row.querySelector('.sr-badge').textContent = bLbl;
+  const btns = row.querySelectorAll('.pick-btn');
+  if(isClub){
+    btns[0].textContent=deShow; btns[0].style.opacity=isChip?'.4':'1'; btns[0].style.pointerEvents=isChip?'none':'';
+    btns[1].textContent=drShow; btns[1].style.opacity=isChip?'.4':'1'; btns[1].style.pointerEvents=isChip?'none':'';
+    btns[2].textContent=distShow;
+  } else {
+    btns[0].textContent=deShow; btns[0].style.opacity=isChip?'.4':'1'; btns[0].style.pointerEvents=isChip?'none':'';
+    btns[1].textContent=drShow; btns[1].style.opacity=isChip?'.4':'1'; btns[1].style.pointerEvents=isChip?'none':'';
+  }
+  const chipBtn = row.querySelector('.sr-chip-btn');
+  chipBtn.className = 'sr-chip-btn' + chipActive;
+}
+
+function toggleEditChip(i){
+  const isChip = editTarget.shots[i]==='chip';
+  if(!isChip){
+    editTarget.shots[i]='chip';
+    editTarget.distErrs[i]=0;
+    editTarget.dirErrs[i]=0;
+  } else {
+    editTarget.shots[i]=null;
+  }
+  updateEditRow(i);
+}
+
+function openEditPicker(shotIdx, field){
+  // editTarget をピッカーターゲットとして使う
+  pickerTarget = {prefix:'edit', shotIdx, field};
+  const distErrs = editTarget.distErrs;
+  const dirErrs  = editTarget.dirErrs;
+  const dists    = editTarget.dists;
+  const u = dirUnitLabel();
+  let colDefs, title;
+
+  if(field==='dist'){
+    const cur = dists[shotIdx]!=null ? dists[shotIdx] : (getClubAvgDist(editTarget.club)||150);
+    colDefs=[{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
+    title='飛距離';
+  } else if(field==='distErr'){
+    const cur = distErrs[shotIdx]!==undefined ? distErrs[shotIdx] : 0;
+    colDefs=[{label:'手前 ← 0 → オーバー (y)', values:PICKER_DIST_ERR, current:cur}];
+    title='距離誤差';
+  } else {
+    const cur = dirErrs[shotIdx]!==undefined ? dirErrs[shotIdx] : 0;
+    const vals = buildDirErrValues();
+    colDefs=[
+      {label:`← 左 (${u})`, values:vals, current:cur<=0?Math.abs(cur):0, side:'left'},
+      {label:`右 → (${u})`, values:vals, current:cur>=0?Math.abs(cur):0, side:'right'}
+    ];
+    title='方向誤差';
+  }
+  buildPickerDOM(title, colDefs);
+}
+
+function closeEditModal(){
+  document.getElementById('edit-modal').style.display='none';
+  editTarget=null;
+}
+
+function saveEdit(){
+  if(!editTarget) return;
+  const recs = getRecords();
+  const idx = recs.findIndex(r=>r.id===editTarget.id);
+  if(idx===-1) return;
+
+  // validate
+  const hasNull = editTarget.shots.some(s=>!s);
+  if(hasNull){ showToast('全球の評価を入力してください'); return; }
+
+  recs[idx] = {
+    ...recs[idx],
+    date:  document.getElementById('edit-date').value,
+    place: document.getElementById('edit-place').value,
+    memo:  document.getElementById('edit-memo').value.trim(),
+    shots: [...editTarget.shots],
+    distErrs: [...editTarget.distErrs],
+    dirErrs:  [...editTarget.dirErrs],
+    dists:    editTarget.isClub ? [...editTarget.dists] : recs[idx].dists,
+  };
+  if(!editTarget.isClub){
+    const distEl = document.getElementById('edit-dist');
+    if(distEl) recs[idx].targetDist = parseInt(distEl.value);
+  }
+  saveRecs(recs);
+  closeEditModal();
+  renderHistory();
+  renderHome();
+  showToast('保存しました');
 }
 
 /* ── Settings ── */
@@ -1242,6 +1699,7 @@ function loadPreset(type) {
 
 /* ── Nav ── */
 const TOPBAR = {
+  home: {t:'Golf Tracker', s:'練習データを記録・分析'},
   dist: {t:'距離別記録', s:'距離誤差・方向誤差を数値で入力'},
   club: {t:'クラブ別記録', s:'飛距離・誤差をすべて数値で記録'},
   stats:{t:'統計・GSPI分析', s:'5軸スコアでクラブを評価'},
@@ -1257,9 +1715,64 @@ function showTab(tab, btn) {
   document.getElementById('topbar-title').textContent = TOPBAR[tab].t;
   document.getElementById('topbar-sub').textContent = TOPBAR[tab].s;
   document.getElementById('main-content').scrollTop = 0;
-  if (tab==='stats') renderStats();
+  if (tab==='home')    renderHome();
+  if (tab==='stats')   renderStats();
   if (tab==='history') renderHistory();
   if (tab==='settings') { buildClubTags(); buildAvgDistTable(); updateDirUnitUI(); }
+}
+
+function renderHome(){
+  const recs = getRecords();
+  const allS = recs.flatMap(r=>r.shots);
+
+  // GSPI
+  const gspiEl = document.getElementById('home-gspi-val');
+  const gradeEl = document.getElementById('home-gspi-grade');
+  if(recs.length){
+    const g = calcGSPI(recs);
+    const gr = gspiGrade(g.gspi);
+    gspiEl.textContent = g.gspi;
+    gspiEl.style.color = '#fff';
+    gradeEl.textContent = `Grade ${gr.g}`;
+    gradeEl.style.color = '#fff';
+  } else {
+    gspiEl.textContent = '—';
+    gradeEl.textContent = 'データなし';
+  }
+
+  document.getElementById('home-sessions').textContent = recs.length || '—';
+  const chips = allS.filter(s=>s==='chip').length;
+  document.getElementById('home-chips').textContent = chips || '—';
+
+  // 今日の日付
+  const today = new Date();
+  const weekday = ['日','月','火','水','木','金','土'][today.getDay()];
+  document.getElementById('home-title').textContent =
+    `${today.getMonth()+1}月${today.getDate()}日（${weekday}）`;
+
+  // 最近3件
+  const recent = [...recs].sort((a,b)=>b.id-a.id).slice(0,3);
+  const listEl = document.getElementById('home-recent-list');
+  if(!recent.length){
+    listEl.innerHTML = '<div style="text-align:center;color:var(--gray3);font-size:13px;padding:20px 0">まだ記録がありません</div>';
+    return;
+  }
+  listEl.innerHTML = recent.map(r=>{
+    const g = calcGSPI([r]);
+    const gr = gspiGrade(g.gspi);
+    const isClub = r.mode==='club';
+    const label = isClub ? r.club : `${r.targetDist||r.dist}y`;
+    const sub = isClub ? r.club : (r.targetDist||r.dist)+'y';
+    const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
+    return `<div class="home-rec">
+      <div class="home-rec-club">${label}</div>
+      <div class="home-rec-info">
+        <div class="home-rec-date">${r.date} · ${r.place}</div>
+        <div class="home-rec-shots">${badges}</div>
+      </div>
+      <div class="home-rec-gspi" style="color:${gr.c}">${g.gspi}</div>
+    </div>`;
+  }).join('');
 }
 
 function setDirUnit(u){
@@ -1307,6 +1820,10 @@ function init() {
   onClubChange();
   buildShotGrid('c');
   updateDirUnitUI();
+  renderHome();
+  // topbar初期値
+  document.getElementById('topbar-title').textContent = TOPBAR['home'].t;
+  document.getElementById('topbar-sub').textContent = TOPBAR['home'].s;
 }
 
 init();
