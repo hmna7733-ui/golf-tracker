@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Golf Tracker">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Golf Tracker">
-<meta name="theme-color" content="#1a7a4a">
+<meta name="theme-color" content="#1a3a6b">
 <meta name="description" content="ゴルフ練習データ管理アプリ">
 
 <!-- PWA Manifest (inline) -->
@@ -30,7 +30,7 @@
 <title>Golf Tracker</title>
 <style>
 :root{
-  --green:#1a7a4a;--green-light:#e8f5ee;--green-mid:#5dab7f;
+  --green:#1a3a6b;--green-light:#e8f0fb;--green-mid:#4a7ab8;
   --amber:#c47a00;--amber-light:#fff8e6;
   --red:#d93025;--red-light:#fdecea;
   --blue:#1a6fbd;--blue-light:#e8f0fb;
@@ -51,7 +51,7 @@ body{display:flex;flex-direction:column}
 .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 6px}
 .bottomnav{background:var(--gray0);border-top:1px solid var(--gray2);display:flex;padding-bottom:calc(6px + var(--safe-bottom));flex-shrink:0}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:var(--gray3)}
-.nav-btn.active{color:var(--green)}
+.nav-btn.active{color:#c4902a}
 .nav-label{font-size:10px;font-weight:500}
 .section{display:none}.section.active{display:block}
 
@@ -102,8 +102,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .pick-btn.empty{color:var(--gray3)}
 
 /* Chip button */
-.sr-chip-btn{width:40px;height:40px;border:1.5px solid var(--green);border-radius:var(--radius-sm);background:var(--green-light);color:var(--green);font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
-.sr-chip-btn.active{background:var(--green);color:#fff}
+.sr-chip-btn{width:40px;height:40px;border:1.5px solid #1a3a6b;border-radius:var(--radius-sm);background:#e6f1fb;color:#1a3a6b;font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.sr-chip-btn.active{background:#1a3a6b;color:#fff}
 
 /* ── Flick Picker overlay ── */
 .picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
@@ -177,8 +177,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .legend-crit{color:var(--gray4)}
 
 /* Save btn */
-.save-btn{width:100%;height:48px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
-.save-btn:active{background:#145e38}
+.save-btn{width:100%;height:48px;background:#1a3a6b;color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
+.save-btn:active{background:#102850}
 
 /* Mode toggle */
 .mode-toggle{display:flex;background:var(--gray2);border-radius:var(--radius-sm);padding:3px;gap:3px;margin-bottom:12px}
@@ -198,8 +198,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .sc-lbl{font-size:9px;color:var(--gray4);margin-top:1px;line-height:1.3}
 .sc-track{height:3px;background:var(--gray2);border-radius:99px;margin-top:5px;overflow:hidden}
 .sc-fill{height:100%;border-radius:99px}
-.gspi-card{background:var(--blue-light);border:1px solid #b5d4f4;border-radius:var(--radius);padding:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.gspi-val{font-size:36px;font-weight:700;color:var(--blue)}
+.gspi-card{background:#faf3e6;border:1px solid #e8c06a;border-radius:var(--radius);padding:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.gspi-val{font-size:36px;font-weight:700;color:#1a3a6b}
 .gspi-right{text-align:right}
 .gspi-label{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:2px}
 .gspi-grade{font-size:22px;font-weight:700}
@@ -250,48 +250,82 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .club-tag button{background:none;border:none;color:var(--gray3);cursor:pointer;font-size:15px;line-height:1;padding:0;margin-left:2px}
 .add-row{display:flex;gap:7px}
 .add-row input{flex:1}
-.add-btn{height:40px;padding:0 14px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.add-btn{height:40px;padding:0 14px;background:#1a3a6b;color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
 .preset-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .preset-btn{height:32px;padding:0 11px;border:1px solid var(--gray2);border-radius:var(--radius-full);background:var(--gray0);font-size:12px;color:var(--gray5);cursor:pointer}
 .sec-hdr{font-size:11px;font-weight:600;color:var(--gray4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;margin-top:2px}
 .no-data{text-align:center;color:var(--gray3);font-size:14px;padding:36px 0}
-.info-card{background:var(--green-light);border:1px solid #a8d8be;border-radius:var(--radius);padding:12px;margin-bottom:8px}
-.info-card p{font-size:12px;color:#2a6045;line-height:1.7;margin-bottom:4px}
+.info-card{background:#e6f1fb;border:1px solid #b5d4f4;border-radius:var(--radius);padding:12px;margin-bottom:8px}
+.info-card p{font-size:12px;color:#0c447c;line-height:1.7;margin-bottom:4px}
 
-.update-btn{background:none;border:1.5px solid var(--green);border-radius:var(--radius-full);color:var(--green);font-size:12px;font-weight:600;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.update-btn{background:none;border:1.5px solid #c4902a;border-radius:var(--radius-full);color:#c4902a;font-size:12px;font-weight:600;padding:5px 11px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .update-btn:active{background:var(--green-light)}
-.update-btn.has-update{background:var(--green);color:#fff;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,122,74,.4)}50%{box-shadow:0 0 0 6px rgba(26,122,74,0)}}
+.update-btn.has-update{background:#c4902a;color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(196,144,42,.4)}50%{box-shadow:0 0 0 6px rgba(196,144,42,0)}}
 /* ── Home screen ── */
-#sec-home{background:var(--gray1)}
-.home-hero{background:linear-gradient(160deg,#0d4a2a 0%,#1a7a4a 55%,#2a9e60 100%);padding:32px 20px 28px;color:#fff;position:relative;overflow:hidden}
-.home-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05)}
-.home-hero::after{content:'';position:absolute;bottom:-60px;left:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04)}
-.home-greeting{font-size:11px;opacity:.65;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
-.home-title{font-size:24px;font-weight:700;letter-spacing:-.3px;margin-bottom:16px}
-.home-gspi-row{display:flex;gap:8px;position:relative;z-index:1}
-.home-gspi-block{background:rgba(255,255,255,.13);border-radius:14px;padding:12px 14px;flex:1.4}
-.home-gspi-label{font-size:10px;opacity:.65;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
-.home-gspi-val{font-size:38px;font-weight:700;line-height:1}
-.home-gspi-grade{font-size:12px;font-weight:600;opacity:.8;margin-top:3px}
-.home-stat{background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center}
-.home-stat-val{font-size:22px;font-weight:700}
-.home-stat-lbl{font-size:10px;opacity:.6;margin-top:2px}
-.home-menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 12px 4px}
-.home-menu-card{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s;display:flex;flex-direction:column;gap:6px}
-.home-menu-card:active{transform:scale(.96)}
-.home-menu-card.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;padding:12px 16px}
-.home-menu-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.home-menu-name{font-size:14px;font-weight:700;color:var(--gray5);margin-bottom:1px}
-.home-menu-desc{font-size:11px;color:var(--gray4);line-height:1.45}
-.home-recent{padding:4px 12px 16px}
-.home-sec-lbl{font-size:10px;font-weight:700;color:var(--gray4);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-top:2px}
-.home-rec{background:var(--gray0);border:1px solid var(--gray2);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
-.home-rec-club{font-size:14px;font-weight:700;color:var(--gray5);min-width:44px;flex-shrink:0}
+#sec-home{background:#060d1a}
+.home-wrap{min-height:100%;background:#060d1a;padding-bottom:16px}
+.home-hero{
+  background:linear-gradient(170deg,#060d1a 0%,#0a1628 40%,#1a3a6b 100%);
+  padding:20px 16px 24px;position:relative;overflow:hidden;
+}
+.home-hero::before{content:'⛳';position:absolute;right:-10px;top:-10px;font-size:120px;opacity:.06;line-height:1}
+.home-hero::after{content:'';position:absolute;bottom:-30px;left:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.03)}
+.home-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.45);text-transform:uppercase;margin-bottom:6px}
+.home-date-line{font-size:22px;font-weight:700;color:#fff;margin-bottom:18px;line-height:1.2}
+.home-date-line span{font-size:13px;font-weight:400;color:rgba(255,255,255,.5);margin-left:8px}
+
+/* GSPI big display */
+.home-gspi-main{display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;position:relative;z-index:1}
+.home-gspi-big{line-height:1}
+.home-gspi-num{font-size:72px;font-weight:800;color:#fff;letter-spacing:-3px;line-height:1}
+.home-gspi-label{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.home-gspi-right{flex:1;padding-bottom:8px}
+.home-grade-badge{display:inline-block;font-size:22px;font-weight:800;padding:6px 14px;border-radius:var(--radius-sm);margin-bottom:6px}
+.home-axes-mini{display:flex;flex-direction:column;gap:3px}
+.home-axis-row{display:flex;align-items:center;gap:6px}
+.home-axis-lbl{font-size:9px;color:rgba(255,255,255,.45);width:44px;flex-shrink:0}
+.home-axis-bar{flex:1;height:3px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}
+.home-axis-fill{height:100%;border-radius:99px;background:rgba(255,255,255,.6)}
+.home-axis-val{font-size:9px;color:rgba(255,255,255,.5);width:22px;text-align:right}
+
+/* Week stats row */
+.home-week-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0;position:relative;z-index:1}
+.home-week-stat{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 10px;backdrop-filter:blur(4px)}
+.home-week-val{font-size:18px;font-weight:700;color:#fff}
+.home-week-lbl{font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;letter-spacing:.3px}
+
+/* Quick actions */
+.home-quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px 6px}
+.home-quick-btn{background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s;display:flex;align-items:center;gap:10px}
+.home-quick-btn:active{transform:scale(.96);background:#162a5a}
+.home-quick-btn.accent{background:linear-gradient(135deg,#1a3a6b,#2a5aab);border-color:#c4902a}
+.home-quick-btn.accent:active{opacity:.85}
+.home-quick-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.home-quick-name{font-size:13px;font-weight:700;color:#fff}
+.home-quick-desc{font-size:10px;color:rgba(255,255,255,.5);margin-top:1px}
+
+/* More menu grid */
+.home-more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 12px}
+.home-more-btn{background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius);padding:12px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:5px}
+.home-more-btn:active{transform:scale(.96)}
+.home-more-icon{font-size:22px}
+.home-more-name{font-size:11px;font-weight:600;color:rgba(255,255,255,.8)}
+
+/* Recent section */
+.home-recent-wrap{padding:0 12px 8px}
+.home-recent-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.home-recent-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase}
+.home-recent-more{font-size:11px;color:#5dab7f;font-weight:600}
+.home-rec{background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.home-rec:active{background:#162a5a}
+.home-rec-club{font-size:14px;font-weight:700;color:#fff;min-width:44px;flex-shrink:0}
 .home-rec-info{flex:1;min-width:0}
-.home-rec-date{font-size:11px;color:var(--gray4)}
-.home-rec-shots{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
-.home-rec-gspi{font-size:17px;font-weight:700;flex-shrink:0}
+.home-rec-date{font-size:10px;color:rgba(255,255,255,.4)}
+.home-rec-shots{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px}
+.home-rec-gspi{font-size:17px;font-weight:800;flex-shrink:0}
+.home-empty{text-align:center;padding:24px 0;color:rgba(255,255,255,.25);font-size:13px}
+.home-sec-divider{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;padding:4px 12px 6px}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
 .toast.show{opacity:1}
@@ -310,6 +344,43 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .modal-save{font-size:14px;font-weight:700;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 6px}
 .modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 0;flex:1}
 
+/* Stats detail panel */
+.detail-panel{background:var(--gray1);border-radius:var(--radius-sm);overflow:hidden;max-height:0;transition:max-height .3s ease;margin-bottom:0}
+.detail-panel.open{max-height:900px;margin-bottom:4px}
+.detail-inner{padding:10px}
+.bar-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--gray2);cursor:pointer;transition:background .1s}
+.bar-row:last-child{border-bottom:none}
+.bar-row:active{background:var(--gray1)}
+.bar-row.expanded{background:var(--gray1)}
+.bar-chevron{font-size:10px;color:var(--gray3);transition:transform .25s;flex-shrink:0}
+.bar-row.expanded .bar-chevron{transform:rotate(180deg)}
+.detail-rating-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.dr-cell{background:var(--gray0);border-radius:var(--radius-sm);padding:6px 4px;text-align:center;border:1px solid var(--gray2)}
+.dr-val{font-size:18px;font-weight:700}
+.dr-lbl{font-size:9px;color:var(--gray4);margin-top:1px}
+.dr-pct{font-size:10px;color:var(--gray4)}
+.trend-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2);font-size:12px}
+.trend-row:last-child{border-bottom:none}
+.trend-lbl{color:var(--gray4);width:80px;flex-shrink:0}
+.trend-val{font-weight:600;color:var(--gray5)}
+.trend-bar-pos{height:8px;background:#1a6fbd;border-radius:99px;transition:width .4s}
+.trend-bar-neg{height:8px;background:#d93025;border-radius:99px;transition:width .4s}
+
+/* AI Advice */
+.advice-card{background:linear-gradient(135deg,#0a1628,#1a3a6b);border-radius:var(--radius);padding:14px;margin-bottom:10px;color:#fff}
+.advice-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.advice-icon{font-size:20px}
+.advice-title{font-size:14px;font-weight:700}
+.advice-subtitle{font-size:10px;opacity:.7;margin-top:1px}
+.advice-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:rgba(255,255,255,.1);border-radius:var(--radius-sm);padding:8px 10px}
+.advice-item:last-child{margin-bottom:0}
+.advice-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;flex-shrink:0;margin-top:1px}
+.tag-warn{background:#c47a00;color:#fff}
+.tag-good{background:#1D9E75;color:#fff}
+.tag-tip{background:#534AB7;color:#fff}
+.advice-text{font-size:12px;line-height:1.6;opacity:.95}
+.advice-loading{text-align:center;padding:16px;font-size:13px;opacity:.7}
+
 /* Radar chart container */
 .radar-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
 
@@ -322,8 +393,8 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .avg-dist-table td:last-child{width:44px;text-align:right}
 .avg-dist-input{width:80px;height:34px;border:1px solid var(--gray2);border-radius:var(--radius-sm);background:var(--gray1);font-size:14px;text-align:center;color:var(--gray5);font-family:inherit;-webkit-appearance:none;appearance:none}
 .avg-dist-input:focus{outline:none;border-color:var(--green);background:var(--gray0)}
-.save-avg-btn{height:34px;padding:0 12px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.save-avg-btn:active{background:#145e38}
+.save-avg-btn{height:34px;padding:0 12px;background:#1a3a6b;color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.save-avg-btn:active{background:#102850}
 
 /* Stepper for dist field */
 .dist-stepper{display:flex;align-items:center;gap:0;border:1px solid var(--gray2);border-radius:var(--radius-sm);overflow:hidden;background:var(--gray0)}
@@ -359,77 +430,85 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 
     <!-- ホーム -->
     <div class="section active" id="sec-home">
-      <div class="home-hero">
-        <div class="home-greeting">Golf Tracker</div>
-        <div class="home-title" id="home-title">今日も練習を記録しよう</div>
-        <div class="home-gspi-row">
-          <div class="home-gspi-block">
-            <div class="home-gspi-label">GSPI</div>
-            <div class="home-gspi-val" id="home-gspi-val">—</div>
-            <div class="home-gspi-grade" id="home-gspi-grade">データなし</div>
-          </div>
-          <div class="home-stat">
-            <div class="home-stat-val" id="home-sessions">—</div>
-            <div class="home-stat-lbl">セッション数</div>
-          </div>
-          <div class="home-stat">
-            <div class="home-stat-val" id="home-chips">—</div>
-            <div class="home-stat-lbl">チップイン ★</div>
-          </div>
-        </div>
-      </div>
+      <div class="home-wrap">
+        <!-- Hero -->
+        <div class="home-hero">
+          <div class="home-tag">Golf Tracker</div>
+          <div class="home-date-line" id="home-date-line">—<span id="home-date-sub"></span></div>
 
-      <div class="home-menu-grid">
-        <div class="home-menu-card" onclick="showTab('dist',document.getElementById('nav-dist'))">
-          <div class="home-menu-icon" style="background:#e8f5ee">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          <div class="home-gspi-main">
+            <div class="home-gspi-big">
+              <div class="home-gspi-num" id="home-gspi-num">—</div>
+              <div class="home-gspi-label">GSPI Score</div>
+            </div>
+            <div class="home-gspi-right">
+              <div class="home-grade-badge" id="home-grade-badge" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.4)">—</div>
+              <div class="home-axes-mini" id="home-axes-mini"></div>
+            </div>
           </div>
-          <div>
-            <div class="home-menu-name">距離別記録</div>
-            <div class="home-menu-desc">20〜150yの<br>固定距離練習</div>
-          </div>
-        </div>
-        <div class="home-menu-card" onclick="showTab('club',document.getElementById('nav-club'))">
-          <div class="home-menu-icon" style="background:#edf6e0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3d7016" stroke-width="2" stroke-linecap="round"><path d="M12 2L8 20M12 2l4 18M8 20h8"/></svg>
-          </div>
-          <div>
-            <div class="home-menu-name">クラブ別記録</div>
-            <div class="home-menu-desc">飛距離・方向性を<br>クラブ別に記録</div>
-          </div>
-        </div>
-        <div class="home-menu-card" onclick="showTab('stats',document.getElementById('nav-stats'))">
-          <div class="home-menu-icon" style="background:#e8f0fb">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a6fbd" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-          </div>
-          <div>
-            <div class="home-menu-name">統計・分析</div>
-            <div class="home-menu-desc">GSPI 5軸で<br>パフォーマンス確認</div>
-          </div>
-        </div>
-        <div class="home-menu-card" onclick="showTab('history',document.getElementById('nav-history'))">
-          <div class="home-menu-icon" style="background:#fff8e6">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c47a00" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          </div>
-          <div>
-            <div class="home-menu-name">履歴</div>
-            <div class="home-menu-desc">過去の記録を<br>確認・削除</div>
-          </div>
-        </div>
-        <div class="home-menu-card wide" onclick="showTab('settings',document.getElementById('nav-settings'))">
-          <div class="home-menu-icon" style="background:#f5f5f5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          </div>
-          <div>
-            <div class="home-menu-name">設定</div>
-            <div class="home-menu-desc">クラブ管理・平均飛距離・方向誤差単位</div>
-          </div>
-        </div>
-      </div>
 
-      <div class="home-recent">
-        <div class="home-sec-lbl">最近の記録</div>
-        <div id="home-recent-list"></div>
+          <div class="home-week-row">
+            <div class="home-week-stat">
+              <div class="home-week-val" id="hw-sessions">—</div>
+              <div class="home-week-lbl">セッション数</div>
+            </div>
+            <div class="home-week-stat">
+              <div class="home-week-val" id="hw-shots">—</div>
+              <div class="home-week-lbl">総球数</div>
+            </div>
+            <div class="home-week-stat">
+              <div class="home-week-val" id="hw-chips">—</div>
+              <div class="home-week-lbl">チップイン ★</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="home-quick">
+          <div class="home-quick-btn accent" onclick="showTab('dist',document.getElementById('nav-dist'))">
+            <div class="home-quick-icon" style="background:rgba(255,255,255,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div>
+              <div class="home-quick-name">距離別記録</div>
+              <div class="home-quick-desc">20〜150y 固定距離</div>
+            </div>
+          </div>
+          <div class="home-quick-btn accent" onclick="showTab('club',document.getElementById('nav-club'))">
+            <div class="home-quick-icon" style="background:rgba(255,255,255,.15)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 2L8 20M12 2l4 18M8 20h8"/></svg>
+            </div>
+            <div>
+              <div class="home-quick-name">クラブ別記録</div>
+              <div class="home-quick-desc">飛距離・方向性</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- More menu -->
+        <div class="home-more-grid">
+          <div class="home-more-btn" onclick="showTab('stats',document.getElementById('nav-stats'))">
+            <div class="home-more-icon">📊</div>
+            <div class="home-more-name">統計・分析</div>
+          </div>
+          <div class="home-more-btn" onclick="showTab('history',document.getElementById('nav-history'))">
+            <div class="home-more-icon">📋</div>
+            <div class="home-more-name">履歴</div>
+          </div>
+          <div class="home-more-btn" onclick="showTab('settings',document.getElementById('nav-settings'))">
+            <div class="home-more-icon">⚙️</div>
+            <div class="home-more-name">設定</div>
+          </div>
+        </div>
+
+        <!-- Recent -->
+        <div class="home-recent-wrap">
+          <div class="home-recent-hdr">
+            <div class="home-recent-lbl">最近の記録</div>
+            <div class="home-recent-more" onclick="showTab('history',document.getElementById('nav-history'))">すべて表示 →</div>
+          </div>
+          <div id="home-recent-list"></div>
+        </div>
       </div>
     </div>
 
@@ -456,7 +535,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="card">
         <div class="card-title">評価基準</div>
         <div class="legend-grid">
-          <div class="legend-row"><span class="legend-badge" style="color:#1a7a4a">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#1a3a6b">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#1a6fbd">◎</span><span class="legend-crit">±3y以内・±1m以内</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#3d7016">○</span><span class="legend-crit">±6y以内・±3m以内</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#c47a00">△</span><span class="legend-crit">±10y以内・±6m以内</span></div>
@@ -499,7 +578,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="card">
         <div class="card-title">評価基準</div>
         <div class="legend-grid">
-          <div class="legend-row"><span class="legend-badge" style="color:#1a7a4a">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
+          <div class="legend-row"><span class="legend-badge" style="color:#1a3a6b">★</span><span class="legend-crit">距離誤差0y・方向0m</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#1a6fbd">◎</span><span class="legend-crit">±3y以内・±1m以内</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#3d7016">○</span><span class="legend-crit">±6y以内・±3m以内</span></div>
           <div class="legend-row"><span class="legend-badge" style="color:#c47a00">△</span><span class="legend-crit">±10y以内・±6m以内</span></div>
@@ -600,52 +679,101 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       </div>
 
       <div class="card">
-        <div class="sec-hdr">GSPIグレード指標</div>
-        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">Golf Stability &amp; Performance Index — 5軸の加重平均。距離安定性25% / 方向安定性25% / ミス耐性20% / 精度20% / 上振れ力10%</div>
+        <div class="sec-hdr">GSPI 算出基準</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">Golf Stability &amp; Performance Index — 5軸の加重平均スコア（0〜100点）</div>
+
+        <!-- 5軸の計算式 -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:6px">■ 5軸スコアの計算式</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            ${[
+              ['距離安定性','25%','距離誤差の絶対値平均から算出。誤差0y=100、5y=75、10y=50、20y以上=0'],
+              ['方向安定性','25%','方向誤差の絶対値平均（y換算）から算出。0y=100、5y=50、10y以上=0'],
+              ['ミス耐性',  '20%','×ショットの割合の二乗で重罰。×0%=100、×30%=91、×50%=75、×100%=0'],
+              ['精度',      '20%','★◎=100点、○=75点、△=40点、×=0点 の加重平均'],
+              ['上振れ力',  '10%','★+◎ショットの割合（0〜100%）'],
+            ].map(([name,weight,desc])=>`
+              <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:8px 10px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+                  <span style="font-size:12px;font-weight:700;color:var(--gray5)">${name}</span>
+                  <span style="font-size:11px;font-weight:700;color:var(--green)">${weight}</span>
+                </div>
+                <div style="font-size:11px;color:var(--gray4);line-height:1.5">${desc}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- GSPI = 合計 -->
+        <div style="background:var(--blue-light);border:1px solid #b5d4f4;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">GSPI = 各軸 × 重み の合計</div>
+          <div style="font-size:11px;color:#0c447c;line-height:1.6">距離安定性×0.25 + 方向安定性×0.25 + ミス耐性×0.20 + 精度×0.20 + 上振れ力×0.10</div>
+        </div>
+
+        <!-- グレード表 -->
+        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:6px">■ グレード基準</div>
         <table class="grade-table">
           <thead><tr>
-            <th style="width:46px">グレード</th>
-            <th style="width:56px">スコア</th>
-            <th>レベル感</th>
-            <th style="width:72px">各軸の目安</th>
+            <th style="width:46px">Grade</th>
+            <th style="width:60px">スコア</th>
+            <th>レベル</th>
+            <th style="width:80px">誤差目安</th>
           </tr></thead>
           <tbody>
             <tr>
               <td><span class="grade-pill" style="background:#EEEDFE;color:#534AB7">S</span></td>
               <td><b style="color:#534AB7">90〜100</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:100%;background:#534AB7"></div></div></td>
-              <td>プロ・競技レベル。全球で高精度を維持。ミスがほぼゼロ</td>
-              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±1.5y以内、方向0.5m以内</td>
+              <td>プロ・競技レベル。ほぼ全球◎以上</td>
+              <td style="font-size:10px;color:var(--gray4)">±2y / ±1y</td>
             </tr>
             <tr>
-              <td><span class="grade-pill" style="background:#e8f5ee;color:#1a7a4a">A</span></td>
-              <td><b style="color:#1a7a4a">80〜89</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:88%;background:#1a7a4a"></div></div></td>
-              <td>上級アマ。安定感があり、コースでスコアにつながるレベル</td>
-              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±3y、方向2m以内</td>
+              <td><span class="grade-pill" style="background:#e6f1fb;color:#1a3a6b">A</span></td>
+              <td><b style="color:#1a3a6b">80〜89</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:88%;background:#1a3a6b"></div></div></td>
+              <td>上級アマ。安定感がありスコアに直結</td>
+              <td style="font-size:10px;color:var(--gray4)">±4y / ±3y</td>
             </tr>
             <tr>
               <td><span class="grade-pill" style="background:#edf6e0;color:#3d7016">B</span></td>
               <td><b style="color:#3d7016">65〜79</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:72%;background:#3d7016"></div></div></td>
-              <td>中級〜上級。良いショットが多いが、たまにミスが混じる</td>
-              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±5y、方向4m以内</td>
+              <td>中上級。良いショットが多いが時々ミス</td>
+              <td style="font-size:10px;color:var(--gray4)">±6y / ±5y</td>
             </tr>
             <tr>
               <td><span class="grade-pill" style="background:#fff8e6;color:#c47a00">C</span></td>
               <td><b style="color:#c47a00">50〜64</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:57%;background:#c47a00"></div></div></td>
-              <td>中級。改善の余地あり。バラつきが大きく一貫性が課題</td>
-              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±7y、方向6m前後</td>
+              <td>中級。バラつきが大きく一貫性が課題</td>
+              <td style="font-size:10px;color:var(--gray4)">±9y / ±7y</td>
             </tr>
             <tr>
               <td><span class="grade-pill" style="background:#fdecea;color:#d93025">D</span></td>
               <td><b style="color:#d93025">0〜49</b><div class="grade-bar-wrap"><div class="grade-bar-fill" style="width:40%;background:#d93025"></div></div></td>
-              <td>初〜中級。基礎固めが最優先。インパクトの再現性を集中練習</td>
-              <td style="font-size:11px;color:var(--gray4)">距離誤差avg±10y超、ミス多発</td>
+              <td>初〜中級。基礎固めを最優先に</td>
+              <td style="font-size:10px;color:var(--gray4)">±12y超</td>
             </tr>
           </tbody>
         </table>
+
+        <!-- 評価基準 -->
+        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin:10px 0 6px">■ ショット評価基準（距離誤差 / 方向誤差）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+          ${[
+            ['★','チップイン','#1a3a6b','誤差0y / 0y'],
+            ['◎','完璧','#1a6fbd','±3y以内 / ±3y以内'],
+            ['○','良い','#3d7016','±6y以内 / ±6y以内'],
+            ['△','普通','#c47a00','±10y以内 / ±10y以内'],
+            ['×','ミス','#d93025','上記を超える'],
+          ].map(([sym,name,col,crit])=>`
+            <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:6px 8px;display:flex;align-items:center;gap:7px">
+              <span style="font-size:16px;font-weight:700;color:${col};width:18px;text-align:center">${sym}</span>
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--gray5)">${name}</div>
+                <div style="font-size:10px;color:var(--gray4)">${crit}</div>
+              </div>
+            </div>`).join('')}
+        </div>
       </div>
 
       <div class="info-card">
-        <div class="sec-hdr" style="color:#1a7a4a">評価の自動計算について</div>
+        <div class="sec-hdr" style="color:#1a3a6b">評価の自動計算について</div>
         <p>距離誤差と方向誤差を数値で入力すると、評価(★◎○△×)が自動で決まります。主観なしで一貫したデータが取れます。</p>
         <p>チップインは★ボタンを押してください。飛距離欄はクラブ別記録で入力するとGSPI(安定性指標)が正確になります。</p>
       </div>
@@ -698,29 +826,27 @@ function calcRating(distErr, dirErr, isChip) {
 
 const RSCORE = {chip:100, A:100, B:75, C:40, D:0};
 const RLABEL = {chip:'★', A:'◎', B:'○', C:'△', D:'×'};
-const RCOLOR = {chip:'#1a7a4a', A:'#1a6fbd', B:'#3d7016', C:'#c47a00', D:'#d93025'};
+const RCOLOR = {chip:'#1a3a6b', A:'#1a6fbd', B:'#3d7016', C:'#c47a00', D:'#d93025'};
 const RBADGE = {chip:'badge-chip', A:'badge-A', B:'badge-B', C:'badge-C', D:'badge-D'};
 
 /* ── GSPI ── */
 function calcGSPI(records) {
   const shots = records.flatMap(r => r.shots);
-  const allDists = records.flatMap(r => r.dists || []).filter(v => v != null && !isNaN(v));
+  if(!shots.length) return {gspi:0,axes:[0,0,0,0,0],distStab:0,dirStab:0,missTolerance:0,accuracy:0,upside:0};
+
   const allDistErr = records.flatMap(r => r.distErrs || []).filter(v => v != null && !isNaN(v));
   const allDirErr  = records.flatMap(r => r.dirErrs  || []).filter(v => v != null && !isNaN(v));
 
-  // 1. 距離安定性: CV法
+  // 1. 距離安定性: 距離誤差の絶対値平均ベース
+  //    誤差0y=100, 5y=75, 10y=50, 15y=25, 20y以上=0
   let distStab = 0;
-  if (allDists.length >= 2) {
-    const avg = allDists.reduce((a,v)=>a+v,0)/allDists.length;
-    const sd  = Math.sqrt(allDists.reduce((a,v)=>a+(v-avg)**2,0)/allDists.length);
-    const cv  = avg > 0 ? (sd/avg)*100 : 0;
-    distStab  = Math.max(0, Math.round(100 - cv * 2));
-  } else if (allDistErr.length > 0) {
-    const avgErr = allDistErr.reduce((a,v)=>a+Math.abs(v),0)/allDistErr.length;
-    distStab = Math.max(0, Math.round(100 - avgErr * 6));
+  if (allDistErr.length > 0) {
+    const avgAbsErr = allDistErr.reduce((a,v)=>a+Math.abs(v),0)/allDistErr.length;
+    distStab = Math.max(0, Math.round(100 - avgAbsErr * 5));
   }
 
-  // 2. 方向安定性: 方向誤差の絶対値平均をy換算 → 0yで100、10yで0
+  // 2. 方向安定性: 方向誤差の絶対値平均ベース(y換算)
+  //    0y=100, 3y=70, 6y=40, 10y以上=0
   let dirStab = 0;
   if (allDirErr.length > 0) {
     const avgAbsDir = allDirErr.reduce((a,v)=>a+Math.abs(dirToY(v)),0)/allDirErr.length;
@@ -746,14 +872,14 @@ function calcGSPI(records) {
 
 function gspiGrade(v) {
   if (v >= 90) return {g:'S', c:'#534AB7'};
-  if (v >= 80) return {g:'A', c:'#1a7a4a'};
+  if (v >= 80) return {g:'A', c:'#c4902a'};
   if (v >= 65) return {g:'B', c:'#3d7016'};
   if (v >= 50) return {g:'C', c:'#c47a00'};
   return {g:'D', c:'#d93025'};
 }
 
 function scoreColor(v) {
-  if (v >= 80) return '#1a7a4a';
+  if (v >= 80) return '#c4902a';
   if (v >= 60) return '#3d7016';
   if (v >= 45) return '#c47a00';
   return '#d93025';
@@ -1214,6 +1340,7 @@ function renderDistStats(recs) {
   const byDist = {};
   recs.forEach(r=>{const k=r.targetDist||r.dist;if(!byDist[k])byDist[k]=[];byDist[k].push(r);});
   const dists = Object.keys(byDist).map(Number).sort((a,b)=>a-b);
+
   let html = `
     <div class="gspi-card">
       <div>
@@ -1233,23 +1360,196 @@ function renderDistStats(recs) {
           <div class="sc-track"><div class="sc-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div>
         </div>`).join('')}
     </div>
-    <div class="card">
+    <div style="font-size:11px;color:var(--gray4);margin-bottom:6px;padding:0 2px">▼ 各距離をタップで詳細を表示</div>
+    <div class="card" style="padding:0 12px">
       ${dists.map(d=>{
         const dr = byDist[d];
         const gs = calcGSPI(dr);
         const col = scoreColor(gs.gspi);
         const cp = dr.flatMap(r=>r.shots).filter(s=>s==='chip').length;
-        const avgDErr = dr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
-        const avgDE = avgDErr.length ? (avgDErr.reduce((a,v)=>a+Math.abs(v),0)/avgDErr.length).toFixed(1) : '-';
-        return `<div class="bar-row">
+        return `<div class="bar-row" id="dbar-${d}" onclick="toggleDistDetail(${d})">
           <span class="bar-tag">${d}y</span>
           <div class="bar-wrap"><div class="bar-fill" style="width:${gs.gspi}%;background:${col}"></div></div>
           <span class="bar-pct" style="color:${col}">${gs.gspi}</span>
           <span class="bar-cnt">${dr.length}回${cp?' ★'+cp:''}</span>
+          <span class="bar-chevron">▼</span>
+        </div>
+        <div class="detail-panel" id="dpanel-${d}">
+          <div class="detail-inner" id="dpinner-${d}"></div>
         </div>`;
       }).join('')}
+    </div>
+    <div class="advice-card" id="dist-advice-card">
+      <div class="advice-header">
+        <div class="advice-icon">🏌️</div>
+        <div>
+          <div class="advice-title">AI分析アドバイス</div>
+          <div class="advice-subtitle">データから傾向を分析して改善提案を生成中...</div>
+        </div>
+      </div>
+      <div class="advice-loading">分析中...</div>
     </div>`;
   div.innerHTML = html;
+
+  // AI分析を非同期生成
+  generateDistAdvice(recs, byDist, dists, g);
+}
+
+function toggleDistDetail(d){
+  const row = document.getElementById(`dbar-${d}`);
+  const panel = document.getElementById(`dpanel-${d}`);
+  const inner = document.getElementById(`dpinner-${d}`);
+  const isOpen = panel.classList.contains('open');
+  // 全パネルを閉じる
+  document.querySelectorAll('.detail-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.bar-row').forEach(r=>r.classList.remove('expanded'));
+  if(!isOpen){
+    panel.classList.add('open');
+    row.classList.add('expanded');
+    if(!inner.dataset.built) buildDistDetailPanel(inner, d);
+  }
+}
+
+function buildDistDetailPanel(inner, d){
+  inner.dataset.built='1';
+  const recs = getRecords().filter(r=>r.mode==='dist'&&(r.targetDist||r.dist)==d);
+  const allShots = recs.flatMap(r=>r.shots);
+  const allDistErrs = recs.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+  const allDirErrs  = recs.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+
+  const cnt = {chip:0,A:0,B:0,C:0,D:0};
+  allShots.forEach(s=>cnt[s]=(cnt[s]||0)+1);
+  const total = allShots.length;
+
+  // 距離誤差の傾向
+  const overShots = allDistErrs.filter(v=>v>0);
+  const shortShots = allDistErrs.filter(v=>v<0);
+  const avgOver  = overShots.length  ? (overShots.reduce((a,v)=>a+v,0)/overShots.length).toFixed(1) : null;
+  const avgShort = shortShots.length ? (Math.abs(shortShots.reduce((a,v)=>a+v,0)/shortShots.length)).toFixed(1) : null;
+  const biasDist = allDistErrs.length ? (allDistErrs.reduce((a,v)=>a+v,0)/allDistErrs.length).toFixed(1) : null;
+
+  // 方向誤差の傾向
+  const rightShots = allDirErrs.filter(v=>v>0);
+  const leftShots  = allDirErrs.filter(v=>v<0);
+  const avgRight = rightShots.length ? (rightShots.reduce((a,v)=>a+v,0)/rightShots.length).toFixed(1) : null;
+  const avgLeft  = leftShots.length  ? (Math.abs(leftShots.reduce((a,v)=>a+v,0)/leftShots.length)).toFixed(1) : null;
+  const biasDir  = allDirErrs.length ? (allDirErrs.reduce((a,v)=>a+v,0)/allDirErrs.length).toFixed(1) : null;
+
+  const du = dirUnitLabel();
+  const ratingColors = {chip:'#1a3a6b',A:'#1a6fbd',B:'#3d7016',C:'#c47a00',D:'#d93025'};
+
+  inner.innerHTML = `
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:8px">${d}y の評価内訳</div>
+    <div class="detail-rating-grid">
+      ${['chip','A','B','C','D'].map(s=>`<div class="dr-cell">
+        <div class="dr-val" style="color:${ratingColors[s]}">${RLABEL[s]}</div>
+        <div class="dr-lbl">${cnt[s]||0}球</div>
+        <div class="dr-pct">${total?Math.round((cnt[s]||0)/total*100):0}%</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">距離誤差の傾向</div>
+    <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
+      <div class="trend-row"><span class="trend-lbl">平均バイアス</span><span class="trend-val" style="color:${parseFloat(biasDist)>0?'#d93025':parseFloat(biasDist)<0?'#1a6fbd':'#1a3a6b'}">${biasDist>0?'オーバー'+biasDist+'y':biasDist<0?'手前'+Math.abs(biasDist)+'y':'ジャスト'}</span></div>
+      ${overShots.length?`<div class="trend-row"><span class="trend-lbl">オーバー時平均</span><span class="trend-val">+${avgOver}y（${overShots.length}球）</span></div>`:''}
+      ${shortShots.length?`<div class="trend-row"><span class="trend-lbl">手前時平均</span><span class="trend-val">-${avgShort}y（${shortShots.length}球）</span></div>`:''}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">方向誤差の傾向</div>
+    <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px">
+      <div class="trend-row"><span class="trend-lbl">平均バイアス</span><span class="trend-val" style="color:${parseFloat(biasDir)>0?'#d93025':parseFloat(biasDir)<0?'#1a6fbd':'#1a3a6b'}">${parseFloat(biasDir)>0?'右'+biasDir+du:parseFloat(biasDir)<0?'左'+Math.abs(biasDir)+du:'センター'}</span></div>
+      ${rightShots.length?`<div class="trend-row"><span class="trend-lbl">右ズレ平均</span><span class="trend-val">右${avgRight}${du}（${rightShots.length}球）</span></div>`:''}
+      ${leftShots.length?`<div class="trend-row"><span class="trend-lbl">左ズレ平均</span><span class="trend-val">左${avgLeft}${du}（${leftShots.length}球）</span></div>`:''}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:4px">セッション履歴</div>
+    ${recs.slice().reverse().map(r=>{
+      const gsr = calcGSPI([r]);
+      const grr = gspiGrade(gsr.gspi);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2);font-size:12px">
+        <span style="color:var(--gray4);width:60px;flex-shrink:0">${r.date.slice(5)}</span>
+        <span style="color:var(--gray5);flex:1">${r.shots.map(s=>RLABEL[s]).join(' ')}</span>
+        <span style="font-weight:700;color:${grr.c}">${gsr.gspi}</span>
+      </div>`;
+    }).join('')}`;
+}
+
+async function generateDistAdvice(recs, byDist, dists, g){
+  const du = dirUnitLabel();
+  // データ集計
+  const analyses = dists.map(d=>{
+    const dr = byDist[d];
+    const allS = dr.flatMap(r=>r.shots);
+    const allDE = dr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+    const allDir = dr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+    const gs = calcGSPI(dr);
+    const avgDE = allDE.length ? (allDE.reduce((a,v)=>a+v,0)/allDE.length).toFixed(1) : 0;
+    const avgDir = allDir.length ? (allDir.reduce((a,v)=>a+v,0)/allDir.length).toFixed(1) : 0;
+    const missRate = Math.round(allS.filter(s=>s==='D').length/allS.length*100);
+    return `${d}y: GSPI${gs.gspi} 距離バイアス${avgDE>0?'+':''}${avgDE}y 方向バイアス${avgDir>0?'右':'左'}${Math.abs(avgDir)}${du} ミス率${missRate}%`;
+  }).join('\n');
+
+  const prompt = `以下はゴルフの距離別練習データです。プロのゴルフコーチとして、各距離の傾向を分析し、具体的な改善アドバイスを3〜5点ください。
+
+${analyses}
+
+全体GSPI: ${g.gspi} Grade: ${gspiGrade(g.gspi).g}
+総評価基準: ◎=±3y以内かつ±3${du}以内、○=±6y、△=±10y、×=それ以上
+
+回答はJSON形式で、以下の構造にしてください。他のテキストは一切含めないこと。
+{"items":[{"type":"warn"|"good"|"tip","text":"アドバイス文（具体的な練習法・修正ポイント含む・60字以内）"}]}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(text);
+    renderAdviceCard('dist-advice-card', parsed.items);
+  } catch(e) {
+    renderAdviceCard('dist-advice-card', buildLocalDistAdvice(recs, byDist, dists, g, du));
+  }
+}
+
+function buildLocalDistAdvice(recs, byDist, dists, g, du){
+  const items = [];
+  dists.forEach(d=>{
+    const dr = byDist[d];
+    const allS = dr.flatMap(r=>r.shots);
+    const allDE = dr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+    const allDir = dr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+    const avgDE = allDE.length ? allDE.reduce((a,v)=>a+v,0)/allDE.length : 0;
+    const avgDir = allDir.length ? allDir.reduce((a,v)=>a+v,0)/allDir.length : 0;
+    const missRate = allS.filter(s=>s==='D').length/allS.length;
+    if(Math.abs(avgDE)>4) items.push({type:'warn',text:`${d}y: ${avgDE>0?'オーバー':'手前'}傾向（平均${Math.abs(avgDE).toFixed(1)}y）。スイングのテンポを一定に保つことを意識して`});
+    if(Math.abs(avgDir)>3) items.push({type:'warn',text:`${d}y: ${avgDir>0?'右':'左'}ズレ傾向（平均${Math.abs(avgDir).toFixed(1)}${du}）。アドレス時のフェース向きを確認して`});
+    if(missRate>0.3) items.push({type:'warn',text:`${d}y: ミス率${Math.round(missRate*100)}%と高い。ハーフスイングで基本に立ち返る練習を`});
+  });
+  if(g.gspi>=80) items.push({type:'good',text:'全距離で高い精度を維持できています。この調子でラウンドでの実践に活かしましょう'});
+  if(!items.length) items.push({type:'tip',text:'データが増えると詳細な傾向が見えてきます。継続して記録してください'});
+  return items;
+}
+
+function renderAdviceCard(cardId, items){
+  const card = document.getElementById(cardId);
+  if(!card||!items) return;
+  const typeLabel = {warn:'課題',good:'良好',tip:'ヒント'};
+  card.innerHTML = `
+    <div class="advice-header">
+      <div class="advice-icon">🏌️</div>
+      <div>
+        <div class="advice-title">AI分析アドバイス</div>
+        <div class="advice-subtitle">データから傾向を自動分析</div>
+      </div>
+    </div>
+    ${items.map(it=>`<div class="advice-item">
+      <span class="advice-tag tag-${it.type}">${typeLabel[it.type]}</span>
+      <span class="advice-text">${it.text}</span>
+    </div>`).join('')}`;
 }
 
 function renderClubStats(recs) {
@@ -1257,7 +1557,6 @@ function renderClubStats(recs) {
   if (!recs.length) { div.innerHTML='<p class="no-data">クラブ別データがまだありません</p>'; return; }
   const byClub = {};
   recs.forEach(r=>{if(!byClub[r.club])byClub[r.club]=[];byClub[r.club].push(r);});
-
   const overallG = calcGSPI(recs);
   const gr = gspiGrade(overallG.gspi);
   const allS = recs.flatMap(r=>r.shots);
@@ -1273,7 +1572,9 @@ function renderClubStats(recs) {
         <div class="gspi-grade" style="color:${gr.c}">Grade ${gr.g}</div>
         <div style="font-size:10px;color:var(--gray4);margin-top:2px">${recs.length}セッション / ★${chips}</div>
       </div>
-    </div>`;
+    </div>
+    <div style="font-size:11px;color:var(--gray4);margin-bottom:6px;padding:0 2px">▼ 各クラブをタップで詳細を表示</div>
+    <div class="card" style="padding:0 12px">`;
 
   const axisLabels = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
   const radarDatasets = [];
@@ -1283,61 +1584,41 @@ function renderClubStats(recs) {
   clubNames.forEach((club, ci) => {
     const cr = byClub[club];
     const g = calcGSPI(cr);
-    const gr = gspiGrade(g.gspi);
-    const allS2 = cr.flatMap(r=>r.shots);
-    const cp = allS2.filter(s=>s==='chip').length;
+    const gr2 = gspiGrade(g.gspi);
+    const cp = cr.flatMap(r=>r.shots).filter(s=>s==='chip').length;
     const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
     const avgDist = validDists.length ? Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length) : null;
-    const avgDistErr = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
-    const avgDE = avgDistErr.length ? (avgDistErr.reduce((a,v)=>a+Math.abs(v),0)/avgDistErr.length).toFixed(1) : '-';
-    const avgDirErr = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
-    const avgDir = avgDirErr.length ? (avgDirErr.reduce((a,v)=>a+Math.abs(v),0)/avgDirErr.length).toFixed(1) : '-';
+    const col = scoreColor(g.gspi);
+    const ccolor = clubColors[ci % clubColors.length];
 
-    const insights = [];
-    if (g.distStab < 50) insights.push({c:'#d93025', t:`飛距離のバラつきが大きい（誤差平均${avgDE}y）。インパクトの再現性を重点練習`});
-    else if (g.distStab >= 80) insights.push({c:'#1a7a4a', t:`飛距離が非常に安定（誤差平均${avgDE}y）`});
-    if (g.dirStab < 50) insights.push({c:'#d93025', t:`方向のバラつきが大きい（誤差平均${avgDir}m）。フェース向きを確認`});
-    else if (g.dirStab >= 80) insights.push({c:'#1a7a4a', t:`方向性が安定（誤差平均${avgDir}m）`});
-    if (g.upside >= 50) insights.push({c:'#534AB7', t:`上振れ力が高い。チップイン・完璧ショットが頻出`});
-    if (!insights.length) insights.push({c:'#888780', t:'データが増えると詳細インサイトが表示されます'});
-
-    const col = clubColors[ci % clubColors.length];
     radarDatasets.push({
       label: club,
       data: g.axes,
-      borderColor: col,
-      backgroundColor: col + '22',
-      pointBackgroundColor: col,
-      borderWidth: 2,
-      pointRadius: 3
+      borderColor: ccolor,
+      backgroundColor: ccolor + '22',
+      pointBackgroundColor: ccolor,
+      borderWidth: 2, pointRadius: 3
     });
 
-    html += `<div class="club-stat-card">
-      <div class="csc-head">
-        <div>
-          <div class="csc-name">${club}</div>
-          <div class="csc-meta">${cr.length}回${cp?' / ★×'+cp:''}${avgDist?' / 平均'+avgDist+'y':''}</div>
-        </div>
-        <div style="text-align:right">
-          <div class="csc-gspi">${g.gspi}</div>
-          <div style="font-size:11px;font-weight:700;color:${gr.c}">Grade ${gr.g}</div>
-        </div>
+    const safeClub = club.replace(/['"]/g,'');
+    html += `
+      <div class="bar-row" id="cbar-${ci}" onclick="toggleClubDetail(${ci})">
+        <span class="bar-tag" style="font-size:12px">${club}</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${g.gspi}%;background:${col}"></div></div>
+        <span class="bar-pct" style="color:${col}">${g.gspi}</span>
+        <span class="bar-cnt">${cr.length}回${cp?' ★'+cp:''}</span>
+        <span class="bar-chevron">▼</span>
       </div>
-      <div class="csc-axes">
-        ${g.axes.map((v,i)=>`<div class="csc-ax">
-          <div class="csc-av" style="color:${scoreColor(v)}">${v}</div>
-          <div class="csc-al">${axisLabels[i]}</div>
-          <div class="csc-track"><div class="csc-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div>
-        </div>`).join('')}
-      </div>
-      <div style="border-top:1px solid var(--gray2);padding-top:8px;margin-top:2px">
-        ${insights.map(it=>`<div class="insight-row"><div class="idot" style="background:${it.c}"></div><div class="itext">${it.t}</div></div>`).join('')}
-      </div>
-    </div>`;
+      <div class="detail-panel" id="cpanel-${ci}">
+        <div class="detail-inner" id="cpinner-${ci}" data-club="${safeClub}" data-ci="${ci}"></div>
+      </div>`;
   });
 
-  if (clubNames.length >= 2) {
-    html += `<div class="card" style="margin-top:4px">
+  html += `</div>`;
+
+  // radar
+  if(clubNames.length >= 2){
+    html += `<div class="card" style="margin-top:8px">
       <div class="card-title" style="margin-bottom:8px">クラブ比較レーダー</div>
       <div class="radar-wrap"><canvas id="radar-chart" role="img" aria-label="クラブ別5軸レーダーチャート">レーダーチャート</canvas></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
@@ -1346,10 +1627,22 @@ function renderClubStats(recs) {
     </div>`;
   }
 
+  html += `<div class="advice-card" id="club-advice-card">
+    <div class="advice-header">
+      <div class="advice-icon">🏌️</div>
+      <div>
+        <div class="advice-title">AI分析アドバイス</div>
+        <div class="advice-subtitle">クラブ別データを分析中...</div>
+      </div>
+    </div>
+    <div class="advice-loading">分析中...</div>
+  </div>`;
+
   div.innerHTML = html;
 
-  if (clubNames.length >= 2) {
-    if (radarChart) radarChart.destroy();
+  // radar chart
+  if(clubNames.length >= 2){
+    if(radarChart) radarChart.destroy();
     radarChart = new Chart(document.getElementById('radar-chart'), {
       type: 'radar',
       data: { labels: axisLabels, datasets: radarDatasets },
@@ -1358,13 +1651,162 @@ function renderClubStats(recs) {
         plugins: { legend: { display: false } },
         scales: { r: {
           min: 0, max: 100,
-          ticks: { stepSize: 25, font: { size: 9 }, backdropColor: 'transparent', color: '#888780' },
+          ticks: { stepSize: 25, font:{size:9}, backdropColor:'transparent', color:'#888780' },
           grid: { color: 'rgba(136,135,128,0.2)' },
-          pointLabels: { font: { size: 10 }, color: '#444441' }
+          pointLabels: { font:{size:10}, color:'#444441' }
         }}
       }
     });
   }
+
+  // store for detail builder
+  window._clubStatData = {byClub, clubNames, clubColors};
+  generateClubAdvice(recs, byClub, clubNames, overallG);
+}
+
+function toggleClubDetail(ci){
+  const row = document.getElementById(`cbar-${ci}`);
+  const panel = document.getElementById(`cpanel-${ci}`);
+  const inner = document.getElementById(`cpinner-${ci}`);
+  const isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.detail-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.bar-row').forEach(r=>r.classList.remove('expanded'));
+  if(!isOpen){
+    panel.classList.add('open');
+    row.classList.add('expanded');
+    if(!inner.dataset.built) buildClubDetailPanel(inner, ci);
+  }
+}
+
+function buildClubDetailPanel(inner, ci){
+  inner.dataset.built='1';
+  const {byClub, clubNames} = window._clubStatData||{};
+  if(!clubNames) return;
+  const club = clubNames[ci];
+  const cr = byClub[club];
+  const du = dirUnitLabel();
+
+  const allShots = cr.flatMap(r=>r.shots);
+  const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+  const allDir = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+  const allDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+  const total = allShots.length;
+
+  const cnt = {chip:0,A:0,B:0,C:0,D:0};
+  allShots.forEach(s=>cnt[s]=(cnt[s]||0)+1);
+
+  const avgDE = allDE.length ? (allDE.reduce((a,v)=>a+v,0)/allDE.length).toFixed(1) : null;
+  const avgDir = allDir.length ? (allDir.reduce((a,v)=>a+v,0)/allDir.length).toFixed(1) : null;
+  const avgDist = allDists.length ? Math.round(allDists.reduce((a,v)=>a+v,0)/allDists.length) : null;
+  const sdDist = allDists.length>=2 ? Math.sqrt(allDists.reduce((a,v)=>{const m=allDists.reduce((x,y)=>x+y,0)/allDists.length;return a+(v-m)**2},0)/allDists.length).toFixed(1) : null;
+  const overDE = allDE.filter(v=>v>0);
+  const shortDE = allDE.filter(v=>v<0);
+  const rightDir = allDir.filter(v=>v>0);
+  const leftDir = allDir.filter(v=>v<0);
+  const ratingColors = {chip:'#1a3a6b',A:'#1a6fbd',B:'#3d7016',C:'#c47a00',D:'#d93025'};
+  const g = calcGSPI(cr);
+  const axisLabels = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
+
+  inner.innerHTML = `
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:8px">${club} の評価内訳</div>
+    <div class="detail-rating-grid">
+      ${['chip','A','B','C','D'].map(s=>`<div class="dr-cell">
+        <div class="dr-val" style="color:${ratingColors[s]}">${RLABEL[s]}</div>
+        <div class="dr-lbl">${cnt[s]||0}球</div>
+        <div class="dr-pct">${total?Math.round((cnt[s]||0)/total*100):0}%</div>
+      </div>`).join('')}
+    </div>
+    <div class="score-grid" style="margin-bottom:10px">
+      ${g.axes.map((v,i)=>`<div class="sc">
+        <div class="sc-val" style="color:${scoreColor(v)}">${v}</div>
+        <div class="sc-lbl">${axisLabels[i]}</div>
+        <div class="sc-track"><div class="sc-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div>
+      </div>`).join('')}
+    </div>
+    ${avgDist!=null?`<div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">飛距離データ</div>
+    <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
+      <div class="trend-row"><span class="trend-lbl">平均飛距離</span><span class="trend-val">${avgDist}y</span></div>
+      ${sdDist?`<div class="trend-row"><span class="trend-lbl">標準偏差</span><span class="trend-val">±${sdDist}y</span></div>`:''}
+    </div>`:''}
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">距離誤差の傾向</div>
+    <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
+      <div class="trend-row"><span class="trend-lbl">平均バイアス</span><span class="trend-val" style="color:${parseFloat(avgDE)>0?'#d93025':parseFloat(avgDE)<0?'#1a6fbd':'#1a3a6b'}">${avgDE==null?'—':parseFloat(avgDE)>0?'オーバー+'+avgDE+'y':parseFloat(avgDE)<0?'手前'+avgDE+'y':'ジャスト'}</span></div>
+      ${overDE.length?`<div class="trend-row"><span class="trend-lbl">オーバー頻度</span><span class="trend-val">${overDE.length}球（${Math.round(overDE.length/allDE.length*100)}%）</span></div>`:''}
+      ${shortDE.length?`<div class="trend-row"><span class="trend-lbl">手前頻度</span><span class="trend-val">${shortDE.length}球（${Math.round(shortDE.length/allDE.length*100)}%）</span></div>`:''}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">方向誤差の傾向</div>
+    <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
+      <div class="trend-row"><span class="trend-lbl">平均バイアス</span><span class="trend-val" style="color:${parseFloat(avgDir)>0?'#d93025':parseFloat(avgDir)<0?'#1a6fbd':'#1a3a6b'}">${avgDir==null?'—':parseFloat(avgDir)>0?'右'+avgDir+du:parseFloat(avgDir)<0?'左'+Math.abs(parseFloat(avgDir))+du:'センター'}</span></div>
+      ${rightDir.length?`<div class="trend-row"><span class="trend-lbl">右ズレ頻度</span><span class="trend-val">${rightDir.length}球（${Math.round(rightDir.length/allDir.length*100)}%）</span></div>`:''}
+      ${leftDir.length?`<div class="trend-row"><span class="trend-lbl">左ズレ頻度</span><span class="trend-val">${leftDir.length}球（${Math.round(leftDir.length/allDir.length*100)}%）</span></div>`:''}
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:4px">セッション履歴</div>
+    ${cr.slice().reverse().map(r=>{
+      const gsr=calcGSPI([r]); const grr=gspiGrade(gsr.gspi);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--gray2);font-size:12px">
+        <span style="color:var(--gray4);width:60px;flex-shrink:0">${r.date.slice(5)}</span>
+        <span style="color:var(--gray5);flex:1">${r.shots.map(s=>RLABEL[s]).join(' ')}</span>
+        <span style="font-weight:700;color:${grr.c}">${gsr.gspi}</span>
+      </div>`;
+    }).join('')}`;
+}
+
+async function generateClubAdvice(recs, byClub, clubNames, g){
+  const du = dirUnitLabel();
+  const analyses = clubNames.map(club=>{
+    const cr = byClub[club];
+    const allS = cr.flatMap(r=>r.shots);
+    const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+    const allDir = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+    const allDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+    const gs = calcGSPI(cr);
+    const avgDE = allDE.length ? (allDE.reduce((a,v)=>a+v,0)/allDE.length).toFixed(1) : 0;
+    const avgDir = allDir.length ? (allDir.reduce((a,v)=>a+v,0)/allDir.length).toFixed(1) : 0;
+    const avgDist = allDists.length ? Math.round(allDists.reduce((a,v)=>a+v,0)/allDists.length) : null;
+    const missRate = Math.round(allS.filter(s=>s==='D').length/allS.length*100);
+    return `${club}: GSPI${gs.gspi} ${avgDist?'平均'+avgDist+'y ':''}距離バイアス${avgDE>0?'+':''}${avgDE}y 方向バイアス${avgDir>0?'右':'左'}${Math.abs(avgDir)}${du} ミス率${missRate}%`;
+  }).join('\n');
+
+  const prompt = `以下はゴルフのクラブ別練習データです。プロのゴルフコーチとして、各クラブの傾向と具体的な改善アドバイスを3〜5点ください。
+
+${analyses}
+
+全体GSPI: ${g.gspi}
+
+回答はJSON形式のみ、他のテキストは一切含めないこと。
+{"items":[{"type":"warn"|"good"|"tip","text":"具体的なアドバイス（クラブ名・練習法・修正ポイント含む・60字以内）"}]}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    renderAdviceCard('club-advice-card', JSON.parse(text).items);
+  } catch(e) {
+    renderAdviceCard('club-advice-card', buildLocalClubAdvice(byClub, clubNames, g, du));
+  }
+}
+
+function buildLocalClubAdvice(byClub, clubNames, g, du){
+  const items = [];
+  clubNames.forEach(club=>{
+    const cr = byClub[club];
+    const allS = cr.flatMap(r=>r.shots);
+    const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
+    const allDir = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
+    const avgDE = allDE.length ? allDE.reduce((a,v)=>a+v,0)/allDE.length : 0;
+    const avgDir = allDir.length ? allDir.reduce((a,v)=>a+v,0)/allDir.length : 0;
+    const missRate = allS.filter(s=>s==='D').length/allS.length;
+    if(Math.abs(avgDE)>4) items.push({type:'warn',text:`${club}: ${avgDE>0?'オーバー':'手前'}傾向（${Math.abs(avgDE).toFixed(1)}y）。スイング幅を意識したハーフショット練習を`});
+    if(Math.abs(avgDir)>3) items.push({type:'warn',text:`${club}: ${avgDir>0?'右':'左'}ズレ傾向（${Math.abs(avgDir).toFixed(1)}${du}）。グリップとアライメントを再確認して`});
+    if(missRate>0.3) items.push({type:'warn',text:`${club}: ミス率${Math.round(missRate*100)}%。コースでの使用頻度を下げ、得意クラブを優先する戦略も有効`});
+  });
+  if(g.gspi>=80) items.push({type:'good',text:'全クラブで安定したパフォーマンス。ラウンドでの実践力に転換するため、コースマネジメント意識を高めて'});
+  if(!items.length) items.push({type:'tip',text:'各クラブのデータが増えると詳細な傾向が分析できます。継続記録を続けましょう'});
+  return items;
 }
 
 /* ── History ── */
@@ -1725,36 +2167,49 @@ function renderHome(){
   const recs = getRecords();
   const allS = recs.flatMap(r=>r.shots);
 
+  // 日付
+  const today = new Date();
+  const weekdays = ['日','月','火','水','木','金','土'];
+  const wd = weekdays[today.getDay()];
+  const dateStr = `${today.getMonth()+1}月${today.getDate()}日`;
+  document.getElementById('home-date-line').innerHTML =
+    `${dateStr}<span>（${wd}曜日）</span>`;
+
   // GSPI
-  const gspiEl = document.getElementById('home-gspi-val');
-  const gradeEl = document.getElementById('home-gspi-grade');
   if(recs.length){
     const g = calcGSPI(recs);
     const gr = gspiGrade(g.gspi);
-    gspiEl.textContent = g.gspi;
-    gspiEl.style.color = '#fff';
-    gradeEl.textContent = `Grade ${gr.g}`;
-    gradeEl.style.color = '#fff';
+    document.getElementById('home-gspi-num').textContent = g.gspi;
+    const badge = document.getElementById('home-grade-badge');
+    badge.textContent = `Grade ${gr.g}`;
+    badge.style.background = gr.c + '33';
+    badge.style.color = gr.c === '#534AB7' ? '#a89fe8' : gr.c === '#c4902a' ? '#e8c06a' : gr.c === '#c47a00' ? '#e0a030' : gr.c === '#d93025' ? '#e87870' : '#6a9ad4';
+
+    // 5軸ミニバー
+    const axisLabels = ['距離','方向','ミス耐','精度','上振'];
+    document.getElementById('home-axes-mini').innerHTML = g.axes.map((v,i)=>`
+      <div class="home-axis-row">
+        <div class="home-axis-lbl">${axisLabels[i]}</div>
+        <div class="home-axis-bar"><div class="home-axis-fill" style="width:${v}%"></div></div>
+        <div class="home-axis-val">${v}</div>
+      </div>`).join('');
   } else {
-    gspiEl.textContent = '—';
-    gradeEl.textContent = 'データなし';
+    document.getElementById('home-gspi-num').textContent = '—';
+    document.getElementById('home-grade-badge').textContent = 'データなし';
+    document.getElementById('home-axes-mini').innerHTML = '';
   }
 
-  document.getElementById('home-sessions').textContent = recs.length || '—';
+  // Week stats
+  document.getElementById('hw-sessions').textContent = recs.length || '—';
+  document.getElementById('hw-shots').textContent = allS.length || '—';
   const chips = allS.filter(s=>s==='chip').length;
-  document.getElementById('home-chips').textContent = chips || '—';
+  document.getElementById('hw-chips').textContent = chips || '—';
 
-  // 今日の日付
-  const today = new Date();
-  const weekday = ['日','月','火','水','木','金','土'][today.getDay()];
-  document.getElementById('home-title').textContent =
-    `${today.getMonth()+1}月${today.getDate()}日（${weekday}）`;
-
-  // 最近3件
-  const recent = [...recs].sort((a,b)=>b.id-a.id).slice(0,3);
+  // 最近5件
+  const recent = [...recs].sort((a,b)=>b.id-a.id).slice(0,5);
   const listEl = document.getElementById('home-recent-list');
   if(!recent.length){
-    listEl.innerHTML = '<div style="text-align:center;color:var(--gray3);font-size:13px;padding:20px 0">まだ記録がありません</div>';
+    listEl.innerHTML = '<div class="home-empty">まだ記録がありません<br>練習を記録してみましょう</div>';
     return;
   }
   listEl.innerHTML = recent.map(r=>{
@@ -1762,15 +2217,15 @@ function renderHome(){
     const gr = gspiGrade(g.gspi);
     const isClub = r.mode==='club';
     const label = isClub ? r.club : `${r.targetDist||r.dist}y`;
-    const sub = isClub ? r.club : (r.targetDist||r.dist)+'y';
+    const grColor = gr.c === '#534AB7' ? '#a89fe8' : gr.c === '#c4902a' ? '#e8c06a' : gr.c === '#c47a00' ? '#e0a030' : gr.c === '#d93025' ? '#e87870' : '#6a9ad4';
     const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
-    return `<div class="home-rec">
+    return `<div class="home-rec" onclick="showTab('history',document.getElementById('nav-history'))">
       <div class="home-rec-club">${label}</div>
       <div class="home-rec-info">
-        <div class="home-rec-date">${r.date} · ${r.place}</div>
+        <div class="home-rec-date">${r.date} · ${r.place}${r.club&&r.mode==='dist'?' · '+r.club:''}</div>
         <div class="home-rec-shots">${badges}</div>
       </div>
-      <div class="home-rec-gspi" style="color:${gr.c}">${g.gspi}</div>
+      <div class="home-rec-gspi" style="color:${grColor}">${g.gspi}</div>
     </div>`;
   }).join('');
 }
@@ -1942,7 +2397,7 @@ function showUpdateReady(){
   banner.id = 'install-banner';
   banner.style.cssText = [
     'position:fixed','bottom:calc(64px + env(safe-area-inset-bottom,0px))','left:10px','right:10px',
-    'background:#1a7a4a','color:#fff','border-radius:12px','padding:12px 14px',
+    'background:#1a3a6b','color:#fff','border-radius:12px','padding:12px 14px',
     'display:flex','align-items:center','gap:10px','z-index:500',
     'box-shadow:0 4px 20px rgba(0,0,0,.25)','font-family:-apple-system,sans-serif'
   ].join(';');
