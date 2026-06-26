@@ -78,7 +78,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 /* dist mode row: badge | distErr | dirErr | ★ */
 .shot-row{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 /* club mode row: badge | distErr | dirErr | dist-stepper | ★ */
-.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 
 .row-chip  {background:#e0f4eb!important;border-color:#1a7a4a!important}
 .row-A     {background:#e8f0fb!important;border-color:#1a6fbd!important}
@@ -635,11 +635,17 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         </div>
         <div class="card-title">10球の入力</div>
         <div class="card-sub">数値をタップしてフリックで選択 — 評価は自動反映</div>
-        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+        <!-- 設定値バナー -->
+        <div id="c-setdist-banner" style="display:flex;align-items:center;justify-content:space-between;background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius-sm);padding:7px 12px;margin-bottom:10px">
+          <div style="font-size:11px;color:rgba(255,255,255,.5)">キャリー設定値（基準）</div>
+          <div id="c-setdist-val" style="font-size:16px;font-weight:700;color:#c4902a">—</div>
+        </div>
+        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
           <div></div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
           <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">ラン込み(y)</div>
           <div></div>
         </div>
         <div class="shot-list" id="c-shot-grid"></div>
@@ -993,7 +999,8 @@ function selectSwing(sw){
     const btn = document.getElementById(`sw-${s}`);
     if(btn) btn.className = 'swing-btn' + (s===sw?' active':'');
   });
-  onClubChange();
+  const club = document.getElementById('c-club')?.value;
+  if(club) updateSetDistBanner(club, sw);
 }
 
 /* ── 方向誤差の単位 ('y' or 'm') ── */
@@ -1051,20 +1058,17 @@ function saveOneAvg(club){
   showToast(`${club} の平均飛距離を保存しました`);
 }
 
-/* ── Club change → autofill avg dist by swing ── */
+/* ── Club change → update banner ── */
 function onClubChange(){
   const club = document.getElementById('c-club').value;
-  const avg = getClubAvgDist(club, currentSwing);
-  if(avg!=null){
-    cShots.forEach(sh=>{ sh.dist=avg; });
-    buildShotGrid('c');
-  }
+  updateSetDistBanner(club, currentSwing);
 }
 
-/* ── Club change on init: don't autofill (keep empty) ── */
-function initClubSelect(){
-  buildClubSelects();
-  // do NOT call onClubChange here — keep dist fields empty on first load
+function updateSetDistBanner(club, swing){
+  const avg = getClubAvgDist(club, swing);
+  const valEl = document.getElementById('c-setdist-val');
+  if(!valEl) return;
+  valEl.textContent = avg != null ? avg + 'y（キャリー）' : '設定なし';
 }
 
 /* ── Stepper for dist (called from picker +/- if needed) ── */
@@ -1078,7 +1082,7 @@ function stepDist(i, delta){
 /* ── Shot state ── */
 // Each shot: {distErr, dirErr, dist, isChip}
 let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
-let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',dist:'',isChip:false}));
+let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false}));
 
 /* ── Flick Picker ── */
 // 距離誤差: 手前(マイナス)→オーバー(プラス)、0.5y刻み
@@ -1132,6 +1136,10 @@ function openPicker(prefix, shotIdx, field){
     const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
     colDefs = [{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
     title = '飛距離';
+  } else if(field==='totalDist'){
+    const cur = sh.totalDist!==''&&sh.totalDist!=null ? parseFloat(sh.totalDist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
+    colDefs = [{label:'ラン込み飛距離 (y)', values:PICKER_DIST, current:cur}];
+    title = 'ラン込み飛距離';
   } else if(field==='distErr'){
     const cur = sh.distErr!=='' ? parseFloat(sh.distErr) : 0;
     colDefs = [{label:'手前 ← 0 → オーバー (y)', values:PICKER_DIST_ERR, current:cur}];
@@ -1335,11 +1343,13 @@ function buildRowInner(row, prefix, i, sh, isClub){
   const chipActive = sh.isChip ? ' active' : '';
 
   if(isClub){
+    const tdVal = sh.totalDist!==''&&sh.totalDist!=null ? sh.totalDist+'y' : '–';
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
       <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
       <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
+      <button class="pick-btn${tdVal==='–'?' empty':''}" onclick="openPicker('c',${i},'totalDist')">${tdVal}</button>
       <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>`;
   } else {
     row.innerHTML = `
@@ -1386,20 +1396,21 @@ function quickFill(prefix, type){
 
 function clearShots(prefix){
   if(prefix==='d') dShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
-  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',dist:'',isChip:false}));
+  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false}));
   buildShotGrid(prefix);
 }
 
 function getShotData(prefix) {
   const shots = prefix === 'c' ? cShots : dShots;
-  const ratings = [], distErrs = [], dirErrs = [];
+  const ratings = [], distErrs = [], dirErrs = [], totalDists = [];
   for (const sh of shots) {
     if (!sh.isChip && (sh.distErr === '' || sh.dirErr === '')) return null;
     ratings.push(sh.isChip ? 'chip' : calcRating(sh.distErr, sh.dirErr, false));
     distErrs.push(sh.isChip ? 0 : parseFloat(sh.distErr));
     dirErrs.push(sh.isChip ? 0 : parseFloat(sh.dirErr));
+    if(prefix === 'c') totalDists.push(sh.totalDist!==''&&sh.totalDist!=null ? parseFloat(sh.totalDist) : null);
   }
-  return {ratings, distErrs, dirErrs};
+  return {ratings, distErrs, dirErrs, totalDists: prefix==='c' ? totalDists : null};
 }
 
 /* ── Save ── */
@@ -1419,12 +1430,19 @@ function saveRecord(mode) {
   if (mode === 'dist') rec.targetDist = parseInt(document.getElementById('d-dist').value);
   if (mode === 'club') {
     rec.swing = currentSwing;
-    // 実測飛距離 = 設定値 + 各球の距離誤差
     const setDist = getClubAvgDist(club, currentSwing);
+    rec.setDist = setDist;
+    // キャリー実測 = 設定値 + 距離誤差
     rec.dists = setDist != null
       ? data.distErrs.map(e => Math.round((setDist + e) * 10) / 10)
       : null;
-    rec.setDist = setDist; // 設定値も保存
+    // ラン = ラン込み飛距離 − キャリー実測
+    rec.totalDists = data.totalDists;
+    rec.runs = (rec.dists && data.totalDists)
+      ? data.totalDists.map((td, i) => td != null && rec.dists[i] != null
+          ? Math.round((td - rec.dists[i]) * 10) / 10
+          : null)
+      : null;
   }
   const arr = getRecords(); arr.push(rec); saveRecs(arr);
   showToast(`${mode==='dist'?document.getElementById('d-dist').value+'y ':club+' '}を保存しました`);
@@ -2053,6 +2071,9 @@ function buildClubDetailPanel(inner, ci){
   const sdDist = allDE.length>=2
     ? Math.sqrt(allDE.reduce((a,v)=>{const m=allDE.reduce((x,y)=>x+y,0)/allDE.length;return a+(v-m)**2},0)/allDE.length).toFixed(1)
     : null;
+  // 平均ラン距離
+  const allRuns = cr.flatMap(r=>r.runs||[]).filter(v=>v!=null&&!isNaN(v));
+  const avgRun = allRuns.length ? (allRuns.reduce((a,v)=>a+v,0)/allRuns.length).toFixed(1) : null;
   const overDE = allDE.filter(v=>v>0);
   const shortDE = allDE.filter(v=>v<0);
   const rightDir = allDir.filter(v=>v>0);
@@ -2079,8 +2100,11 @@ function buildClubDetailPanel(inner, ci){
     </div>
     ${avgDist!=null?`<div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">飛距離データ</div>
     <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
-      <div class="trend-row"><span class="trend-lbl">平均飛距離</span><span class="trend-val">${avgDist}y</span></div>
-      ${sdDist?`<div class="trend-row"><span class="trend-lbl">標準偏差</span><span class="trend-val">±${sdDist}y</span></div>`:''}
+      ${setDistVal?`<div class="trend-row"><span class="trend-lbl">設定値（キャリー）</span><span class="trend-val">${setDistVal}y</span></div>`:''}
+      <div class="trend-row"><span class="trend-lbl">実測平均キャリー</span><span class="trend-val" style="color:var(--blue)">${avgDist}y</span></div>
+      ${sdDist?`<div class="trend-row"><span class="trend-lbl">ばらつき（SD）</span><span class="trend-val">±${sdDist}y</span></div>`:''}
+      ${avgRun!=null?`<div class="trend-row"><span class="trend-lbl">平均ラン距離</span><span class="trend-val" style="color:#3d7016">${avgRun}y</span></div>`:''}
+      ${avgRun!=null&&avgDist!=null?`<div class="trend-row"><span class="trend-lbl">平均トータル</span><span class="trend-val">${Math.round((avgDist+parseFloat(avgRun))*10)/10}y</span></div>`:''}
     </div>`:''}
     <div style="font-size:11px;font-weight:600;color:var(--gray4);margin-bottom:6px">距離誤差の傾向</div>
     <div style="background:var(--gray0);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:8px">
