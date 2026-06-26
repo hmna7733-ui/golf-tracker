@@ -339,7 +339,22 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .hs-grade-num{font-size:18px;font-weight:900;line-height:1}
 .hs-empty{font-size:11px;color:rgba(255,255,255,.2);padding:8px 0}
 
-/* Growth chart */
+/* Swing selector */
+.swing-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.swing-btn{height:38px;border:1.5px solid var(--gray2);border-radius:var(--radius-sm);background:var(--gray0);font-size:12px;font-weight:600;color:var(--gray4);cursor:pointer;font-family:inherit;transition:all .1s}
+.swing-btn.active{background:#1a3a6b;color:#fff;border-color:#1a3a6b}
+.swing-btn:active{opacity:.8}
+
+/* dist comparison bar */
+.dist-cmp-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--gray2);font-size:12px}
+.dist-cmp-row:last-child{border-bottom:none}
+.dist-cmp-key{color:var(--gray5);font-weight:600;min-width:80px;flex-shrink:0;font-size:11px}
+.dist-cmp-avg{color:var(--gray5);font-weight:700;width:40px;text-align:right;flex-shrink:0}
+.dist-cmp-set{color:var(--gray3);font-size:11px;width:40px;text-align:right;flex-shrink:0}
+.dist-cmp-diff{font-weight:700;font-size:11px;width:38px;text-align:right;flex-shrink:0}
+.dist-cmp-track{flex:1;height:6px;background:var(--gray2);border-radius:99px;overflow:visible;position:relative}
+.dist-cmp-fill-over{height:100%;border-radius:99px;background:#1a3a6b;position:absolute;top:0}
+.dist-cmp-fill-short{height:100%;border-radius:99px;background:#d93025;position:absolute;top:0;right:0}
 .growth-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
 .growth-filter{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
 .gf-btn{height:28px;padding:0 12px;border:1px solid var(--gray2);border-radius:var(--radius-full);background:var(--gray0);font-size:12px;color:var(--gray4);cursor:pointer;font-family:inherit}
@@ -599,6 +614,14 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
           <div class="fg"><label>場所</label><select id="c-place"><option>インドア</option><option>屋外</option></select></div>
         </div>
         <div class="fg"><label>クラブ</label><select id="c-club" onchange="onClubChange()"></select></div>
+        <div class="fg" style="margin-top:8px">
+          <label>スイング</label>
+          <div class="swing-sel">
+            <button class="swing-btn active" id="sw-half"  onclick="selectSwing('half')">1/2</button>
+            <button class="swing-btn"         id="sw-three" onclick="selectSwing('three')">3/4</button>
+            <button class="swing-btn"         id="sw-full"  onclick="selectSwing('full')">フル</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -702,7 +725,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       </div>
       <div class="card">
         <div class="sec-hdr">クラブ別 平均飛距離の設定</div>
-        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">ここで設定した距離がクラブ別記録の飛距離欄に自動入力されます。練習中にピッカーで微調整できます。</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">スイング種別ごとに設定した距離がクラブ別記録の飛距離欄に自動入力されます。</div>
         <div id="avg-dist-table-wrap"></div>
       </div>
 
@@ -952,7 +975,27 @@ function getRecords(){return stor('gf_recs')||[]}
 function saveRecs(r){stor('gf_recs',r)}
 function getAvgDists(){return stor('gf_avg_dists')||{}}
 function saveAvgDists(d){stor('gf_avg_dists',d)}
-function getClubAvgDist(club){return getAvgDists()[club]||null}
+
+// キー: "7I-half" / "7I-three" / "7I-full"
+const SWING_KEYS = ['half','three','full'];
+const SWING_LABELS = {half:'1/2スイング', three:'3/4スイング', full:'フルスイング'};
+const SWING_SHORT  = {half:'1/2', three:'3/4', full:'フル'};
+let currentSwing = 'half';
+
+function getClubAvgDist(club, swing){
+  const avgs = getAvgDists();
+  const k = swing ? `${club}-${swing}` : club;
+  return avgs[k] || avgs[club] || null; // fallback to old key
+}
+
+function selectSwing(sw){
+  currentSwing = sw;
+  ['half','three','full'].forEach(s=>{
+    const btn = document.getElementById(`sw-${s}`);
+    if(btn) btn.className = 'swing-btn' + (s===sw?' active':'');
+  });
+  onClubChange();
+}
 
 /* ── 方向誤差の単位 ('y' or 'm') ── */
 function getDirUnit(){return stor('gf_dir_unit')||'y'}
@@ -980,30 +1023,39 @@ function buildAvgDistTable(){
   const avgs = getAvgDists();
   const wrap = document.getElementById('avg-dist-table-wrap');
   if(!clubs.length){wrap.innerHTML='<p style="font-size:12px;color:var(--gray3)">クラブを登録してください</p>';return;}
-  wrap.innerHTML = `<table class="avg-dist-table">
-    ${clubs.map(c=>`<tr>
-      <td>${c}</td>
-      <td><input class="avg-dist-input" type="number" inputmode="decimal" id="avgd-${CSS.escape(c)}" placeholder="例: 150" value="${avgs[c]||''}"></td>
-      <td><button class="save-avg-btn" onclick="saveOneAvg('${c.replace(/'/g,"\\'")}')">保存</button></td>
-    </tr>`).join('')}
-  </table>`;
+  wrap.innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px">
+      <div></div>
+      ${SWING_KEYS.map(sw=>`<div style="font-size:10px;font-weight:700;color:var(--gray4);text-align:center">${SWING_SHORT[sw]}</div>`).join('')}
+      <div></div>
+    </div>
+    ${clubs.map(c=>`
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--gray2)">
+      <div style="font-size:13px;font-weight:600;color:var(--gray5);white-space:nowrap;min-width:44px">${c}</div>
+      ${SWING_KEYS.map(sw=>`<input class="avg-dist-input" style="width:100%" type="number" inputmode="decimal"
+        id="avgd-${CSS.escape(c)}-${sw}" placeholder="—" value="${avgs[c+'-'+sw]||''}">`).join('')}
+      <button class="save-avg-btn" onclick="saveOneAvg('${c.replace(/'/g,"\\'")}')">保存</button>
+    </div>`).join('')}`;
 }
 
 function saveOneAvg(club){
-  const inp = document.getElementById('avgd-'+CSS.escape(club));
-  if(!inp) return;
-  const v = inp.value.trim();
   const avgs = getAvgDists();
-  if(v===''){delete avgs[club];}
-  else{const n=parseFloat(v);if(isNaN(n)||n<=0){showToast('正しい距離を入力してください');return;}avgs[club]=n;}
+  SWING_KEYS.forEach(sw=>{
+    const inp = document.getElementById(`avgd-${CSS.escape(club)}-${sw}`);
+    if(!inp) return;
+    const v = inp.value.trim();
+    const key = `${club}-${sw}`;
+    if(v==='') delete avgs[key];
+    else { const n=parseFloat(v); if(!isNaN(n)&&n>0) avgs[key]=n; }
+  });
   saveAvgDists(avgs);
   showToast(`${club} の平均飛距離を保存しました`);
 }
 
-/* ── Club change → autofill avg dist ── */
+/* ── Club change → autofill avg dist by swing ── */
 function onClubChange(){
   const club = document.getElementById('c-club').value;
-  const avg = getClubAvgDist(club);
+  const avg = getClubAvgDist(club, currentSwing);
   if(avg!=null){
     cShots.forEach(sh=>{ sh.dist=avg; });
     buildShotGrid('c');
@@ -1013,7 +1065,7 @@ function onClubChange(){
 /* ── Stepper for dist (called from picker +/- if needed) ── */
 function stepDist(i, delta){
   const sh = cShots[i];
-  const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value)||150);
+  const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
   sh.dist = Math.max(0, cur + delta);
   updateRow('c', i);
 }
@@ -1072,7 +1124,7 @@ function openPicker(prefix, shotIdx, field){
   let colDefs, title;
 
   if(field==='dist'){
-    const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value)||150);
+    const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
     colDefs = [{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
     title = '飛距離';
   } else if(field==='distErr'){
@@ -1365,6 +1417,7 @@ function saveRecord(mode) {
     dists: data.dists
   };
   if (mode === 'dist') rec.targetDist = parseInt(document.getElementById('d-dist').value);
+  if (mode === 'club') rec.swing = currentSwing;
   const arr = getRecords(); arr.push(rec); saveRecs(arr);
   showToast(`${mode==='dist'?document.getElementById('d-dist').value+'y ':club+' '}を保存しました`);
   clearShots(prefix);
@@ -1406,7 +1459,7 @@ function renderGrowthStats(){
   // 全キー収集
   const distKeys = [...new Set(allRecs.filter(r=>r.mode==='dist').map(r=>String(r.targetDist||r.dist)+'y'))]
     .sort((a,b)=>parseInt(a)-parseInt(b));
-  const clubKeys = [...new Set(allRecs.filter(r=>r.mode==='club').map(r=>r.club))];
+  const clubKeys = [...new Set(allRecs.filter(r=>r.mode==='club').map(r=>`${r.club}-${SWING_SHORT[r.swing||'full']||r.swing||'フル'}`))];
 
   // フィルタ：存在しないキーは 'all' にリセット
   const allKeys = ['all',...distKeys,...clubKeys];
@@ -1428,7 +1481,11 @@ function renderGrowthStats(){
     const d = parseInt(growthFilter);
     filtered = allRecs.filter(r=>r.mode==='dist'&&(r.targetDist||r.dist)==d);
   } else {
-    filtered = allRecs.filter(r=>r.mode==='club'&&r.club===growthFilter);
+    // club-swing key e.g. "7I-フル"
+    filtered = allRecs.filter(r=>{
+      const k = `${r.club}-${SWING_SHORT[r.swing||'full']||r.swing||'フル'}`;
+      return r.mode==='club' && k===growthFilter;
+    });
   }
 
   if(filtered.length < 2){
@@ -1770,8 +1827,14 @@ function renderAdviceCard(cardId, items){
 function renderClubStats(recs) {
   const div = document.getElementById('st-club-view');
   if (!recs.length) { div.innerHTML='<p class="no-data">クラブ別データがまだありません</p>'; return; }
+  // クラブ×スイングで集計
   const byClub = {};
-  recs.forEach(r=>{if(!byClub[r.club])byClub[r.club]=[];byClub[r.club].push(r);});
+  recs.forEach(r=>{
+    const sw = r.swing || 'full';
+    const key = `${r.club}-${SWING_SHORT[sw]||sw}`;
+    if(!byClub[key]) byClub[key]=[];
+    byClub[key].push(r);
+  });
   const overallG = calcGSPI(recs);
   const gr = gspiGrade(overallG.gspi);
   const allS = recs.flatMap(r=>r.shots);
@@ -1787,8 +1850,48 @@ function renderClubStats(recs) {
         <div class="gspi-grade" style="color:${gr.c}">Grade ${gr.g}</div>
         <div style="font-size:10px;color:var(--gray4);margin-top:2px">${recs.length}セッション / ★${chips}</div>
       </div>
-    </div>
-    <div style="font-size:11px;color:var(--gray4);margin-bottom:6px;padding:0 2px">▼ 各クラブをタップで詳細を表示</div>
+    </div>`;
+
+  // 飛距離比較カード
+  const avgs = getAvgDists();
+  const cmpRows = [];
+  Object.keys(byClub).forEach(key=>{
+    const cr = byClub[key];
+    const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+    if(!validDists.length) return;
+    const avgD = Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length);
+    // 対応する設定値を探す
+    const r0 = cr[0];
+    const sw = r0.swing || 'full';
+    const setKey = `${r0.club}-${sw}`;
+    const setDist = avgs[setKey] || null;
+    cmpRows.push({key, avgD, setDist, diff: setDist ? avgD - setDist : null});
+  });
+
+  if(cmpRows.length){
+    html += `<div class="card" style="margin-bottom:10px">
+      <div class="card-title" style="margin-bottom:4px">平均飛距離 vs 設定値</div>
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:4px;padding:4px 0;margin-bottom:4px">
+        <div style="font-size:10px;color:var(--gray4)">クラブ / スイング</div>
+        <div style="font-size:10px;color:var(--gray4);text-align:right">実測</div>
+        <div style="font-size:10px;color:var(--gray4);text-align:right">設定</div>
+        <div style="font-size:10px;color:var(--gray4);text-align:right">差</div>
+      </div>
+      ${cmpRows.map(row=>{
+        const diffCol = row.diff===null?'var(--gray3)':row.diff>3?'#1a3a6b':row.diff<-3?'#d93025':'#3d7016';
+        const diffTxt = row.diff===null?'設定なし':row.diff>0?'+'+row.diff+'y':row.diff+'y';
+        return `<div class="dist-cmp-row">
+          <div class="dist-cmp-key">${row.key}</div>
+          <div class="dist-cmp-avg">${row.avgD}y</div>
+          <div class="dist-cmp-set">${row.setDist?row.setDist+'y':'—'}</div>
+          <div class="dist-cmp-diff" style="color:${diffCol}">${diffTxt}</div>
+        </div>`;
+      }).join('')}
+      <div style="font-size:10px;color:var(--gray4);margin-top:6px;line-height:1.5">青=オーバー傾向 / 赤=手前傾向 / 緑=±3y以内で安定</div>
+    </div>`;
+  }
+
+  html += `<div style="font-size:11px;color:var(--gray4);margin-bottom:6px;padding:0 2px">▼ 各クラブをタップで詳細を表示</div>
     <div class="card" style="padding:0 12px">`;
 
   const axisLabels = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
@@ -2437,7 +2540,9 @@ function renderHomeSplit(type, recs){
   }
   const byKey = {};
   recs.forEach(r=>{
-    const k = type==='dist' ? String(r.targetDist||r.dist)+'y' : r.club;
+    const k = type==='dist'
+      ? String(r.targetDist||r.dist)+'y'
+      : `${r.club}-${SWING_SHORT[r.swing||'full']||r.swing||'フル'}`;
     if(!byKey[k]) byKey[k]=[];
     byKey[k].push(r);
   });
