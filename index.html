@@ -680,37 +680,62 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 
       <div class="card">
         <div class="sec-hdr">GSPI 算出基準</div>
-        <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.6">Golf Stability &amp; Performance Index — 5軸の加重平均スコア（0〜100点）</div>
+        <div style="font-size:11px;color:var(--gray4);margin-bottom:12px;line-height:1.7">Golf Stability &amp; Performance Index — 練習データから算出する0〜100点の総合スコアです。5つの軸で「どこが得意でどこが課題か」を数値化します。</div>
 
-        <!-- 5軸の計算式 -->
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:6px">■ 5軸スコアの計算式</div>
-          <div style="display:flex;flex-direction:column;gap:5px">
-            ${[
-              ['距離安定性','25%','距離誤差の絶対値平均から算出。誤差0y=100、5y=75、10y=50、20y以上=0'],
-              ['方向安定性','25%','方向誤差の絶対値平均（y換算）から算出。0y=100、5y=50、10y以上=0'],
-              ['ミス耐性',  '20%','×ショットの割合の二乗で重罰。×0%=100、×30%=91、×50%=75、×100%=0'],
-              ['精度',      '20%','★◎=100点、○=75点、△=40点、×=0点 の加重平均'],
-              ['上振れ力',  '10%','★+◎ショットの割合（0〜100%）'],
-            ].map(([name,weight,desc])=>`
-              <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:8px 10px">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-                  <span style="font-size:12px;font-weight:700;color:var(--gray5)">${name}</span>
-                  <span style="font-size:11px;font-weight:700;color:var(--green)">${weight}</span>
-                </div>
-                <div style="font-size:11px;color:var(--gray4);line-height:1.5">${desc}</div>
-              </div>`).join('')}
+        <!-- 5軸の意味 -->
+        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:8px">■ 5つの軸とその意味</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--gray5)">距離安定性</span>
+              <span style="font-size:11px;font-weight:700;color:#c4902a">重み 25%</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray4);line-height:1.6">狙った距離に毎回同じように打てているかを示します。距離誤差の平均が小さいほど高スコアになります。練習場で「距離感」と呼ばれる感覚の数値化です。</div>
           </div>
+
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--gray5)">方向安定性</span>
+              <span style="font-size:11px;font-weight:700;color:#c4902a">重み 25%</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray4);line-height:1.6">ボールが毎回同じ方向に飛んでいるかを示します。左右のバラつきが小さいほど高スコア。「引っかけ」「プッシュアウト」など方向のクセも把握できます。</div>
+          </div>
+
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--gray5)">ミス耐性</span>
+              <span style="font-size:11px;font-weight:700;color:#c4902a">重み 20%</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray4);line-height:1.6">致命的なミスショット（×）がどれだけ少ないかを示します。ダフリ・トップ・シャンクなど大きなミスはコースで1打以上の損失になるため、連続ミスは特に重く評価されます。</div>
+          </div>
+
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--gray5)">精度</span>
+              <span style="font-size:11px;font-weight:700;color:#c4902a">重み 20%</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray4);line-height:1.6">全体的なショットの質の平均です。★◎=満点・○=75点・△=40点・×=0点で計算します。全球の平均的な出来栄えを表します。</div>
+          </div>
+
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:10px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--gray5)">上振れ力</span>
+              <span style="font-size:11px;font-weight:700;color:#c4902a">重み 10%</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray4);line-height:1.6">チップインや完璧なショット（★◎）が出る頻度を示します。「攻める力」の指標で、スコアメイクの上限を左右します。安定していても上振れが少ないとスコアは伸び悩みます。</div>
+          </div>
+
         </div>
 
-        <!-- GSPI = 合計 -->
-        <div style="background:var(--blue-light);border:1px solid #b5d4f4;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">GSPI = 各軸 × 重み の合計</div>
-          <div style="font-size:11px;color:#0c447c;line-height:1.6">距離安定性×0.25 + 方向安定性×0.25 + ミス耐性×0.20 + 精度×0.20 + 上振れ力×0.10</div>
+        <!-- GSPI計算式 -->
+        <div style="background:#faf3e6;border:1px solid #e8c06a;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:#c4902a;margin-bottom:4px">GSPI = 5軸の加重平均</div>
+          <div style="font-size:11px;color:#8a6010;line-height:1.6">距離安定性×0.25 + 方向安定性×0.25 + ミス耐性×0.20 + 精度×0.20 + 上振れ力×0.10</div>
         </div>
 
         <!-- グレード表 -->
-        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:6px">■ グレード基準</div>
+        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin-bottom:8px">■ グレード基準</div>
         <table class="grade-table">
           <thead><tr>
             <th style="width:46px">Grade</th>
@@ -753,22 +778,28 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         </table>
 
         <!-- 評価基準 -->
-        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin:10px 0 6px">■ ショット評価基準（距離誤差 / 方向誤差）</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-          ${[
-            ['★','チップイン','#1a3a6b','誤差0y / 0y'],
-            ['◎','完璧','#1a6fbd','±3y以内 / ±3y以内'],
-            ['○','良い','#3d7016','±6y以内 / ±6y以内'],
-            ['△','普通','#c47a00','±10y以内 / ±10y以内'],
-            ['×','ミス','#d93025','上記を超える'],
-          ].map(([sym,name,col,crit])=>`
-            <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:6px 8px;display:flex;align-items:center;gap:7px">
-              <span style="font-size:16px;font-weight:700;color:${col};width:18px;text-align:center">${sym}</span>
-              <div>
-                <div style="font-size:11px;font-weight:600;color:var(--gray5)">${name}</div>
-                <div style="font-size:10px;color:var(--gray4)">${crit}</div>
-              </div>
-            </div>`).join('')}
+        <div style="font-size:11px;font-weight:700;color:var(--gray5);margin:12px 0 8px">■ ショット評価基準（距離誤差 / 方向誤差）</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:7px 10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:17px;font-weight:700;color:#1a7a4a;width:20px;text-align:center">★</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--gray5)">チップイン</div><div style="font-size:10px;color:var(--gray4)">距離誤差0y・方向誤差0y（完璧なショット）</div></div>
+          </div>
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:7px 10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:17px;font-weight:700;color:#1a6fbd;width:20px;text-align:center">◎</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--gray5)">完璧</div><div style="font-size:10px;color:var(--gray4)">距離誤差±3y以内 かつ 方向誤差±3y以内</div></div>
+          </div>
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:7px 10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:17px;font-weight:700;color:#3d7016;width:20px;text-align:center">○</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--gray5)">良い</div><div style="font-size:10px;color:var(--gray4)">距離誤差±6y以内 かつ 方向誤差±6y以内</div></div>
+          </div>
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:7px 10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:17px;font-weight:700;color:#c47a00;width:20px;text-align:center">△</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--gray5)">普通</div><div style="font-size:10px;color:var(--gray4)">距離誤差±10y以内 かつ 方向誤差±10y以内</div></div>
+          </div>
+          <div style="background:var(--gray1);border-radius:var(--radius-sm);padding:7px 10px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:17px;font-weight:700;color:#d93025;width:20px;text-align:center">×</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--gray5)">ミス</div><div style="font-size:10px;color:var(--gray4)">上記を超えるダフリ・トップ・シャンクなど</div></div>
+          </div>
         </div>
       </div>
 
