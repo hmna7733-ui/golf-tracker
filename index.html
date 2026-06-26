@@ -327,14 +327,17 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .home-empty{text-align:center;padding:24px 0;color:rgba(255,255,255,.25);font-size:13px}
 
 /* Home GSPI list rows */
-.hs-row{display:grid;grid-template-columns:52px 1fr auto auto;align-items:center;gap:8px;padding:7px 10px;background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius-sm);margin-bottom:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .1s}
-.hs-row:active{background:#162a5a}
-.hs-row-key{font-size:13px;font-weight:700;color:#fff}
-.hs-row-bar-wrap{height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
-.hs-row-bar{height:100%;border-radius:99px;background:#c4902a}
-.hs-row-gspi{font-size:15px;font-weight:800;width:32px;text-align:right}
-.hs-row-grade{font-size:10px;font-weight:700;width:20px;text-align:right}
-.hs-empty{font-size:12px;color:rgba(255,255,255,.25);padding:8px 4px}
+.hs-cols{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.06);padding:0 12px 16px;border-radius:0}
+.hs-col{background:#060d1a;padding:10px 8px}
+.hs-col-hdr{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:5px}
+.hs-row{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.hs-row:last-child{border-bottom:none}
+.hs-row-key{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.3px;margin-bottom:2px}
+.hs-score-label{font-size:8px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase}
+.hs-score-num{font-size:26px;font-weight:900;line-height:1;letter-spacing:-1px}
+.hs-grade-label{font-size:8px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.hs-grade-num{font-size:18px;font-weight:900;line-height:1}
+.hs-empty{font-size:11px;color:rgba(255,255,255,.2);padding:8px 0}
 
 /* Growth chart */
 .growth-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
@@ -521,12 +524,16 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
           </div>
         </div>
 
-        <!-- Split GSPI lists -->
-        <div style="padding:0 12px 16px">
-          <div class="home-split-label" style="margin-bottom:8px">距離別 GSPI</div>
-          <div id="hs-dist-list"></div>
-          <div class="home-split-label" style="margin-bottom:8px;margin-top:14px">クラブ別 GSPI</div>
-          <div id="hs-club-list"></div>
+        <!-- Split GSPI -->
+        <div class="hs-cols">
+          <div class="hs-col">
+            <div class="hs-col-hdr">距離別 GSPI</div>
+            <div id="hs-dist-list"></div>
+          </div>
+          <div class="hs-col">
+            <div class="hs-col-hdr">クラブ別 GSPI</div>
+            <div id="hs-club-list"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2425,19 +2432,15 @@ function gradeTextColor(c){
 function renderHomeSplit(type, recs){
   const listEl = document.getElementById(`hs-${type}-list`);
   if(!recs.length){
-    listEl.innerHTML = `<div class="hs-empty">まだ記録がありません</div>`;
+    listEl.innerHTML = `<div class="hs-empty">記録なし</div>`;
     return;
   }
-
-  // グループ化
   const byKey = {};
   recs.forEach(r=>{
     const k = type==='dist' ? String(r.targetDist||r.dist)+'y' : r.club;
     if(!byKey[k]) byKey[k]=[];
     byKey[k].push(r);
   });
-
-  // ソート：距離は数値順、クラブはデータ順
   const keys = type==='dist'
     ? Object.keys(byKey).sort((a,b)=>parseInt(a)-parseInt(b))
     : Object.keys(byKey);
@@ -2446,12 +2449,12 @@ function renderHomeSplit(type, recs){
     const g = calcGSPI(byKey[k]);
     const gr = gspiGrade(g.gspi);
     const col = gradeTextColor(gr.c);
-    const chips = byKey[k].flatMap(r=>r.shots).filter(s=>s==='chip').length;
-    return `<div class="hs-row" onclick="showTab('stats',document.getElementById('nav-stats'))">
+    return `<div class="hs-row">
       <div class="hs-row-key">${k}</div>
-      <div class="hs-row-bar-wrap"><div class="hs-row-bar" style="width:${g.gspi}%"></div></div>
-      <div class="hs-row-gspi" style="color:${col}">${g.gspi}</div>
-      <div class="hs-row-grade" style="color:${col}">${gr.g}</div>
+      <div class="hs-score-label">GSPI SCORE</div>
+      <div class="hs-score-num" style="color:${col}">${g.gspi}</div>
+      <div class="hs-grade-label">GRADE</div>
+      <div class="hs-grade-num" style="color:${col}">${gr.g}</div>
     </div>`;
   }).join('');
 }
