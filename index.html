@@ -325,6 +325,27 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .home-rec-shots{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px}
 .home-rec-gspi{font-size:17px;font-weight:800;flex-shrink:0}
 .home-empty{text-align:center;padding:24px 0;color:rgba(255,255,255,.25);font-size:13px}
+
+/* Home split GSPI panel */
+.home-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 16px}
+.home-split-card{background:#0f2040;border:1px solid #1a3a6b;border-radius:var(--radius);padding:12px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .12s}
+.home-split-card:active{background:#162a5a}
+.home-split-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.home-split-gspi{font-size:34px;font-weight:800;color:#fff;line-height:1;margin-bottom:3px}
+.home-split-grade{font-size:11px;font-weight:700;margin-bottom:4px}
+.home-split-sub{font-size:10px;color:rgba(255,255,255,.35)}
+.home-split-bar{height:3px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin-top:8px}
+.home-split-fill{height:100%;border-radius:99px;background:#c4902a}
+
+/* Growth chart */
+.growth-wrap{position:relative;width:100%;height:220px;margin-bottom:8px}
+.growth-filter{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.gf-btn{height:28px;padding:0 12px;border:1px solid var(--gray2);border-radius:var(--radius-full);background:var(--gray0);font-size:12px;color:var(--gray4);cursor:pointer;font-family:inherit}
+.gf-btn.active{background:#1a3a6b;color:#fff;border-color:#1a3a6b}
+.growth-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.growth-stat{background:var(--gray1);border-radius:var(--radius-sm);padding:8px;text-align:center}
+.growth-stat .gv{font-size:18px;font-weight:700;color:var(--gray5)}
+.growth-stat .gl{font-size:10px;color:var(--gray4);margin-top:1px}
 .home-sec-divider{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;padding:4px 12px 6px}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
@@ -501,13 +522,22 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
           </div>
         </div>
 
-        <!-- Recent -->
-        <div class="home-recent-wrap">
-          <div class="home-recent-hdr">
-            <div class="home-recent-lbl">最近の記録</div>
-            <div class="home-recent-more" onclick="showTab('history',document.getElementById('nav-history'))">すべて表示 →</div>
+        <!-- Split GSPI -->
+        <div class="home-split">
+          <div class="home-split-card" onclick="showTab('stats',document.getElementById('nav-stats'))">
+            <div class="home-split-label">距離別 GSPI</div>
+            <div class="home-split-gspi" id="hs-dist-gspi">—</div>
+            <div class="home-split-grade" id="hs-dist-grade" style="color:rgba(255,255,255,.3)">データなし</div>
+            <div class="home-split-sub" id="hs-dist-sub"></div>
+            <div class="home-split-bar"><div class="home-split-fill" id="hs-dist-bar" style="width:0%"></div></div>
           </div>
-          <div id="home-recent-list"></div>
+          <div class="home-split-card" onclick="showTab('stats',document.getElementById('nav-stats'))">
+            <div class="home-split-label">クラブ別 GSPI</div>
+            <div class="home-split-gspi" id="hs-club-gspi">—</div>
+            <div class="home-split-grade" id="hs-club-grade" style="color:rgba(255,255,255,.3)">データなし</div>
+            <div class="home-split-sub" id="hs-club-sub"></div>
+            <div class="home-split-bar"><div class="home-split-fill" id="hs-club-bar" style="width:0%"></div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -613,10 +643,12 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
     <div class="section" id="sec-stats">
       <div class="mode-toggle">
         <button class="mt-btn active" id="st-d-btn" onclick="switchStats('dist')">距離別</button>
-        <button class="mt-btn" id="st-c-btn" onclick="switchStats('club')">クラブ別 GSPI</button>
+        <button class="mt-btn" id="st-c-btn" onclick="switchStats('club')">クラブ別</button>
+        <button class="mt-btn" id="st-g-btn" onclick="switchStats('growth')">成長曲線</button>
       </div>
       <div id="st-dist-view"></div>
       <div id="st-club-view" style="display:none"></div>
+      <div id="st-growth-view" style="display:none"></div>
     </div>
 
     <!-- 履歴 -->
@@ -1347,18 +1379,187 @@ function saveRecord(mode) {
 let statsMode = 'dist';
 let radarChart = null;
 
+let growthChart = null;
+let growthFilter = 'all';
+
 function switchStats(m) {
   statsMode = m;
-  document.getElementById('st-d-btn').className = 'mt-btn' + (m==='dist'?' active':'');
-  document.getElementById('st-c-btn').className = 'mt-btn' + (m==='club'?' active':'');
-  document.getElementById('st-dist-view').style.display = m==='dist'?'block':'none';
-  document.getElementById('st-club-view').style.display = m==='club'?'block':'none';
+  document.getElementById('st-d-btn').className = 'mt-btn'+(m==='dist'?' active':'');
+  document.getElementById('st-c-btn').className = 'mt-btn'+(m==='club'?' active':'');
+  document.getElementById('st-g-btn').className = 'mt-btn'+(m==='growth'?' active':'');
+  document.getElementById('st-dist-view').style.display   = m==='dist'?'block':'none';
+  document.getElementById('st-club-view').style.display   = m==='club'?'block':'none';
+  document.getElementById('st-growth-view').style.display = m==='growth'?'block':'none';
   renderStats();
 }
 
 function renderStats() {
   renderDistStats(getRecords().filter(r=>r.mode==='dist'));
   renderClubStats(getRecords().filter(r=>r.mode==='club'));
+  if(statsMode==='growth') renderGrowthStats();
+}
+
+function renderGrowthStats(){
+  const div = document.getElementById('st-growth-view');
+  const allRecs = getRecords().sort((a,b)=>a.id-b.id);
+  if(allRecs.length < 2){
+    div.innerHTML='<p class="no-data">2セッション以上記録されると成長曲線が表示されます</p>';
+    return;
+  }
+
+  // フィルタ適用
+  const filtered = growthFilter==='all' ? allRecs
+    : allRecs.filter(r=>r.mode===growthFilter);
+
+  if(filtered.length < 2){
+    div.innerHTML=`<div class="growth-filter">
+      <button class="gf-btn${growthFilter==='all'?' active':''}" onclick="setGrowthFilter('all')">すべて</button>
+      <button class="gf-btn${growthFilter==='dist'?' active':''}" onclick="setGrowthFilter('dist')">距離別</button>
+      <button class="gf-btn${growthFilter==='club'?' active':''}" onclick="setGrowthFilter('club')">クラブ別</button>
+    </div><p class="no-data">このフィルタではデータが不足しています</p>`;
+    return;
+  }
+
+  // 累積GSPI計算: 各セッション時点までの全データでGSPI算出
+  const points = filtered.map((r,i)=>{
+    const cumRecs = filtered.slice(0,i+1);
+    const g = calcGSPI(cumRecs);
+    return {date:r.date, gspi:g.gspi, axes:g.axes, label:`${r.date.slice(5)}`, mode:r.mode,
+      club:r.mode==='club'?r.club:(r.targetDist||r.dist)+'y'};
+  });
+
+  // 最初・最新・最高・最低
+  const first = points[0].gspi;
+  const last  = points[points.length-1].gspi;
+  const best  = Math.max(...points.map(p=>p.gspi));
+  const diff  = last - first;
+
+  const statsHTML = `
+    <div class="growth-stat-row">
+      <div class="growth-stat"><div class="gv">${last}</div><div class="gl">現在GSPI</div></div>
+      <div class="growth-stat"><div class="gv" style="color:${diff>=0?'#1a3a6b':'#d93025'}">${diff>=0?'+':''}${diff}</div><div class="gl">初回比</div></div>
+      <div class="growth-stat"><div class="gv" style="color:#c4902a">${best}</div><div class="gl">最高GSPI</div></div>
+    </div>`;
+
+  div.innerHTML = `
+    <div class="growth-filter">
+      <button class="gf-btn${growthFilter==='all'?' active':''}" onclick="setGrowthFilter('all')">すべて</button>
+      <button class="gf-btn${growthFilter==='dist'?' active':''}" onclick="setGrowthFilter('dist')">距離別</button>
+      <button class="gf-btn${growthFilter==='club'?' active':''}" onclick="setGrowthFilter('club')">クラブ別</button>
+    </div>
+    ${statsHTML}
+    <div class="card">
+      <div class="card-title" style="margin-bottom:8px">GSPI 成長曲線（累積）</div>
+      <div class="growth-wrap"><canvas id="growth-chart" role="img" aria-label="GSPI成長曲線"></canvas></div>
+      <div style="font-size:10px;color:var(--gray4);margin-top:4px">各セッション時点までの全データで算出した累積GSPIの推移</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:8px">5軸スコアの推移</div>
+      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" role="img" aria-label="5軸スコア推移"></canvas></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${['距離安定性','方向安定性','ミス耐性','精度','上振れ力'].map((l,i)=>`
+          <span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--gray4)">
+            <span style="width:8px;height:8px;border-radius:2px;display:inline-block;background:${['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'][i]}"></span>${l}
+          </span>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:8px">セッション一覧</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:360px">
+          <thead><tr style="border-bottom:1px solid var(--gray2)">
+            <th style="text-align:left;padding:5px 6px;font-size:10px;color:var(--gray4);font-weight:600">#</th>
+            <th style="text-align:left;padding:5px 6px;font-size:10px;color:var(--gray4);font-weight:600">日付</th>
+            <th style="text-align:left;padding:5px 6px;font-size:10px;color:var(--gray4);font-weight:600">対象</th>
+            <th style="text-align:center;padding:5px 6px;font-size:10px;color:var(--gray4);font-weight:600">GSPI</th>
+            <th style="text-align:center;padding:5px 6px;font-size:10px;color:var(--gray4);font-weight:600">推移</th>
+          </tr></thead>
+          <tbody>
+            ${points.map((p,i)=>{
+              const prev = i>0?points[i-1].gspi:null;
+              const delta = prev!==null?p.gspi-prev:null;
+              const col = scoreColor(p.gspi);
+              return `<tr style="border-bottom:1px solid var(--gray2)">
+                <td style="padding:6px;color:var(--gray3)">${i+1}</td>
+                <td style="padding:6px;color:var(--gray5)">${p.date}</td>
+                <td style="padding:6px;color:var(--gray4)">${p.club}</td>
+                <td style="padding:6px;text-align:center;font-weight:700;color:${col}">${p.gspi}</td>
+                <td style="padding:6px;text-align:center;font-size:11px;color:${delta===null?'var(--gray3)':delta>0?'#1a3a6b':delta<0?'#d93025':'var(--gray4)'}">
+                  ${delta===null?'—':delta>0?'▲'+delta:delta<0?'▼'+Math.abs(delta):'±0'}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  // Chart.js描画
+  const labels  = points.map(p=>p.label);
+  const gspiData = points.map(p=>p.gspi);
+  const axesData = [0,1,2,3,4].map(ai=>points.map(p=>p.axes[ai]));
+  const axColors = ['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
+  const axLabels = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
+
+  if(growthChart) growthChart.destroy();
+  growthChart = new Chart(document.getElementById('growth-chart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'GSPI',
+        data:gspiData,
+        borderColor:'#c4902a',
+        backgroundColor:'rgba(196,144,42,.1)',
+        borderWidth:2.5,
+        pointBackgroundColor:'#c4902a',
+        pointRadius:4,
+        pointHoverRadius:6,
+        tension:.3,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:ctx=>`${labels[ctx[0].dataIndex]}（第${ctx[0].dataIndex+1}回）`,
+        label:ctx=>`GSPI: ${ctx.parsed.y}`
+      }}},
+      scales:{
+        y:{min:0,max:100,ticks:{stepSize:20,font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}}
+      }
+    }
+  });
+
+  // 5軸チャート
+  const axChart = new Chart(document.getElementById('axes-chart'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:axesData.map((d,i)=>({
+        label:axLabels[i],data:d,
+        borderColor:axColors[i],
+        backgroundColor:'transparent',
+        borderWidth:1.5,
+        pointRadius:2,
+        tension:.3
+      }))
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'}},
+        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}
+      }
+    }
+  });
+}
+
+function setGrowthFilter(f){
+  growthFilter=f;
+  renderGrowthStats();
 }
 
 function renderDistStats(recs) {
@@ -2206,7 +2407,7 @@ function renderHome(){
   document.getElementById('home-date-line').innerHTML =
     `${dateStr}<span>（${wd}曜日）</span>`;
 
-  // GSPI
+  // 全体GSPI
   if(recs.length){
     const g = calcGSPI(recs);
     const gr = gspiGrade(g.gspi);
@@ -2214,9 +2415,7 @@ function renderHome(){
     const badge = document.getElementById('home-grade-badge');
     badge.textContent = `Grade ${gr.g}`;
     badge.style.background = gr.c + '33';
-    badge.style.color = gr.c === '#534AB7' ? '#a89fe8' : gr.c === '#c4902a' ? '#e8c06a' : gr.c === '#c47a00' ? '#e0a030' : gr.c === '#d93025' ? '#e87870' : '#6a9ad4';
-
-    // 5軸ミニバー
+    badge.style.color = gradeTextColor(gr.c);
     const axisLabels = ['距離','方向','ミス耐','精度','上振'];
     document.getElementById('home-axes-mini').innerHTML = g.axes.map((v,i)=>`
       <div class="home-axis-row">
@@ -2236,29 +2435,35 @@ function renderHome(){
   const chips = allS.filter(s=>s==='chip').length;
   document.getElementById('hw-chips').textContent = chips || '—';
 
-  // 最近5件
-  const recent = [...recs].sort((a,b)=>b.id-a.id).slice(0,5);
-  const listEl = document.getElementById('home-recent-list');
-  if(!recent.length){
-    listEl.innerHTML = '<div class="home-empty">まだ記録がありません<br>練習を記録してみましょう</div>';
-    return;
+  // 距離別 GSPI
+  const distRecs = recs.filter(r=>r.mode==='dist');
+  const clubRecs = recs.filter(r=>r.mode==='club');
+  renderHomeSplit('dist', distRecs);
+  renderHomeSplit('club', clubRecs);
+}
+
+function gradeTextColor(c){
+  return c==='#534AB7'?'#a89fe8':c==='#c4902a'?'#e8c06a':c==='#c47a00'?'#e0a030':c==='#d93025'?'#e87870':'#6a9ad4';
+}
+
+function renderHomeSplit(type, recs){
+  const gspiEl  = document.getElementById(`hs-${type}-gspi`);
+  const gradeEl = document.getElementById(`hs-${type}-grade`);
+  const subEl   = document.getElementById(`hs-${type}-sub`);
+  const barEl   = document.getElementById(`hs-${type}-bar`);
+  if(!recs.length){
+    gspiEl.textContent='—'; gradeEl.textContent='データなし';
+    gradeEl.style.color='rgba(255,255,255,.3)'; subEl.textContent='';
+    barEl.style.width='0%'; return;
   }
-  listEl.innerHTML = recent.map(r=>{
-    const g = calcGSPI([r]);
-    const gr = gspiGrade(g.gspi);
-    const isClub = r.mode==='club';
-    const label = isClub ? r.club : `${r.targetDist||r.dist}y`;
-    const grColor = gr.c === '#534AB7' ? '#a89fe8' : gr.c === '#c4902a' ? '#e8c06a' : gr.c === '#c47a00' ? '#e0a030' : gr.c === '#d93025' ? '#e87870' : '#6a9ad4';
-    const badges = r.shots.map(s=>`<span class="mb ${RBADGE[s]}">${RLABEL[s]}</span>`).join('');
-    return `<div class="home-rec" onclick="showTab('history',document.getElementById('nav-history'))">
-      <div class="home-rec-club">${label}</div>
-      <div class="home-rec-info">
-        <div class="home-rec-date">${r.date} · ${r.place}${r.club&&r.mode==='dist'?' · '+r.club:''}</div>
-        <div class="home-rec-shots">${badges}</div>
-      </div>
-      <div class="home-rec-gspi" style="color:${grColor}">${g.gspi}</div>
-    </div>`;
-  }).join('');
+  const g = calcGSPI(recs);
+  const gr = gspiGrade(g.gspi);
+  gspiEl.textContent = g.gspi;
+  gradeEl.textContent = `Grade ${gr.g}`;
+  gradeEl.style.color = gradeTextColor(gr.c);
+  const chips = recs.flatMap(r=>r.shots).filter(s=>s==='chip').length;
+  subEl.textContent = `${recs.length}セッション${chips?' · ★'+chips:''}`;
+  barEl.style.width = g.gspi+'%';
 }
 
 function setDirUnit(u){
