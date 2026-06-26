@@ -78,7 +78,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 /* dist mode row: badge | distErr | dirErr | ★ */
 .shot-row{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 /* club mode row: badge | distErr | dirErr | dist-stepper | ★ */
-.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 
 .row-chip  {background:#e0f4eb!important;border-color:#1a7a4a!important}
 .row-A     {background:#e8f0fb!important;border-color:#1a6fbd!important}
@@ -635,12 +635,11 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         </div>
         <div class="card-title">10球の入力</div>
         <div class="card-sub">数値をタップしてフリックで選択 — 評価は自動反映</div>
-        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+        <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
           <div></div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
           <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
-          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">飛距離(y)</div>
           <div></div>
         </div>
         <div class="shot-list" id="c-shot-grid"></div>
@@ -1062,6 +1061,12 @@ function onClubChange(){
   }
 }
 
+/* ── Club change on init: don't autofill (keep empty) ── */
+function initClubSelect(){
+  buildClubSelects();
+  // do NOT call onClubChange here — keep dist fields empty on first load
+}
+
 /* ── Stepper for dist (called from picker +/- if needed) ── */
 function stepDist(i, delta){
   const sh = cShots[i];
@@ -1330,14 +1335,11 @@ function buildRowInner(row, prefix, i, sh, isClub){
   const chipActive = sh.isChip ? ' active' : '';
 
   if(isClub){
-    const distVal = sh.dist!==''&&sh.dist!=null ? sh.dist : '';
-    const distShow = distVal!=='' ? distVal+'y' : '–';
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
       <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
       <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
-      <button class="pick-btn${distShow==='–'?' empty':''}" onclick="openPicker('c',${i},'dist')">${distShow}</button>
       <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>`;
   } else {
     row.innerHTML = `
@@ -1390,15 +1392,14 @@ function clearShots(prefix){
 
 function getShotData(prefix) {
   const shots = prefix === 'c' ? cShots : dShots;
-  const ratings = [], distErrs = [], dirErrs = [], dists = [];
+  const ratings = [], distErrs = [], dirErrs = [];
   for (const sh of shots) {
     if (!sh.isChip && (sh.distErr === '' || sh.dirErr === '')) return null;
     ratings.push(sh.isChip ? 'chip' : calcRating(sh.distErr, sh.dirErr, false));
     distErrs.push(sh.isChip ? 0 : parseFloat(sh.distErr));
     dirErrs.push(sh.isChip ? 0 : parseFloat(sh.dirErr));
-    if (prefix === 'c') dists.push(sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : null);
   }
-  return {ratings, distErrs, dirErrs, dists: prefix === 'c' ? dists : null};
+  return {ratings, distErrs, dirErrs};
 }
 
 /* ── Save ── */
@@ -1414,10 +1415,17 @@ function saveRecord(mode) {
   const rec = {
     id: Date.now(), mode, date, place, club, memo,
     shots: data.ratings, distErrs: data.distErrs, dirErrs: data.dirErrs,
-    dists: data.dists
   };
   if (mode === 'dist') rec.targetDist = parseInt(document.getElementById('d-dist').value);
-  if (mode === 'club') rec.swing = currentSwing;
+  if (mode === 'club') {
+    rec.swing = currentSwing;
+    // 実測飛距離 = 設定値 + 各球の距離誤差
+    const setDist = getClubAvgDist(club, currentSwing);
+    rec.dists = setDist != null
+      ? data.distErrs.map(e => Math.round((setDist + e) * 10) / 10)
+      : null;
+    rec.setDist = setDist; // 設定値も保存
+  }
   const arr = getRecords(); arr.push(rec); saveRecs(arr);
   showToast(`${mode==='dist'?document.getElementById('d-dist').value+'y ':club+' '}を保存しました`);
   clearShots(prefix);
@@ -1852,20 +1860,30 @@ function renderClubStats(recs) {
       </div>
     </div>`;
 
-  // 飛距離比較カード
+  // 飛距離比較カード（実測平均 = 設定値 + 誤差平均）
   const avgs = getAvgDists();
   const cmpRows = [];
   Object.keys(byClub).forEach(key=>{
     const cr = byClub[key];
-    const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
-    if(!validDists.length) return;
-    const avgD = Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length);
-    // 設定値キーは "club-swing" e.g. "60°-full"
     const r0 = cr[0];
     const sw = r0.swing || 'full';
-    const setKey = `${r0.club}-${sw}`;  // storage uses 'half'/'three'/'full'
-    const setDist = avgs[setKey] ? Math.round(avgs[setKey]) : null;
-    const diff = setDist != null ? avgD - setDist : null;
+    const setKey = `${r0.club}-${sw}`;
+    const setDist = avgs[setKey] ? Math.round(avgs[setKey]) : (r0.setDist || null);
+
+    // 実測平均：設定値＋誤差平均 が最も正確
+    const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null&&!isNaN(v));
+    let avgD = null;
+    if(setDist!=null && allDE.length){
+      const avgErr = allDE.reduce((a,v)=>a+v,0)/allDE.length;
+      avgD = Math.round((setDist + avgErr) * 10) / 10;
+    } else {
+      // fallback: stored dists
+      const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
+      if(validDists.length) avgD = Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length*10)/10;
+    }
+    if(avgD==null) return;
+
+    const diff = setDist!=null ? Math.round((avgD - setDist)*10)/10 : null;
     cmpRows.push({key, avgD, setDist, diff});
   });
 
@@ -2016,7 +2034,6 @@ function buildClubDetailPanel(inner, ci){
   const allShots = cr.flatMap(r=>r.shots);
   const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null);
   const allDir = cr.flatMap(r=>r.dirErrs||[]).filter(v=>v!=null);
-  const allDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
   const total = allShots.length;
 
   const cnt = {chip:0,A:0,B:0,C:0,D:0};
@@ -2024,8 +2041,18 @@ function buildClubDetailPanel(inner, ci){
 
   const avgDE = allDE.length ? (allDE.reduce((a,v)=>a+v,0)/allDE.length).toFixed(1) : null;
   const avgDir = allDir.length ? (allDir.reduce((a,v)=>a+v,0)/allDir.length).toFixed(1) : null;
-  const avgDist = allDists.length ? Math.round(allDists.reduce((a,v)=>a+v,0)/allDists.length) : null;
-  const sdDist = allDists.length>=2 ? Math.sqrt(allDists.reduce((a,v)=>{const m=allDists.reduce((x,y)=>x+y,0)/allDists.length;return a+(v-m)**2},0)/allDists.length).toFixed(1) : null;
+
+  // 実測平均飛距離 = 設定値 + 誤差平均
+  const r0 = cr[0];
+  const sw = r0.swing || 'full';
+  const setDistVal = getAvgDists()[`${r0.club}-${sw}`] || r0.setDist || null;
+  const avgDist = (setDistVal!=null && avgDE!=null)
+    ? Math.round((setDistVal + parseFloat(avgDE)) * 10) / 10
+    : null;
+  // 標準偏差は誤差の標準偏差から算出
+  const sdDist = allDE.length>=2
+    ? Math.sqrt(allDE.reduce((a,v)=>{const m=allDE.reduce((x,y)=>x+y,0)/allDE.length;return a+(v-m)**2},0)/allDE.length).toFixed(1)
+    : null;
   const overDE = allDE.filter(v=>v>0);
   const shortDE = allDE.filter(v=>v<0);
   const rightDir = allDir.filter(v=>v>0);
@@ -2248,11 +2275,10 @@ function buildEditModalBody(){
   const du = dirUnitLabel();
 
   const colHdr = isClub
-    ? `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
+    ? `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
         <div></div><div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
         <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
         <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
-        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">飛距離(y)</div>
         <div></div></div>`
     : `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
         <div></div><div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
@@ -2278,7 +2304,6 @@ function buildEditModalBody(){
         <div class="sr-badge ${bCls}">${bLbl}</div>
         <button class="pick-btn${deShow==='–'?' empty':''}" onclick="openEditPicker(${i},'distErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${deShow}</button>
         <button class="pick-btn${drShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dirErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${drShow}</button>
-        <button class="pick-btn${distShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dist')">${distShow}</button>
         <button class="sr-chip-btn${chipActive}" onclick="toggleEditChip(${i})">★</button>
       </div>`;
     } else {
