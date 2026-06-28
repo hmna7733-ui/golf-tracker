@@ -76,9 +76,9 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .shot-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
 
 /* dist mode row: badge | distErr | dirErr | ★ */
-.shot-row{display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+.shot-row{display:grid;grid-template-columns:22px 44px 1fr 1fr 80px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 /* club mode row: badge | distErr | dirErr | dist-stepper | ★ */
-.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
+.shot-row-club{display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 80px;align-items:center;gap:6px;padding:6px 8px;background:var(--gray1);border-radius:var(--radius-sm);border:1.5px solid var(--gray2);transition:border-color .15s,background .15s}
 
 .row-chip  {background:#e0f4eb!important;border-color:#1a7a4a!important}
 .row-A     {background:#e8f0fb!important;border-color:#1a6fbd!important}
@@ -101,9 +101,12 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .pick-btn:active{background:var(--gray2)}
 .pick-btn.empty{color:var(--gray3)}
 
-/* Chip button */
-.sr-chip-btn{width:40px;height:40px;border:1.5px solid #1a3a6b;border-radius:var(--radius-sm);background:#e6f1fb;color:#1a3a6b;font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+/* Chip + Miss action buttons */
+.sr-actions{display:flex;gap:4px}
+.sr-chip-btn{width:38px;height:40px;border:1.5px solid #1a3a6b;border-radius:var(--radius-sm);background:#e6f1fb;color:#1a3a6b;font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
 .sr-chip-btn.active{background:#1a3a6b;color:#fff}
+.sr-miss-btn{width:38px;height:40px;border:1.5px solid var(--gray2);border-radius:var(--radius-sm);background:var(--gray0);color:var(--gray3);font-size:14px;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.sr-miss-btn.active{background:#fdecea;border-color:#d93025;color:#d93025}
 
 /* ── Flick Picker overlay ── */
 .picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
@@ -592,11 +595,6 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
           <div></div>
         </div>
         <div class="shot-list" id="d-shot-grid"></div>
-        <div class="quick-row">
-          <button class="qb" onclick="quickFill('d','chip')">全★(チップイン)</button>
-          <button class="qb" onclick="quickFill('d','perf')">全◎相当に設定</button>
-          <button class="qb" onclick="clearShots('d')">クリア</button>
-        </div>
       </div>
 
       <div class="card">
@@ -649,11 +647,6 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
           <div></div>
         </div>
         <div class="shot-list" id="c-shot-grid"></div>
-        <div class="quick-row">
-          <button class="qb" onclick="quickFill('c','chip')">全★(チップイン)</button>
-          <button class="qb" onclick="quickFill('c','perf')">全◎相当に設定</button>
-          <button class="qb" onclick="clearShots('c')">クリア</button>
-        </div>
       </div>
 
       <div class="card">
@@ -1081,8 +1074,8 @@ function stepDist(i, delta){
 
 /* ── Shot state ── */
 // Each shot: {distErr, dirErr, dist, isChip}
-let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
-let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false}));
+let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false,isMiss:false}));
+let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false,isMiss:false}));
 
 /* ── Flick Picker ── */
 // 距離誤差: 手前(マイナス)→オーバー(プラス)、0.5y刻み
@@ -1310,6 +1303,7 @@ const BADGE_LABEL = {chip:'★',A:'◎',B:'○',C:'△',D:'×'};
 
 function getRating(sh){
   if(sh.isChip) return 'chip';
+  if(sh.isMiss) return 'D';
   if(sh.distErr===''||sh.dirErr==='') return null;
   return calcRating(sh.distErr, sh.dirErr, false);
 }
@@ -1341,23 +1335,32 @@ function buildRowInner(row, prefix, i, sh, isClub){
   const drVal = fmtDirErr(sh.dirErr);
   const du = dirUnitLabel();
   const chipActive = sh.isChip ? ' active' : '';
+  const missActive = sh.isMiss ? ' active' : '';
+  // ミス時はpick-btn を薄く（入力不要）
+  const disabledStyle = (sh.isChip||sh.isMiss) ? ' style="opacity:.35;pointer-events:none"' : '';
 
   if(isClub){
     const tdVal = sh.totalDist!==''&&sh.totalDist!=null ? sh.totalDist+'y' : '–';
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
-      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
-      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${disabledStyle}>${deVal}</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${disabledStyle}>${drVal}</button>
       <button class="pick-btn${tdVal==='–'?' empty':''}" onclick="openPicker('c',${i},'totalDist')">${tdVal}</button>
-      <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>`;
+      <div class="sr-actions">
+        <button class="sr-chip-btn${chipActive}" onclick="toggleChip('c',${i})">★</button>
+        <button class="sr-miss-btn${missActive}" onclick="toggleMiss('c',${i})">×</button>
+      </div>`;
   } else {
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
-      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('d',${i},'distErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${deVal}</button>
-      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('d',${i},'dirErr')"${sh.isChip?' style="opacity:.4;pointer-events:none"':''}>${drVal}</button>
-      <button class="sr-chip-btn${chipActive}" onclick="toggleChip('d',${i})">★</button>`;
+      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('d',${i},'distErr')"${disabledStyle}>${deVal}</button>
+      <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('d',${i},'dirErr')"${disabledStyle}>${drVal}</button>
+      <div class="sr-actions">
+        <button class="sr-chip-btn${chipActive}" onclick="toggleChip('d',${i})">★</button>
+        <button class="sr-miss-btn${missActive}" onclick="toggleMiss('d',${i})">×</button>
+      </div>`;
   }
 }
 
@@ -1379,7 +1382,15 @@ function setShotField(prefix, i, field, val){
 function toggleChip(prefix, i){
   const shots = prefix==='c' ? cShots : dShots;
   shots[i].isChip = !shots[i].isChip;
-  if(shots[i].isChip){ shots[i].distErr=0; shots[i].dirErr=0; }
+  if(shots[i].isChip){ shots[i].isMiss=false; shots[i].distErr=0; shots[i].dirErr=0; }
+  updateRow(prefix, i);
+}
+
+function toggleMiss(prefix, i){
+  const shots = prefix==='c' ? cShots : dShots;
+  shots[i].isMiss = !shots[i].isMiss;
+  if(shots[i].isMiss){ shots[i].isChip=false; shots[i].distErr=null; shots[i].dirErr=null; }
+  else { shots[i].distErr=''; shots[i].dirErr=''; }
   updateRow(prefix, i);
 }
 
@@ -1395,8 +1406,8 @@ function quickFill(prefix, type){
 }
 
 function clearShots(prefix){
-  if(prefix==='d') dShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false}));
-  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false}));
+  if(prefix==='d') dShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false,isMiss:false}));
+  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false,isMiss:false}));
   buildShotGrid(prefix);
 }
 
@@ -1404,7 +1415,15 @@ function getShotData(prefix) {
   const shots = prefix === 'c' ? cShots : dShots;
   const ratings = [], distErrs = [], dirErrs = [], totalDists = [];
   for (const sh of shots) {
-    if (!sh.isChip && (sh.distErr === '' || sh.dirErr === '')) return null;
+    // isMiss: ×として記録、誤差はnull
+    if(sh.isMiss){
+      ratings.push('D');
+      distErrs.push(null);
+      dirErrs.push(null);
+      if(prefix==='c') totalDists.push(sh.totalDist!==''&&sh.totalDist!=null ? parseFloat(sh.totalDist) : null);
+      continue;
+    }
+    if (!sh.isChip && (sh.distErr === '' || sh.distErr == null || sh.dirErr === '' || sh.dirErr == null)) return null;
     ratings.push(sh.isChip ? 'chip' : calcRating(sh.distErr, sh.dirErr, false));
     distErrs.push(sh.isChip ? 0 : parseFloat(sh.distErr));
     dirErrs.push(sh.isChip ? 0 : parseFloat(sh.dirErr));
@@ -1877,6 +1896,90 @@ function renderClubStats(recs) {
         <div style="font-size:10px;color:var(--gray4);margin-top:2px">${recs.length}セッション / ★${chips}</div>
       </div>
     </div>`;
+
+  // ── カテゴリ別 GSPI ──
+  const CATEGORIES = [
+    {
+      name: 'ウェッジ', icon: '🔴',
+      desc: 'PW・AW・SW・LW / 48°〜64°',
+      match: club => {
+        const c = club.toUpperCase();
+        if(/PW|AW|SW|LW|GW|EW/.test(c)) return true;
+        const deg = parseFloat(club);
+        if(!isNaN(deg) && deg >= 48 && deg <= 64) return true;
+        return false;
+      }
+    },
+    {
+      name: 'ショートアイアン', icon: '🟠',
+      desc: '8I・9I',
+      match: club => /^[89]I$/i.test(club.trim()) || /^[89]番$/.test(club.trim())
+    },
+    {
+      name: 'ミドルアイアン', icon: '🟡',
+      desc: '6I・7I',
+      match: club => /^[67]I$/i.test(club.trim()) || /^[67]番$/.test(club.trim())
+    },
+    {
+      name: 'ロングアイアン', icon: '🟢',
+      desc: '5I以上（5I・4I・3I・ユーティリティ）',
+      match: club => {
+        const c = club.toUpperCase();
+        if(/^[2345]I$/i.test(club.trim())) return true;
+        if(/^[2345]番$/.test(club.trim())) return true;
+        if(/[2345]H|UT|UTL|HYBRID/.test(c)) return true;
+        return false;
+      }
+    },
+    {
+      name: 'ウッド・ドライバー', icon: '🔵',
+      desc: 'Driver・3W・5W など',
+      match: club => {
+        const c = club.toUpperCase();
+        if(/DRIVER|DR|1W/.test(c)) return true;
+        if(/[1-9]W/.test(c)) return true;
+        return false;
+      }
+    }
+  ];
+
+  const catRows = CATEGORIES.map(cat => {
+    const catRecs = recs.filter(r => cat.match(r.club));
+    if(!catRecs.length) return null;
+    const g = calcGSPI(catRecs);
+    const gr = gspiGrade(g.gspi);
+    const col = scoreColor(g.gspi);
+    const grCol = gradeTextColor(gr.c);
+    const chips = catRecs.flatMap(r=>r.shots).filter(s=>s==='chip').length;
+    return {cat, g, gr, col, grCol, chips, n: catRecs.length};
+  }).filter(Boolean);
+
+  if(catRows.length){
+    html += `<div class="card" style="margin-bottom:10px">
+      <div class="card-title" style="margin-bottom:10px">カテゴリ別 GSPI</div>
+      ${catRows.map(({cat,g,gr,col,grCol,chips,n})=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray2)">
+          <div style="font-size:20px;flex-shrink:0">${cat.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:var(--gray5)">${cat.name}</div>
+            <div style="font-size:10px;color:var(--gray4);margin-top:1px">${cat.desc}</div>
+            <div style="font-size:10px;color:var(--gray4);margin-top:1px">${n}セッション${chips?' / ★'+chips:''}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:26px;font-weight:800;color:${col};line-height:1">${g.gspi}</div>
+            <div style="font-size:11px;font-weight:700;color:${grCol}">Grade ${gr.g}</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px 0 2px">
+          ${['距離','方向','ミス耐','精度','上振'].map((l,i)=>`
+            <div style="text-align:center">
+              <div style="font-size:14px;font-weight:700;color:${scoreColor(g.axes[i])}">${g.axes[i]}</div>
+              <div style="font-size:9px;color:var(--gray4)">${l}</div>
+            </div>`).join('')}
+        </div>`).join('<div style="height:2px;background:var(--gray1);margin:0 -12px"></div>')}
+    </div>`;
+
+  }
 
   // 飛距離比較カード（実測平均 = 設定値 + 誤差平均）
   const avgs = getAvgDists();
