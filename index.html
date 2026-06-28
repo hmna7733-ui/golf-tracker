@@ -1552,12 +1552,16 @@ function switchStats(m) {
   document.getElementById('st-dist-view').style.display   = m==='dist'?'block':'none';
   document.getElementById('st-club-view').style.display   = m==='club'?'block':'none';
   document.getElementById('st-growth-view').style.display = m==='growth'?'block':'none';
-  renderStats();
+  // アクティブなタブのみレンダリング
+  if(m==='dist')   renderDistStats(getRecords().filter(r=>r.mode==='dist'));
+  if(m==='club')   renderClubStats(getRecords().filter(r=>r.mode==='club'));
+  if(m==='growth') renderGrowthStats();
 }
 
 function renderStats() {
-  renderDistStats(getRecords().filter(r=>r.mode==='dist'));
-  renderClubStats(getRecords().filter(r=>r.mode==='club'));
+  // 現在のタブのみレンダリング
+  if(statsMode==='dist')   renderDistStats(getRecords().filter(r=>r.mode==='dist'));
+  if(statsMode==='club')   renderClubStats(getRecords().filter(r=>r.mode==='club'));
   if(statsMode==='growth') renderGrowthStats();
 }
 
@@ -1625,12 +1629,12 @@ function renderGrowthStats(){
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">GSPI 成長曲線（累積）</div>
-      <div class="growth-wrap"><canvas id="growth-chart" width="600" height="220" role="img" aria-label="GSPI成長曲線" style="width:100%;height:220px"></canvas></div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="growth-chart"></canvas></div>
       <div style="font-size:10px;color:var(--gray4);margin-top:4px">各セッション時点までの累積データのGSPI推移</div>
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">5軸スコアの推移</div>
-      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" width="600" height="200" role="img" aria-label="5軸推移" style="width:100%;height:200px"></canvas></div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="axes-chart"></canvas></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${['距離安定性','方向安定性','ミス耐性','精度','上振れ力'].map((l,i)=>`
           <span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--gray4)">
@@ -1668,12 +1672,18 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // Charts — setTimeout で DOM 反映を確実に待つ
+  // Charts — DOM反映を十分待ってから描画
   setTimeout(()=>{
     const labels = points.map(p=>p.label);
-    if(growthChart) growthChart.destroy();
+
+    // 既存チャートを確実に破棄
+    if(growthChart){ try{growthChart.destroy();}catch(e){} growthChart=null; }
+    Chart.helpers && Chart.helpers.each && Chart.helpers.each(
+      Chart.instances || {}, c=>{ if(c && c.canvas && (c.canvas.id==='growth-chart'||c.canvas.id==='axes-chart')) try{c.destroy();}catch(e){} }
+    );
+
     const gc = document.getElementById('growth-chart');
-    if(!gc) return;
+    if(!gc){ console.warn('growth-chart canvas not found'); return; }
     growthChart = new Chart(gc,{
       type:'line',
       data:{labels,datasets:[{
@@ -1695,7 +1705,7 @@ function renderGrowthStats(){
     });
 
     const axc = document.getElementById('axes-chart');
-    if(!axc) return;
+    if(!axc){ console.warn('axes-chart canvas not found'); return; }
     const axColors=['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
     const axLabels=['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
     new Chart(axc,{
@@ -1713,7 +1723,7 @@ function renderGrowthStats(){
         }
       }
     });
-  }, 80);
+  }, 200);
 }
 
 function setGrowthFilter(f){
