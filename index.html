@@ -2584,7 +2584,22 @@ function buildEditModalBody(){
           </select>
         </div>
       </div>
-      ${!isClub?`<div class="fg"><label>目標距離 (y)</label><select id="edit-dist">${[20,30,40,50,60,70,80,90,100,110,120,130,140,150].map(v=>`<option${v===targetDist?' selected':''}>${v}</option>`).join('')}</select></div>`:''}
+      ${!isClub
+        ? `<div class="form-row c2">
+            <div class="fg"><label>目標距離 (y)</label><select id="edit-dist">${[20,30,40,50,60,70,80,90,100,110,120,130,140,150].map(v=>`<option${v===targetDist?' selected':''}>${v}</option>`).join('')}</select></div>
+            <div class="fg"><label>クラブ</label><select id="edit-club-d">${getClubs().map(c=>`<option${c===club?' selected':''}>${c}</option>`).join('')}</select></div>
+          </div>`
+        : `<div class="form-row c2">
+            <div class="fg"><label>クラブ</label><select id="edit-club">${getClubs().map(c=>`<option${c===club?' selected':''}>${c}</option>`).join('')}</select></div>
+            <div class="fg"><label>スイング</label>
+              <select id="edit-swing">
+                <option value="half"${(editTarget.swing||'full')==='half'?' selected':''}>1/2スイング</option>
+                <option value="three"${(editTarget.swing||'full')==='three'?' selected':''}>3/4スイング</option>
+                <option value="full"${(editTarget.swing||'full')==='full'?' selected':''}>フルスイング</option>
+              </select>
+            </div>
+          </div>`
+      }
     </div>
     <div class="card" style="margin-bottom:8px">
       ${colHdr}
@@ -2691,11 +2706,18 @@ function saveEdit(){
     shots: [...editTarget.shots],
     distErrs: [...editTarget.distErrs],
     dirErrs:  [...editTarget.dirErrs],
-    dists:    editTarget.isClub ? [...editTarget.dists] : recs[idx].dists,
+    dists:    editTarget.isClub ? [...(editTarget.dists||[])] : recs[idx].dists,
   };
   if(!editTarget.isClub){
-    const distEl = document.getElementById('edit-dist');
-    if(distEl) recs[idx].targetDist = parseInt(distEl.value);
+    const distEl  = document.getElementById('edit-dist');
+    const clubDEl = document.getElementById('edit-club-d');
+    if(distEl)  recs[idx].targetDist = parseInt(distEl.value);
+    if(clubDEl) recs[idx].club = clubDEl.value;
+  } else {
+    const clubEl  = document.getElementById('edit-club');
+    const swingEl = document.getElementById('edit-swing');
+    if(clubEl)  recs[idx].club  = clubEl.value;
+    if(swingEl) recs[idx].swing = swingEl.value;
   }
   saveRecs(recs);
   closeEditModal();
