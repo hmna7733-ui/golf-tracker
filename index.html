@@ -12,20 +12,80 @@
 <meta name="description" content="ゴルフ練習データ管理アプリ">
 
 <!-- PWA Manifest (inline) -->
-<link rel="manifest" href="data:application/manifest+json,{
-  %22name%22:%22Golf%20Tracker%22,
-  %22short_name%22:%22Golf%22,
-  %22description%22:%22%E3%82%B4%E3%83%AB%E3%83%95%E7%B7%B4%E7%BF%92%E3%83%87%E3%83%BC%E3%82%BF%E7%AE%A1%E7%90%86%22,
-  %22start_url%22:%22.%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%23ffffff%22,
-  %22theme_color%22:%22%231a7a4a%22,
-  %22orientation%22:%22portrait%22,
-  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a7a4a'/%3E%3Ccircle cx='256' cy='180' r='60' fill='white'/%3E%3Cellipse cx='256' cy='180' rx='60' ry='60' fill='none' stroke='%23a8d8be' stroke-width='6'/%3E%3Crect x='248' y='236' width='16' height='180' rx='8' fill='white'/%3E%3Cellipse cx='220' cy='416' rx='60' ry='12' fill='%23145e38'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
-}">
+<link rel="manifest" href="manifest.json">
 
 <!-- Apple Touch Icon (golf ball + flag SVG → data URI) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20190%20190%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22gbg%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230a1628%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231a3a6b%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22shine%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%2250%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22rgba%28255%2C255%2C255%2C0.15%29%22%2F%3E%3Cstop%20offset%3D%2260%25%22%20stop-color%3D%22rgba%28255%2C255%2C255%2C0%29%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22ggold%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23f0c060%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23c4902a%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22gpin%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23d0d8f0%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%238090b8%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22190%22%20height%3D%22190%22%20rx%3D%2244%22%20fill%3D%22url%28%23gbg%29%22%2F%3E%3Crect%20width%3D%22190%22%20height%3D%22190%22%20rx%3D%2244%22%20fill%3D%22url%28%23shine%29%22%2F%3E%3Ctext%20x%3D%22-14%22%20y%3D%22122%22%20font-family%3D%22-apple-system%2CHelvetica%20Neue%2Csans-serif%22%20font-size%3D%22155%22%20font-weight%3D%22800%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.055%29%22%20font-style%3D%22italic%22%3EG%3C%2Ftext%3E%3Cline%20x1%3D%2276%22%20y1%3D%2228%22%20x2%3D%2276%22%20y2%3D%22128%22%20stroke%3D%22url%28%23gpin%29%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2276%22%20cy%3D%2226%22%20r%3D%227%22%20fill%3D%22%23c4902a%22%2F%3E%3Ccircle%20cx%3D%2276%22%20cy%3D%2226%22%20r%3D%225%22%20fill%3D%22%23f0c060%22%2F%3E%3Cpolygon%20points%3D%2276%2C32%20132%2C52%2076%2C72%22%20fill%3D%22url%28%23ggold%29%22%2F%3E%3Cline%20x1%3D%2276%22%20y1%3D%2232%22%20x2%3D%22122%22%20y2%3D%2248%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.25%29%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2290%22%20cy%3D%22136%22%20rx%3D%2252%22%20ry%3D%229%22%20fill%3D%22rgba%2829%2C180%2C90%2C0.18%29%22%2F%3E%3Cpath%20d%3D%22M38%20130%20Q90%20120%20142%20130%22%20fill%3D%22none%22%20stroke%3D%22rgba%2829%2C180%2C90%2C0.5%29%22%20stroke-width%3D%222%22%2F%3E%3Crect%20x%3D%22116%22%20y%3D%2295%22%20width%3D%229%22%20height%3D%2230%22%20rx%3D%223%22%20fill%3D%22rgba%28196%2C144%2C42%2C0.5%29%22%2F%3E%3Crect%20x%3D%22130%22%20y%3D%2282%22%20width%3D%229%22%20height%3D%2243%22%20rx%3D%223%22%20fill%3D%22rgba%28196%2C144%2C42%2C0.85%29%22%2F%3E%3Crect%20x%3D%22144%22%20y%3D%22103%22%20width%3D%229%22%20height%3D%2222%22%20rx%3D%223%22%20fill%3D%22rgba%28196%2C144%2C42%2C0.5%29%22%2F%3E%3Crect%20x%3D%2218%22%20y%3D%22144%22%20width%3D%22154%22%20height%3D%2232%22%20rx%3D%2216%22%20fill%3D%22rgba%28196%2C144%2C42%2C0.15%29%22%20stroke%3D%22%23c4902a%22%20stroke-width%3D%221.2%22%2F%3E%3Ctext%20x%3D%2295%22%20y%3D%22158%22%20text-anchor%3D%22middle%22%20font-family%3D%22-apple-system%2CHelvetica%20Neue%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%23c4902a%22%20letter-spacing%3D%222%22%3EGolf%20GSPI%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" id="touch-icon" href="icon-192.png">
+<script>
+(function(){
+  function drawIcon(size){
+    var cv=document.createElement('canvas');
+    cv.width=cv.height=size;
+    var ctx=cv.getContext('2d');
+    var s=size/190;
+    var r=size*0.225;
+    ctx.beginPath();
+    ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);
+    ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);
+    ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);
+    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+    var g=ctx.createLinearGradient(0,0,size,size);
+    g.addColorStop(0,'#0a1628');g.addColorStop(1,'#1a3a6b');
+    ctx.fillStyle=g;ctx.fill();
+    ctx.save();ctx.clip();
+    ctx.font='italic bold '+Math.round(155*s)+'px Arial,sans-serif';
+    ctx.fillStyle='rgba(255,255,255,0.06)';
+    ctx.fillText('G',-14*s,122*s);
+    var pg=ctx.createLinearGradient(73*s,0,79*s,0);
+    pg.addColorStop(0,'#d0d8f0');pg.addColorStop(1,'#8090b8');
+    ctx.strokeStyle=pg;ctx.lineWidth=5*s;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(76*s,28*s);ctx.lineTo(76*s,128*s);ctx.stroke();
+    ctx.beginPath();ctx.arc(76*s,26*s,7*s,0,Math.PI*2);ctx.fillStyle='#c4902a';ctx.fill();
+    ctx.beginPath();ctx.arc(76*s,26*s,5*s,0,Math.PI*2);ctx.fillStyle='#f0c060';ctx.fill();
+    var fg=ctx.createLinearGradient(76*s,32*s,132*s,52*s);
+    fg.addColorStop(0,'#f0c060');fg.addColorStop(1,'#c4902a');
+    ctx.beginPath();ctx.moveTo(76*s,32*s);ctx.lineTo(132*s,52*s);ctx.lineTo(76*s,72*s);ctx.closePath();
+    ctx.fillStyle=fg;ctx.fill();
+    ctx.strokeStyle='rgba(29,180,90,0.5)';ctx.lineWidth=2*s;
+    ctx.beginPath();ctx.moveTo(38*s,130*s);ctx.quadraticCurveTo(90*s,120*s,142*s,130*s);ctx.stroke();
+    [[116,95,9,30,0.5],[130,82,9,43,0.85],[144,103,9,22,0.5]].forEach(function(b){
+      ctx.fillStyle='rgba(196,144,42,'+b[4]+')';
+      ctx.beginPath();ctx.rect(b[0]*s,b[1]*s,b[2]*s,b[3]*s);ctx.fill();
+    });
+    var bx1=18*s,bx2=172*s,by1=148*s,by2=174*s,br2=13*s;
+    ctx.beginPath();
+    ctx.moveTo(bx1+br2,by1);ctx.lineTo(bx2-br2,by1);
+    ctx.quadraticCurveTo(bx2,by1,bx2,by1+br2);
+    ctx.lineTo(bx2,by2-br2);ctx.quadraticCurveTo(bx2,by2,bx2-br2,by2);
+    ctx.lineTo(bx1+br2,by2);ctx.quadraticCurveTo(bx1,by2,bx1,by2-br2);
+    ctx.lineTo(bx1,by1+br2);ctx.quadraticCurveTo(bx1,by1,bx1+br2,by1);ctx.closePath();
+    ctx.fillStyle='rgba(196,144,42,0.18)';ctx.fill();
+    ctx.strokeStyle='#c4902a';ctx.lineWidth=1.5*s;ctx.stroke();
+    ctx.font='bold '+Math.round(13*s)+'px Arial,sans-serif';
+    ctx.fillStyle='#c4902a';ctx.textAlign='center';
+    ctx.fillText('Golf GSPI',95*s,166*s);
+    ctx.restore();
+    return cv;
+  }
+  window.addEventListener('load',function(){
+    try{
+      var cv=drawIcon(192);
+      var url=cv.toDataURL('image/png');
+      var el=document.getElementById('touch-icon');
+      if(el){el.href=url;}
+      var head=document.head||document.getElementsByTagName('head')[0];
+      var existing=document.getElementById('touch-icon-precomposed');
+      if(!existing){
+        var lnk=document.createElement('link');
+        lnk.id='touch-icon-precomposed';
+        lnk.rel='apple-touch-icon-precomposed';
+        lnk.href=url;
+        head.appendChild(lnk);
+      }
+    }catch(e){}
+  });
+})();
+</script>
 
 <title>Golf GSPI</title>
 <style>
@@ -1634,12 +1694,12 @@ function renderGrowthStats(){
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">GSPI 成長曲線（累積）</div>
-      <div class="growth-wrap"><canvas id="growth-chart" role="img" aria-label="GSPI成長曲線"></canvas></div>
+      <div class="growth-wrap"><canvas id="growth-chart" width="600" height="220" role="img" aria-label="GSPI成長曲線" style="width:100%;height:220px"></canvas></div>
       <div style="font-size:10px;color:var(--gray4);margin-top:4px">各セッション時点までの累積データのGSPI推移</div>
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">5軸スコアの推移</div>
-      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" role="img" aria-label="5軸推移"></canvas></div>
+      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" width="600" height="200" role="img" aria-label="5軸推移" style="width:100%;height:200px"></canvas></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${['距離安定性','方向安定性','ミス耐性','精度','上振れ力'].map((l,i)=>`
           <span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--gray4)">
@@ -1677,8 +1737,8 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // Charts — rAF で DOM 反映後に描画
-  requestAnimationFrame(()=>{
+  // Charts — setTimeout で DOM 反映を確実に待つ
+  setTimeout(()=>{
     const labels = points.map(p=>p.label);
     if(growthChart) growthChart.destroy();
     const gc = document.getElementById('growth-chart');
@@ -1722,7 +1782,7 @@ function renderGrowthStats(){
         }
       }
     });
-  });
+  }, 80);
 }
 
 function setGrowthFilter(f){
