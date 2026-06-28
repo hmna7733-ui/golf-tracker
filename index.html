@@ -2097,63 +2097,7 @@ function renderClubStats(recs) {
     </div>`;
   }
 
-  // 飛距離比較カード（実測平均 = 設定値 + 誤差平均）
-  const avgs = getAvgDists();
-  const cmpRows = [];
-  Object.keys(byClub).forEach(key=>{
-    const cr = byClub[key];
-    const r0 = cr[0];
-    const sw = r0.swing || 'full';
-    const setKey = `${r0.club}-${sw}`;
-    const setDist = avgs[setKey] ? Math.round(avgs[setKey]) : (r0.setDist || null);
-
-    // 実測平均：設定値＋誤差平均 が最も正確
-    const allDE = cr.flatMap(r=>r.distErrs||[]).filter(v=>v!=null&&!isNaN(v));
-    let avgD = null;
-    if(setDist!=null && allDE.length){
-      const avgErr = allDE.reduce((a,v)=>a+v,0)/allDE.length;
-      avgD = Math.round((setDist + avgErr) * 10) / 10;
-    } else {
-      // fallback: stored dists
-      const validDists = cr.flatMap(r=>r.dists||[]).filter(v=>v!=null&&!isNaN(v));
-      if(validDists.length) avgD = Math.round(validDists.reduce((a,v)=>a+v,0)/validDists.length*10)/10;
-    }
-    if(avgD==null) return;
-
-    const diff = setDist!=null ? Math.round((avgD - setDist)*10)/10 : null;
-    cmpRows.push({key, avgD, setDist, diff});
-  });
-
-  if(cmpRows.length){
-    html += `<div class="card" style="margin-bottom:10px">
-      <div class="card-title" style="margin-bottom:2px">実測飛距離と設定値の差</div>
-      <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.5">10球の実測平均と、設定で登録した目安距離との差を表示します。</div>
-      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:4px;padding:4px 0;border-bottom:1px solid var(--gray2);margin-bottom:2px">
-        <div style="font-size:10px;color:var(--gray4);font-weight:600">クラブ</div>
-        <div style="font-size:10px;color:var(--gray4);font-weight:600;text-align:right;min-width:44px">実測平均</div>
-        <div style="font-size:10px;color:var(--gray4);font-weight:600;text-align:right;min-width:40px">設定値</div>
-        <div style="font-size:10px;color:var(--gray4);font-weight:600;text-align:right;min-width:44px">差（実測−設定）</div>
-      </div>
-      ${cmpRows.map(row=>{
-        const hasDiff = row.diff !== null;
-        const diffCol = !hasDiff ? 'var(--gray3)'
-          : Math.abs(row.diff) <= 3 ? '#3d7016'
-          : row.diff > 0 ? '#1a3a6b'
-          : '#d93025';
-        const diffTxt = !hasDiff ? '設定なし'
-          : row.diff === 0 ? 'ジャスト'
-          : row.diff > 0 ? '+'+row.diff+'y（オーバー傾向）'
-          : row.diff+'y（手前傾向）';
-        return `<div class="dist-cmp-row">
-          <div class="dist-cmp-key">${row.key}</div>
-          <div class="dist-cmp-avg" style="font-weight:700">${row.avgD}y</div>
-          <div class="dist-cmp-set">${row.setDist != null ? row.setDist+'y' : '—'}</div>
-          <div class="dist-cmp-diff" style="color:${diffCol};font-size:12px">${diffTxt}</div>
-        </div>`;
-      }).join('')}
-      <div style="font-size:10px;color:var(--gray4);margin-top:8px;line-height:1.6;padding-top:6px;border-top:1px solid var(--gray2)">青=オーバー傾向（実測が設定より長い）/ 赤=手前傾向（実測が設定より短い）/ 緑=±3y以内</div>
-    </div>`;
-  }
+  // 飛距離比較カード削除済み
 
   html += `<div style="font-size:11px;color:var(--gray4);margin-bottom:6px;padding:0 2px">▼ 各クラブをタップで詳細を表示</div>
     <div class="card" style="padding:0 12px">`;
