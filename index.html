@@ -368,6 +368,11 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .growth-stat .gl{font-size:10px;color:var(--gray4);margin-top:1px}
 .home-sec-divider{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;padding:4px 12px 6px}
 
+/* Sync status badge */
+.sync-badge{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:4px 8px;border-radius:var(--radius-full);cursor:pointer;border:none;background:transparent;flex-shrink:0}
+.sync-badge.synced{color:#1a3a6b}.sync-badge.offline{color:var(--gray3)}.sync-badge.syncing{color:#c47a00}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
 .toast.show{opacity:1}
 
@@ -461,10 +466,16 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="topbar-title" id="topbar-title">距離別記録</div>
       <div class="topbar-sub" id="topbar-sub">距離誤差・方向誤差を数値で入力</div>
     </div>
-    <button class="update-btn" id="update-btn" onclick="checkUpdate()" title="アップデートを確認">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-      <span id="update-btn-label">更新</span>
-    </button>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button class="sync-badge offline" id="sync-badge" onclick="onSyncBadgeClick()">
+        <span class="sync-dot" id="sync-dot" style="background:var(--gray3)"></span>
+        <span id="sync-label">未連携</span>
+      </button>
+      <button class="update-btn" id="update-btn" onclick="checkUpdate()" title="アップデートを確認">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        <span id="update-btn-label">更新</span>
+      </button>
+    </div>
   </div>
 
   <div class="content" id="main-content">
@@ -891,7 +902,65 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- ログイン画面（PDCAと同じスタイル） -->
+<div id="login-screen" style="
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#060d1a,#0f2040);
+  z-index:1000;display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px;
+">
+  <div style="font-size:34px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px">Golf Tracker</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:40px;letter-spacing:1px">GOLF PRACTICE ANALYTICS</div>
+
+  <div style="display:flex;background:rgba(255,255,255,.1);border-radius:12px;padding:4px;width:100%;max-width:320px;margin-bottom:20px">
+    <button id="tab-login" onclick="showAuthTab('login')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#fff;color:#0f2040;font-size:13px;font-weight:700;cursor:pointer">ログイン</button>
+    <button id="tab-signup" onclick="showAuthTab('signup')" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer">新規登録</button>
+  </div>
+
+  <div style="width:100%;max-width:320px">
+    <input id="auth-email" type="email" placeholder="メールアドレス" autocomplete="email" style="
+      width:100%;padding:13px 16px;border-radius:12px;border:none;
+      font-size:15px;margin-bottom:10px;box-sizing:border-box;
+      background:rgba(255,255,255,.95);color:#0f2040;
+    ">
+    <input id="auth-password" type="password" placeholder="パスワード（6文字以上）" autocomplete="current-password" style="
+      width:100%;padding:13px 16px;border-radius:12px;border:none;
+      font-size:15px;margin-bottom:16px;box-sizing:border-box;
+      background:rgba(255,255,255,.95);color:#0f2040;
+    ">
+    <button id="auth-submit-btn" onclick="submitAuth()" style="
+      width:100%;padding:14px;border-radius:12px;border:none;
+      background:linear-gradient(135deg,#1a3a6b,#2a5aab);
+      color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;
+    ">ログイン</button>
+    <button onclick="skipLogin()" style="
+      width:100%;padding:11px;border-radius:12px;
+      background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.15);font-size:13px;cursor:pointer;
+    ">このデバイスのみで使う（同期なし）</button>
+  </div>
+  <div id="login-error" style="color:#F7A8A8;font-size:13px;margin-top:12px;text-align:center;display:none"></div>
+  <div style="color:rgba(255,255,255,.3);font-size:11px;margin-top:20px;text-align:center;line-height:1.7">
+    メール＋パスワードで複数デバイス間でデータ同期<br>鬼速PDCAと同じアカウントが使えます
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAv35i4MSksru9csqLBbtZvHEJbWfaVQGs",
+  authDomain: "boat-d715f.firebaseapp.com",
+  projectId: "boat-d715f",
+  storageBucket: "boat-d715f.firebasestorage.app",
+  messagingSenderId: "143618120714",
+  appId: "1:143618120714:web:8fe8f3548ada361d5053f3"
+};
+let firebaseApp, auth, db_fs, currentUser = null;
+let skipLoginMode = false;
+</script>
 <script>
 /* ── 評価ロジック ── */
 function calcRating(distErr, dirErr, isChip) {
@@ -2820,6 +2889,185 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
+/* ── Firebase Auth & Sync（PDCAと同じ実装） ── */
+
+function initFirebase() {
+  try {
+    firebaseApp = firebase.initializeApp(firebaseConfig, 'golf-tracker');
+    auth   = firebaseApp.auth();
+    db_fs  = firebaseApp.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (skipLoginMode) return;
+      if (user) {
+        currentUser = user;
+        document.getElementById('login-screen').style.display = 'none';
+        updateSyncBadge('synced', user.email.split('@')[0]);
+        loadFromFirestore();
+      } else {
+        auth.getRedirectResult().then(result => {
+          if (skipLoginMode) return;
+          if (result && result.user) {
+            currentUser = result.user;
+            document.getElementById('login-screen').style.display = 'none';
+            updateSyncBadge('synced', result.user.email.split('@')[0]);
+            loadFromFirestore();
+          } else {
+            currentUser = null;
+            document.getElementById('login-screen').style.display = 'flex';
+          }
+        }).catch(err => {
+          if (skipLoginMode) return;
+          currentUser = null;
+          document.getElementById('login-screen').style.display = 'flex';
+          const errEl = document.getElementById('login-error');
+          if(errEl && err.code){ errEl.style.display=''; errEl.textContent='エラー: '+err.code; }
+        });
+      }
+    });
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    document.getElementById('login-screen').style.display = 'none';
+  }
+}
+
+function skipLogin() {
+  skipLoginMode = true;
+  document.getElementById('login-screen').style.display = 'none';
+  updateSyncBadge('offline', '未連携');
+}
+
+let authMode = 'login';
+
+function showAuthTab(mode) {
+  authMode = mode;
+  const lt = document.getElementById('tab-login');
+  const st = document.getElementById('tab-signup');
+  const btn = document.getElementById('auth-submit-btn');
+  const base = 'flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer';
+  if (mode === 'login') {
+    lt.style.cssText = base+';background:#fff;color:#0f2040';
+    st.style.cssText = base+';background:transparent;color:rgba(255,255,255,.7)';
+    if(btn) btn.textContent='ログイン';
+  } else {
+    st.style.cssText = base+';background:#fff;color:#0f2040';
+    lt.style.cssText = base+';background:transparent;color:rgba(255,255,255,.7)';
+    if(btn) btn.textContent='新規登録';
+  }
+  const errEl = document.getElementById('login-error');
+  if(errEl) errEl.style.display='none';
+}
+
+function submitAuth() {
+  const email    = (document.getElementById('auth-email')||{}).value?.trim();
+  const password = (document.getElementById('auth-password')||{}).value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('auth-submit-btn');
+  if (!email||!password) {
+    if(errEl){errEl.style.display='';errEl.textContent='メールアドレスとパスワードを入力してください';}
+    return;
+  }
+  if (password.length < 6) {
+    if(errEl){errEl.style.display='';errEl.textContent='パスワードは6文字以上にしてください';}
+    return;
+  }
+  if(btn){btn.textContent='処理中...';btn.disabled=true;}
+  if(errEl) errEl.style.display='none';
+
+  const action = authMode==='signup'
+    ? auth.createUserWithEmailAndPassword(email, password)
+    : auth.signInWithEmailAndPassword(email, password);
+
+  action.catch(err => {
+    const msgs = {
+      'auth/user-not-found':'このメールアドレスは登録されていません',
+      'auth/wrong-password':'パスワードが間違っています',
+      'auth/email-already-in-use':'このメールアドレスは既に登録済みです',
+      'auth/invalid-email':'メールアドレスの形式が正しくありません',
+      'auth/weak-password':'パスワードが弱すぎます（6文字以上）',
+      'auth/invalid-credential':'メールアドレスまたはパスワードが間違っています',
+    };
+    if(errEl){errEl.style.display='';errEl.textContent=msgs[err.code]||'エラー: '+err.code;}
+    if(btn){btn.textContent=authMode==='signup'?'新規登録':'ログイン';btn.disabled=false;}
+  });
+}
+
+/* ── Firestore 同期 ── */
+async function saveToFirestore() {
+  if (!currentUser || !db_fs) return;
+  try {
+    await db_fs.collection('users').doc(currentUser.uid)
+      .collection('golf_tracker').doc('data').set({
+        gf_recs:      stor('gf_recs'),
+        gf_clubs:     stor('gf_clubs'),
+        gf_avg_dists: stor('gf_avg_dists'),
+        gf_dir_unit:  stor('gf_dir_unit'),
+        updatedAt:    Date.now()
+      });
+  } catch(e){ console.warn('Firestore save error:', e); }
+}
+
+async function loadFromFirestore() {
+  if (!currentUser || !db_fs) return;
+  try {
+    const snap = await db_fs.collection('users').doc(currentUser.uid)
+      .collection('golf_tracker').doc('data').get();
+    if (!snap.exists) { await saveToFirestore(); return; }
+    const d = snap.data();
+    // ローカルデータと比較 — 新しい方を優先
+    const localRecs   = stor('gf_recs') || [];
+    const cloudRecs   = d.gf_recs || [];
+    const localNewer  = localRecs.length > 0 &&
+      (localRecs[localRecs.length-1]?.id||0) > (d.updatedAt||0);
+    if (localNewer && localRecs.length >= cloudRecs.length) {
+      // ローカルの方が新しければアップロード
+      await saveToFirestore();
+      showToast('クラウドにデータを保存しました');
+    } else if (cloudRecs.length > localRecs.length) {
+      // クラウドの方が多ければ取得
+      if(d.gf_recs)      stor('gf_recs',d.gf_recs);
+      if(d.gf_clubs)     stor('gf_clubs',d.gf_clubs);
+      if(d.gf_avg_dists) stor('gf_avg_dists',d.gf_avg_dists);
+      if(d.gf_dir_unit)  stor('gf_dir_unit',d.gf_dir_unit);
+      showToast('クラウドからデータを取得しました');
+      setTimeout(()=>location.reload(), 1200);
+    }
+  } catch(e){ console.warn('Firestore load error:', e); }
+}
+
+// 記録保存時に自動同期
+const _origSaveRecs = saveRecs;
+// saveRecs を上書きして自動アップロード
+function saveRecs(r){
+  stor('gf_recs', r);
+  if(currentUser) saveToFirestore();
+}
+
+function updateSyncBadge(state, label) {
+  const badge = document.getElementById('sync-badge');
+  const dot   = document.getElementById('sync-dot');
+  const lbl   = document.getElementById('sync-label');
+  if(!badge) return;
+  badge.className = `sync-badge ${state}`;
+  dot.style.background = state==='synced'?'#1a3a6b':state==='syncing'?'#c47a00':'var(--gray3)';
+  lbl.textContent = label || (state==='synced'?'同期中':'未連携');
+}
+
+function onSyncBadgeClick(){
+  if(!currentUser){
+    document.getElementById('login-screen').style.display='flex';
+  } else {
+    if(confirm(`${currentUser.email}\n\nログアウトしますか？`)){
+      auth.signOut().then(()=>{
+        currentUser=null;
+        updateSyncBadge('offline','未連携');
+        document.getElementById('login-screen').style.display='flex';
+        showToast('ログアウトしました');
+      });
+    }
+  }
+}
+
 /* ── Init ── */
 function init() {
   const d = new Date().toISOString().slice(0,10);
@@ -2834,6 +3082,7 @@ function init() {
   // topbar初期値
   document.getElementById('topbar-title').textContent = TOPBAR['home'].t;
   document.getElementById('topbar-sub').textContent = TOPBAR['home'].s;
+  initFirebase();
 }
 
 init();
