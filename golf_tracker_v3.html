@@ -5,29 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Golf Tracker">
+<meta name="apple-mobile-web-app-title" content="Golf GSPI">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="Golf Tracker">
+<meta name="application-name" content="Golf GSPI">
 <meta name="theme-color" content="#1a3a6b">
 <meta name="description" content="ゴルフ練習データ管理アプリ">
 
 <!-- PWA Manifest (inline) -->
-<link rel="manifest" href="data:application/manifest+json,{
-  %22name%22:%22Golf%20Tracker%22,
-  %22short_name%22:%22Golf%22,
-  %22description%22:%22%E3%82%B4%E3%83%AB%E3%83%95%E7%B7%B4%E7%BF%92%E3%83%87%E3%83%BC%E3%82%BF%E7%AE%A1%E7%90%86%22,
-  %22start_url%22:%22.%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%23ffffff%22,
-  %22theme_color%22:%22%231a7a4a%22,
-  %22orientation%22:%22portrait%22,
-  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a7a4a'/%3E%3Ccircle cx='256' cy='180' r='60' fill='white'/%3E%3Cellipse cx='256' cy='180' rx='60' ry='60' fill='none' stroke='%23a8d8be' stroke-width='6'/%3E%3Crect x='248' y='236' width='16' height='180' rx='8' fill='white'/%3E%3Cellipse cx='220' cy='416' rx='60' ry='12' fill='%23145e38'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any%20maskable%22}]
-}">
+<link rel="manifest" href="manifest.json">
 
 <!-- Apple Touch Icon (golf ball + flag SVG → data URI) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a7a4a'/%3E%3Ccircle cx='256' cy='180' r='60' fill='white'/%3E%3Crect x='248' y='236' width='16' height='180' rx='8' fill='white'/%3E%3Cellipse cx='220' cy='416' rx='60' ry='12' fill='%23145e38'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 
-<title>Golf Tracker</title>
+<title>Golf GSPI</title>
 <style>
 :root{
   --green:#1a3a6b;--green-light:#e8f0fb;--green-mid:#4a7ab8;
@@ -368,6 +358,11 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 .growth-stat .gl{font-size:10px;color:var(--gray4);margin-top:1px}
 .home-sec-divider{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;padding:4px 12px 6px}
 
+/* Sync status badge */
+.sync-badge{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:4px 8px;border-radius:var(--radius-full);cursor:pointer;border:none;background:transparent;flex-shrink:0}
+.sync-badge.synced{color:#1a3a6b}.sync-badge.offline{color:var(--gray3)}.sync-badge.syncing{color:#c47a00}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + var(--safe-bottom));background:rgba(26,26,26,.93);color:#fff;padding:9px 16px;border-radius:var(--radius-full);font-size:13px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
 .toast.show{opacity:1}
 
@@ -461,10 +456,16 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="topbar-title" id="topbar-title">距離別記録</div>
       <div class="topbar-sub" id="topbar-sub">距離誤差・方向誤差を数値で入力</div>
     </div>
-    <button class="update-btn" id="update-btn" onclick="checkUpdate()" title="アップデートを確認">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-      <span id="update-btn-label">更新</span>
-    </button>
+    <div style="display:flex;align-items:center;gap:4px">
+      <button class="sync-badge offline" id="sync-badge" onclick="onSyncBadgeClick()">
+        <span class="sync-dot" id="sync-dot" style="background:var(--gray3)"></span>
+        <span id="sync-label">未連携</span>
+      </button>
+      <button class="update-btn" id="update-btn" onclick="checkUpdate()" title="アップデートを確認">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        <span id="update-btn-label">更新</span>
+      </button>
+    </div>
   </div>
 
   <div class="content" id="main-content">
@@ -474,7 +475,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
       <div class="home-wrap">
         <!-- Hero -->
         <div class="home-hero">
-          <div class="home-tag">Golf Tracker</div>
+          <div class="home-tag">Golf GSPI</div>
           <div class="home-date-line" id="home-date-line">—<span id="home-date-sub"></span></div>
 
           <div class="home-gspi-main">
@@ -891,7 +892,65 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- ログイン画面（PDCAと同じスタイル） -->
+<div id="login-screen" style="
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#060d1a,#0f2040);
+  z-index:1000;display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:32px;
+">
+  <div style="font-size:34px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px">Golf GSPI</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:40px;letter-spacing:1px">GOLF PRACTICE ANALYTICS</div>
+
+  <div style="display:flex;background:rgba(255,255,255,.1);border-radius:12px;padding:4px;width:100%;max-width:320px;margin-bottom:20px">
+    <button id="tab-login" onclick="showAuthTab('login')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#fff;color:#0f2040;font-size:13px;font-weight:700;cursor:pointer">ログイン</button>
+    <button id="tab-signup" onclick="showAuthTab('signup')" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer">新規登録</button>
+  </div>
+
+  <div style="width:100%;max-width:320px">
+    <input id="auth-email" type="email" placeholder="メールアドレス" autocomplete="email" style="
+      width:100%;padding:13px 16px;border-radius:12px;border:none;
+      font-size:15px;margin-bottom:10px;box-sizing:border-box;
+      background:rgba(255,255,255,.95);color:#0f2040;
+    ">
+    <input id="auth-password" type="password" placeholder="パスワード（6文字以上）" autocomplete="current-password" style="
+      width:100%;padding:13px 16px;border-radius:12px;border:none;
+      font-size:15px;margin-bottom:16px;box-sizing:border-box;
+      background:rgba(255,255,255,.95);color:#0f2040;
+    ">
+    <button id="auth-submit-btn" onclick="submitAuth()" style="
+      width:100%;padding:14px;border-radius:12px;border:none;
+      background:linear-gradient(135deg,#1a3a6b,#2a5aab);
+      color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;
+    ">ログイン</button>
+    <button onclick="skipLogin()" style="
+      width:100%;padding:11px;border-radius:12px;
+      background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.15);font-size:13px;cursor:pointer;
+    ">このデバイスのみで使う（同期なし）</button>
+  </div>
+  <div id="login-error" style="color:#F7A8A8;font-size:13px;margin-top:12px;text-align:center;display:none"></div>
+  <div style="color:rgba(255,255,255,.3);font-size:11px;margin-top:20px;text-align:center;line-height:1.7">
+    メール＋パスワードで複数デバイス間でデータ同期<br>鬼速PDCAと同じアカウントが使えます
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAv35i4MSksru9csqLBbtZvHEJbWfaVQGs",
+  authDomain: "boat-d715f.firebaseapp.com",
+  projectId: "boat-d715f",
+  storageBucket: "boat-d715f.firebasestorage.app",
+  messagingSenderId: "143618120714",
+  appId: "1:143618120714:web:8fe8f3548ada361d5053f3"
+};
+let firebaseApp, auth, db_fs, currentUser = null;
+let skipLoginMode = false;
+</script>
 <script>
 /* ── 評価ロジック ── */
 function calcRating(distErr, dirErr, isChip) {
@@ -1565,12 +1624,12 @@ function renderGrowthStats(){
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">GSPI 成長曲線（累積）</div>
-      <div class="growth-wrap"><canvas id="growth-chart" role="img" aria-label="GSPI成長曲線"></canvas></div>
+      <div class="growth-wrap"><canvas id="growth-chart" width="600" height="220" role="img" aria-label="GSPI成長曲線" style="width:100%;height:220px"></canvas></div>
       <div style="font-size:10px;color:var(--gray4);margin-top:4px">各セッション時点までの累積データのGSPI推移</div>
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">5軸スコアの推移</div>
-      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" role="img" aria-label="5軸推移"></canvas></div>
+      <div style="position:relative;width:100%;height:200px;margin-bottom:6px"><canvas id="axes-chart" width="600" height="200" role="img" aria-label="5軸推移" style="width:100%;height:200px"></canvas></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${['距離安定性','方向安定性','ミス耐性','精度','上振れ力'].map((l,i)=>`
           <span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--gray4)">
@@ -1608,46 +1667,52 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // Charts
-  const labels = points.map(p=>p.label);
-  if(growthChart) growthChart.destroy();
-  growthChart = new Chart(document.getElementById('growth-chart'),{
-    type:'line',
-    data:{labels,datasets:[{
-      label:'GSPI',data:points.map(p=>p.gspi),
-      borderColor:'#c4902a',backgroundColor:'rgba(196,144,42,.1)',
-      borderWidth:2.5,pointBackgroundColor:'#c4902a',
-      pointRadius:4,pointHoverRadius:6,tension:.3,fill:true
-    }]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{
-        title:ctx=>`第${ctx[0].dataIndex+1}回 (${points[ctx[0].dataIndex].date})`,
-        label:ctx=>`GSPI: ${ctx.parsed.y}`
-      }}},
-      scales:{
-        y:{min:0,max:100,ticks:{stepSize:20,font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
-        x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}}
+  // Charts — setTimeout で DOM 反映を確実に待つ
+  setTimeout(()=>{
+    const labels = points.map(p=>p.label);
+    if(growthChart) growthChart.destroy();
+    const gc = document.getElementById('growth-chart');
+    if(!gc) return;
+    growthChart = new Chart(gc,{
+      type:'line',
+      data:{labels,datasets:[{
+        label:'GSPI',data:points.map(p=>p.gspi),
+        borderColor:'#c4902a',backgroundColor:'rgba(196,144,42,.1)',
+        borderWidth:2.5,pointBackgroundColor:'#c4902a',
+        pointRadius:4,pointHoverRadius:6,tension:.3,fill:true
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{
+          title:ctx=>`第${ctx[0].dataIndex+1}回 (${points[ctx[0].dataIndex].date})`,
+          label:ctx=>`GSPI: ${ctx.parsed.y}`
+        }}},
+        scales:{
+          y:{min:0,max:100,ticks:{stepSize:20,font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
+          x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}}
+        }
       }
-    }
-  });
+    });
 
-  const axColors=['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
-  const axLabels=['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
-  new Chart(document.getElementById('axes-chart'),{
-    type:'line',
-    data:{labels,datasets:axLabels.map((l,i)=>({
-      label:l,data:points.map(p=>p.axes[i]),
-      borderColor:axColors[i],backgroundColor:'transparent',
-      borderWidth:1.5,pointRadius:2,tension:.3
-    }))},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'}},
-        x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}
+    const axc = document.getElementById('axes-chart');
+    if(!axc) return;
+    const axColors=['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
+    const axLabels=['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
+    new Chart(axc,{
+      type:'line',
+      data:{labels,datasets:axLabels.map((l,i)=>({
+        label:l,data:points.map(p=>p.axes[i]),
+        borderColor:axColors[i],backgroundColor:'transparent',
+        borderWidth:1.5,pointRadius:2,tension:.3
+      }))},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          y:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'}},
+          x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}
+        }
       }
-    }
-  });
+    });
+  }, 80);
 }
 
 function setGrowthFilter(f){
@@ -2166,22 +2231,26 @@ function renderClubStats(recs) {
 
   div.innerHTML = html;
 
-  // radar chart
+  // radar chart — rAF で DOM 反映後に描画
   if(clubNames.length >= 2){
-    if(radarChart) radarChart.destroy();
-    radarChart = new Chart(document.getElementById('radar-chart'), {
-      type: 'radar',
-      data: { labels: axisLabels, datasets: radarDatasets },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { r: {
-          min: 0, max: 100,
-          ticks: { stepSize: 25, font:{size:9}, backdropColor:'transparent', color:'#888780' },
-          grid: { color: 'rgba(136,135,128,0.2)' },
-          pointLabels: { font:{size:10}, color:'#444441' }
-        }}
-      }
+    requestAnimationFrame(()=>{
+      const rc = document.getElementById('radar-chart');
+      if(!rc) return;
+      if(radarChart) radarChart.destroy();
+      radarChart = new Chart(rc, {
+        type: 'radar',
+        data: { labels: axisLabels, datasets: radarDatasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { r: {
+            min: 0, max: 100,
+            ticks: { stepSize: 25, font:{size:9}, backdropColor:'transparent', color:'#888780' },
+            grid: { color: 'rgba(136,135,128,0.2)' },
+            pointLabels: { font:{size:10}, color:'#444441' }
+          }}
+        }
+      });
     });
   }
 
@@ -2515,7 +2584,22 @@ function buildEditModalBody(){
           </select>
         </div>
       </div>
-      ${!isClub?`<div class="fg"><label>目標距離 (y)</label><select id="edit-dist">${[20,30,40,50,60,70,80,90,100,110,120,130,140,150].map(v=>`<option${v===targetDist?' selected':''}>${v}</option>`).join('')}</select></div>`:''}
+      ${!isClub
+        ? `<div class="form-row c2">
+            <div class="fg"><label>目標距離 (y)</label><select id="edit-dist">${[20,30,40,50,60,70,80,90,100,110,120,130,140,150].map(v=>`<option${v===targetDist?' selected':''}>${v}</option>`).join('')}</select></div>
+            <div class="fg"><label>クラブ</label><select id="edit-club-d">${getClubs().map(c=>`<option${c===club?' selected':''}>${c}</option>`).join('')}</select></div>
+          </div>`
+        : `<div class="form-row c2">
+            <div class="fg"><label>クラブ</label><select id="edit-club">${getClubs().map(c=>`<option${c===club?' selected':''}>${c}</option>`).join('')}</select></div>
+            <div class="fg"><label>スイング</label>
+              <select id="edit-swing">
+                <option value="half"${(editTarget.swing||'full')==='half'?' selected':''}>1/2スイング</option>
+                <option value="three"${(editTarget.swing||'full')==='three'?' selected':''}>3/4スイング</option>
+                <option value="full"${(editTarget.swing||'full')==='full'?' selected':''}>フルスイング</option>
+              </select>
+            </div>
+          </div>`
+      }
     </div>
     <div class="card" style="margin-bottom:8px">
       ${colHdr}
@@ -2622,11 +2706,18 @@ function saveEdit(){
     shots: [...editTarget.shots],
     distErrs: [...editTarget.distErrs],
     dirErrs:  [...editTarget.dirErrs],
-    dists:    editTarget.isClub ? [...editTarget.dists] : recs[idx].dists,
+    dists:    editTarget.isClub ? [...(editTarget.dists||[])] : recs[idx].dists,
   };
   if(!editTarget.isClub){
-    const distEl = document.getElementById('edit-dist');
-    if(distEl) recs[idx].targetDist = parseInt(distEl.value);
+    const distEl  = document.getElementById('edit-dist');
+    const clubDEl = document.getElementById('edit-club-d');
+    if(distEl)  recs[idx].targetDist = parseInt(distEl.value);
+    if(clubDEl) recs[idx].club = clubDEl.value;
+  } else {
+    const clubEl  = document.getElementById('edit-club');
+    const swingEl = document.getElementById('edit-swing');
+    if(clubEl)  recs[idx].club  = clubEl.value;
+    if(swingEl) recs[idx].swing = swingEl.value;
   }
   saveRecs(recs);
   closeEditModal();
@@ -2680,7 +2771,7 @@ function loadPreset(type) {
 
 /* ── Nav ── */
 const TOPBAR = {
-  home: {t:'Golf Tracker', s:'練習データを記録・分析'},
+  home: {t:'Golf GSPI', s:'練習データを記録・分析'},
   dist: {t:'距離別記録', s:'距離誤差・方向誤差を数値で入力'},
   club: {t:'クラブ別記録', s:'飛距離・誤差をすべて数値で記録'},
   stats:{t:'統計・GSPI分析', s:'5軸スコアでクラブを評価'},
@@ -2820,6 +2911,185 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
+/* ── Firebase Auth & Sync（PDCAと同じ実装） ── */
+
+function initFirebase() {
+  try {
+    firebaseApp = firebase.initializeApp(firebaseConfig, 'golf-tracker');
+    auth   = firebaseApp.auth();
+    db_fs  = firebaseApp.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (skipLoginMode) return;
+      if (user) {
+        currentUser = user;
+        document.getElementById('login-screen').style.display = 'none';
+        updateSyncBadge('synced', user.email.split('@')[0]);
+        loadFromFirestore();
+      } else {
+        auth.getRedirectResult().then(result => {
+          if (skipLoginMode) return;
+          if (result && result.user) {
+            currentUser = result.user;
+            document.getElementById('login-screen').style.display = 'none';
+            updateSyncBadge('synced', result.user.email.split('@')[0]);
+            loadFromFirestore();
+          } else {
+            currentUser = null;
+            document.getElementById('login-screen').style.display = 'flex';
+          }
+        }).catch(err => {
+          if (skipLoginMode) return;
+          currentUser = null;
+          document.getElementById('login-screen').style.display = 'flex';
+          const errEl = document.getElementById('login-error');
+          if(errEl && err.code){ errEl.style.display=''; errEl.textContent='エラー: '+err.code; }
+        });
+      }
+    });
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    document.getElementById('login-screen').style.display = 'none';
+  }
+}
+
+function skipLogin() {
+  skipLoginMode = true;
+  document.getElementById('login-screen').style.display = 'none';
+  updateSyncBadge('offline', '未連携');
+}
+
+let authMode = 'login';
+
+function showAuthTab(mode) {
+  authMode = mode;
+  const lt = document.getElementById('tab-login');
+  const st = document.getElementById('tab-signup');
+  const btn = document.getElementById('auth-submit-btn');
+  const base = 'flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer';
+  if (mode === 'login') {
+    lt.style.cssText = base+';background:#fff;color:#0f2040';
+    st.style.cssText = base+';background:transparent;color:rgba(255,255,255,.7)';
+    if(btn) btn.textContent='ログイン';
+  } else {
+    st.style.cssText = base+';background:#fff;color:#0f2040';
+    lt.style.cssText = base+';background:transparent;color:rgba(255,255,255,.7)';
+    if(btn) btn.textContent='新規登録';
+  }
+  const errEl = document.getElementById('login-error');
+  if(errEl) errEl.style.display='none';
+}
+
+function submitAuth() {
+  const email    = (document.getElementById('auth-email')||{}).value?.trim();
+  const password = (document.getElementById('auth-password')||{}).value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('auth-submit-btn');
+  if (!email||!password) {
+    if(errEl){errEl.style.display='';errEl.textContent='メールアドレスとパスワードを入力してください';}
+    return;
+  }
+  if (password.length < 6) {
+    if(errEl){errEl.style.display='';errEl.textContent='パスワードは6文字以上にしてください';}
+    return;
+  }
+  if(btn){btn.textContent='処理中...';btn.disabled=true;}
+  if(errEl) errEl.style.display='none';
+
+  const action = authMode==='signup'
+    ? auth.createUserWithEmailAndPassword(email, password)
+    : auth.signInWithEmailAndPassword(email, password);
+
+  action.catch(err => {
+    const msgs = {
+      'auth/user-not-found':'このメールアドレスは登録されていません',
+      'auth/wrong-password':'パスワードが間違っています',
+      'auth/email-already-in-use':'このメールアドレスは既に登録済みです',
+      'auth/invalid-email':'メールアドレスの形式が正しくありません',
+      'auth/weak-password':'パスワードが弱すぎます（6文字以上）',
+      'auth/invalid-credential':'メールアドレスまたはパスワードが間違っています',
+    };
+    if(errEl){errEl.style.display='';errEl.textContent=msgs[err.code]||'エラー: '+err.code;}
+    if(btn){btn.textContent=authMode==='signup'?'新規登録':'ログイン';btn.disabled=false;}
+  });
+}
+
+/* ── Firestore 同期 ── */
+async function saveToFirestore() {
+  if (!currentUser || !db_fs) return;
+  try {
+    await db_fs.collection('users').doc(currentUser.uid)
+      .collection('golf_tracker').doc('data').set({
+        gf_recs:      stor('gf_recs'),
+        gf_clubs:     stor('gf_clubs'),
+        gf_avg_dists: stor('gf_avg_dists'),
+        gf_dir_unit:  stor('gf_dir_unit'),
+        updatedAt:    Date.now()
+      });
+  } catch(e){ console.warn('Firestore save error:', e); }
+}
+
+async function loadFromFirestore() {
+  if (!currentUser || !db_fs) return;
+  try {
+    const snap = await db_fs.collection('users').doc(currentUser.uid)
+      .collection('golf_tracker').doc('data').get();
+    if (!snap.exists) { await saveToFirestore(); return; }
+    const d = snap.data();
+    // ローカルデータと比較 — 新しい方を優先
+    const localRecs   = stor('gf_recs') || [];
+    const cloudRecs   = d.gf_recs || [];
+    const localNewer  = localRecs.length > 0 &&
+      (localRecs[localRecs.length-1]?.id||0) > (d.updatedAt||0);
+    if (localNewer && localRecs.length >= cloudRecs.length) {
+      // ローカルの方が新しければアップロード
+      await saveToFirestore();
+      showToast('クラウドにデータを保存しました');
+    } else if (cloudRecs.length > localRecs.length) {
+      // クラウドの方が多ければ取得
+      if(d.gf_recs)      stor('gf_recs',d.gf_recs);
+      if(d.gf_clubs)     stor('gf_clubs',d.gf_clubs);
+      if(d.gf_avg_dists) stor('gf_avg_dists',d.gf_avg_dists);
+      if(d.gf_dir_unit)  stor('gf_dir_unit',d.gf_dir_unit);
+      showToast('クラウドからデータを取得しました');
+      setTimeout(()=>location.reload(), 1200);
+    }
+  } catch(e){ console.warn('Firestore load error:', e); }
+}
+
+// 記録保存時に自動同期
+const _origSaveRecs = saveRecs;
+// saveRecs を上書きして自動アップロード
+function saveRecs(r){
+  stor('gf_recs', r);
+  if(currentUser) saveToFirestore();
+}
+
+function updateSyncBadge(state, label) {
+  const badge = document.getElementById('sync-badge');
+  const dot   = document.getElementById('sync-dot');
+  const lbl   = document.getElementById('sync-label');
+  if(!badge) return;
+  badge.className = `sync-badge ${state}`;
+  dot.style.background = state==='synced'?'#1a3a6b':state==='syncing'?'#c47a00':'var(--gray3)';
+  lbl.textContent = label || (state==='synced'?'同期中':'未連携');
+}
+
+function onSyncBadgeClick(){
+  if(!currentUser){
+    document.getElementById('login-screen').style.display='flex';
+  } else {
+    if(confirm(`${currentUser.email}\n\nログアウトしますか？`)){
+      auth.signOut().then(()=>{
+        currentUser=null;
+        updateSyncBadge('offline','未連携');
+        document.getElementById('login-screen').style.display='flex';
+        showToast('ログアウトしました');
+      });
+    }
+  }
+}
+
 /* ── Init ── */
 function init() {
   const d = new Date().toISOString().slice(0,10);
@@ -2834,6 +3104,7 @@ function init() {
   // topbar初期値
   document.getElementById('topbar-title').textContent = TOPBAR['home'].t;
   document.getElementById('topbar-sub').textContent = TOPBAR['home'].s;
+  initFirebase();
 }
 
 init();
