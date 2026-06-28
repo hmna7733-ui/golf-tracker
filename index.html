@@ -1473,6 +1473,14 @@ function saveRecord(mode) {
 let statsMode = 'dist';
 let radarChart = null;
 
+/* ── Median helper ── */
+function median(arr){
+  if(!arr.length) return null;
+  const s=[...arr].sort((a,b)=>a-b);
+  const m=Math.floor(s.length/2);
+  return s.length%2===0 ? Math.round((s[m-1]+s[m])/2*10)/10 : Math.round(s[m]*10)/10;
+}
+
 let growthChart = null;
 let growthFilter = 'all';
 
@@ -1979,6 +1987,114 @@ function renderClubStats(recs) {
         </div>`).join('<div style="height:2px;background:var(--gray1);margin:0 -12px"></div>')}
     </div>`;
 
+  }
+
+  // ── 番手・スイング別 飛距離一覧表 ──
+  const tableRows = [];
+  const setDistMap = getAvgDists();
+
+  // クラブ名のみ（スイング違いを同クラブとしてまとめる）でソート順を決める
+  // 表はクラブ行 × スイング列
+  const clubsInData = [...new Set(recs.map(r=>r.club))];
+
+  clubsInData.forEach(club=>{
+    SWING_KEYS.forEach(sw=>{
+      const cr = recs.filter(r=>r.club===club&&(r.swing||'full')===sw);
+      if(!cr.length) return;
+
+      const setKey = `${club}-${sw}`;
+      const setCarry = setDistMap[setKey] || cr[0].setDist || null;
+
+      // キャリー: 設定値 + 各球の距離誤差
+      const carryVals = cr.flatMap(r=>{
+        const distErrs = (r.distErrs||[]).filter(v=>v!=null&&!isNaN(v));
+        if(!distErrs.length||setCarry==null) return [];
+        return distErrs.map(e=>Math.round((setCarry+e)*10)/10);
+      });
+
+      // ラン込み: 記録したtotalDists
+      const totalVals = cr.flatMap(r=>(r.totalDists||[]).filter(v=>v!=null&&!isNaN(v)));
+
+      // ラン: totalDist - キャリー（球ごとに計算）
+      const runVals = cr.flatMap(r=>{
+        const td = (r.totalDists||[]);
+        const de = (r.distErrs||[]);
+        if(!setCarry) return [];
+        return td.map((t,i)=>{
+          if(t==null||de[i]==null) return null;
+          return Math.round((t-(setCarry+de[i]))*10)/10;
+        }).filter(v=>v!=null);
+      });
+
+      if(!carryVals.length&&!totalVals.length) return;
+
+      const carryMed = median(carryVals);
+      const totalMed = median(totalVals);
+      const runMed   = median(runVals);
+      const carryMin = carryVals.length ? Math.round(Math.min(...carryVals)) : null;
+      const carryMax = carryVals.length ? Math.round(Math.max(...carryVals)) : null;
+      const totalMin = totalVals.length ? Math.round(Math.min(...totalVals)) : null;
+      const totalMax = totalVals.length ? Math.round(Math.max(...totalVals)) : null;
+
+      tableRows.push({
+        club, sw, swLabel: SWING_SHORT[sw]||sw,
+        setCarry,
+        carryMed, carryMin, carryMax,
+        totalMed, totalMin, totalMax,
+        runMed,
+        n: cr.length
+      });
+    });
+  });
+
+  if(tableRows.length){
+    html += `<div class="card" style="margin-bottom:10px;overflow:hidden">
+      <div class="card-title" style="margin-bottom:4px">番手・スイング別 飛距離一覧</div>
+      <div style="font-size:11px;color:var(--gray4);margin-bottom:10px;line-height:1.5">中央値＝安定して出る距離。番手選びの基準にしてください。</div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;border-collapse:collapse;min-width:420px;font-size:12px">
+          <thead>
+            <tr style="background:var(--gray1);border-bottom:2px solid var(--gray2)">
+              <th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--gray4);font-weight:700;white-space:nowrap">クラブ</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:var(--gray4);font-weight:700">SW</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:var(--gray4);font-weight:700">設定値</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:#1a3a6b;font-weight:700">キャリー<br>中央値</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:var(--gray4);font-weight:700">幅</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:#3d7016;font-weight:700">ラン</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:#7F77DD;font-weight:700">ラン込み<br>中央値</th>
+              <th style="text-align:center;padding:6px 6px;font-size:10px;color:var(--gray4);font-weight:700">幅</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows.map((r,i)=>{
+              const bg = i%2===0?'':'background:var(--gray1)';
+              const carryStar = r.setCarry&&r.carryMed!=null ? Math.round((r.carryMed-r.setCarry)*10)/10 : null;
+              const carryDiffCol = carryStar==null?'':Math.abs(carryStar)<=3?'color:#3d7016':carryStar>0?'color:#1a3a6b':'color:#d93025';
+              const carryDiffTxt = carryStar==null?'':(carryStar>0?'+':'')+carryStar+'y';
+              return `<tr style="border-bottom:1px solid var(--gray2);${bg}">
+                <td style="padding:7px 8px;font-weight:700;color:var(--gray5);white-space:nowrap">${r.club}</td>
+                <td style="padding:7px 6px;text-align:center;color:var(--gray4)">${r.swLabel}</td>
+                <td style="padding:7px 6px;text-align:center;color:var(--gray3)">${r.setCarry!=null?r.setCarry+'y':'—'}</td>
+                <td style="padding:7px 6px;text-align:center">
+                  <span style="font-size:15px;font-weight:800;color:#1a3a6b">${r.carryMed!=null?r.carryMed+'y':'—'}</span>
+                  ${carryStar!=null?`<br><span style="font-size:10px;${carryDiffCol}">${carryDiffTxt}</span>`:''}
+                </td>
+                <td style="padding:7px 6px;text-align:center;color:var(--gray3);font-size:11px">${r.carryMin!=null?r.carryMin+'〜'+r.carryMax:'—'}</td>
+                <td style="padding:7px 6px;text-align:center;font-weight:700;color:#3d7016">${r.runMed!=null?r.runMed+'y':'—'}</td>
+                <td style="padding:7px 6px;text-align:center">
+                  <span style="font-size:15px;font-weight:800;color:#7F77DD">${r.totalMed!=null?r.totalMed+'y':'—'}</span>
+                </td>
+                <td style="padding:7px 6px;text-align:center;color:var(--gray3);font-size:11px">${r.totalMin!=null?r.totalMin+'〜'+r.totalMax:'—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--gray4);margin-top:8px;line-height:1.7;padding-top:6px;border-top:1px solid var(--gray2)">
+        キャリー中央値の（+/-）は設定値との差。青=オーバー傾向 / 赤=手前傾向 / 緑=±3y以内<br>
+        中央値は外れ値の影響を受けにくく、実際のコースで選ぶ距離に最も近い数字です。
+      </div>
+    </div>`;
   }
 
   // 飛距離比較カード（実測平均 = 設定値 + 誤差平均）
