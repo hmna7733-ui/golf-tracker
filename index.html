@@ -1629,12 +1629,12 @@ function renderGrowthStats(){
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">GSPI 成長曲線（累積）</div>
-      <div style="position:relative;width:100%;height:220px"><canvas id="growth-chart"></canvas></div>
+      <div id="growth-chart-wrap" style="position:relative;width:100%;height:220px"></div>
       <div style="font-size:10px;color:var(--gray4);margin-top:4px">各セッション時点までの累積データのGSPI推移</div>
     </div>
     <div class="card">
       <div class="card-title" style="margin-bottom:8px">5軸スコアの推移</div>
-      <div style="position:relative;width:100%;height:200px"><canvas id="axes-chart"></canvas></div>
+      <div id="axes-chart-wrap" style="position:relative;width:100%;height:200px"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${['距離安定性','方向安定性','ミス耐性','精度','上振れ力'].map((l,i)=>`
           <span style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--gray4)">
@@ -1672,18 +1672,22 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // Charts — DOM反映を十分待ってから描画
-  setTimeout(()=>{
-    const labels = points.map(p=>p.label);
+  // canvasをJSで動的生成（innerHTML後にcanvasを追加することでSafariのサイズ問題を回避）
+  const labels = points.map(p=>p.label);
 
-    // 既存チャートを確実に破棄
+  function drawGrowthChart(){
+    const wrap1 = document.getElementById('growth-chart-wrap');
+    const wrap2 = document.getElementById('axes-chart-wrap');
+    if(!wrap1 || !wrap2){ setTimeout(drawGrowthChart, 100); return; }
+    if(wrap1.offsetWidth === 0){ setTimeout(drawGrowthChart, 100); return; }
+
+    // 既存チャートを破棄
     if(growthChart){ try{growthChart.destroy();}catch(e){} growthChart=null; }
-    Chart.helpers && Chart.helpers.each && Chart.helpers.each(
-      Chart.instances || {}, c=>{ if(c && c.canvas && (c.canvas.id==='growth-chart'||c.canvas.id==='axes-chart')) try{c.destroy();}catch(e){} }
-    );
 
-    const gc = document.getElementById('growth-chart');
-    if(!gc){ console.warn('growth-chart canvas not found'); return; }
+    // canvasを動的に生成してwrapperに追加
+    wrap1.innerHTML='';
+    const gc = document.createElement('canvas');
+    wrap1.appendChild(gc);
     growthChart = new Chart(gc,{
       type:'line',
       data:{labels,datasets:[{
@@ -1704,8 +1708,9 @@ function renderGrowthStats(){
       }
     });
 
-    const axc = document.getElementById('axes-chart');
-    if(!axc){ console.warn('axes-chart canvas not found'); return; }
+    wrap2.innerHTML='';
+    const axc = document.createElement('canvas');
+    wrap2.appendChild(axc);
     const axColors=['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
     const axLabels=['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
     new Chart(axc,{
@@ -1723,7 +1728,10 @@ function renderGrowthStats(){
         }
       }
     });
-  }, 200);
+  }
+
+  // 2フレーム待ってDOMレイアウト完了後に描画
+  requestAnimationFrame(()=>requestAnimationFrame(drawGrowthChart));
 }
 
 function setGrowthFilter(f){
