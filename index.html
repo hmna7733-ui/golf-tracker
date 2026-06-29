@@ -1672,66 +1672,81 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // canvasをJSで動的生成（innerHTML後にcanvasを追加することでSafariのサイズ問題を回避）
+  // canvasをJSで動的生成。Safari対応: canvasに直接サイズを指定する
   const labels = points.map(p=>p.label);
 
   function drawGrowthChart(){
     const wrap1 = document.getElementById('growth-chart-wrap');
     const wrap2 = document.getElementById('axes-chart-wrap');
-    if(!wrap1 || !wrap2){ setTimeout(drawGrowthChart, 100); return; }
-    if(wrap1.offsetWidth === 0){ setTimeout(drawGrowthChart, 100); return; }
+    if(!wrap1 || !wrap2){ setTimeout(drawGrowthChart, 150); return; }
+
+    const W = wrap1.offsetWidth || 340;
 
     // 既存チャートを破棄
     if(growthChart){ try{growthChart.destroy();}catch(e){} growthChart=null; }
 
-    // canvasを動的に生成してwrapperに追加
+    // canvasにpx単位で明示サイズを設定（maintainAspectRatio:false不要）
     wrap1.innerHTML='';
     const gc = document.createElement('canvas');
+    gc.width = W * (window.devicePixelRatio||1);
+    gc.height = 220 * (window.devicePixelRatio||1);
+    gc.style.width = W + 'px';
+    gc.style.height = '220px';
+    gc.style.display = 'block';
     wrap1.appendChild(gc);
-    growthChart = new Chart(gc,{
+
+    growthChart = new Chart(gc, {
       type:'line',
-      data:{labels,datasets:[{
-        label:'GSPI',data:points.map(p=>p.gspi),
-        borderColor:'#c4902a',backgroundColor:'rgba(196,144,42,.1)',
-        borderWidth:2.5,pointBackgroundColor:'#c4902a',
-        pointRadius:4,pointHoverRadius:6,tension:.3,fill:true
+      data:{labels, datasets:[{
+        label:'GSPI', data:points.map(p=>p.gspi),
+        borderColor:'#c4902a', backgroundColor:'rgba(196,144,42,.1)',
+        borderWidth:2.5, pointBackgroundColor:'#c4902a',
+        pointRadius:4, pointHoverRadius:6, tension:.3, fill:true
       }]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{
+      options:{
+        responsive:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{
           title:ctx=>`第${ctx[0].dataIndex+1}回 (${points[ctx[0].dataIndex].date})`,
           label:ctx=>`GSPI: ${ctx.parsed.y}`
         }}},
         scales:{
-          y:{min:0,max:100,ticks:{stepSize:20,font:{size:10}},grid:{color:'rgba(0,0,0,.05)'}},
-          x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}}
+          y:{min:0, max:100, ticks:{stepSize:20, font:{size:10}}, grid:{color:'rgba(0,0,0,.05)'}},
+          x:{ticks:{font:{size:10}, maxRotation:45}, grid:{display:false}}
         }
       }
     });
 
     wrap2.innerHTML='';
     const axc = document.createElement('canvas');
+    axc.width = W * (window.devicePixelRatio||1);
+    axc.height = 200 * (window.devicePixelRatio||1);
+    axc.style.width = W + 'px';
+    axc.style.height = '200px';
+    axc.style.display = 'block';
     wrap2.appendChild(axc);
+
     const axColors=['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
     const axLabels=['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
-    new Chart(axc,{
+    new Chart(axc, {
       type:'line',
-      data:{labels,datasets:axLabels.map((l,i)=>({
-        label:l,data:points.map(p=>p.axes[i]),
-        borderColor:axColors[i],backgroundColor:'transparent',
-        borderWidth:1.5,pointRadius:2,tension:.3
+      data:{labels, datasets:axLabels.map((l,i)=>({
+        label:l, data:points.map(p=>p.axes[i]),
+        borderColor:axColors[i], backgroundColor:'transparent',
+        borderWidth:1.5, pointRadius:2, tension:.3
       }))},
-      options:{responsive:true,maintainAspectRatio:false,
+      options:{
+        responsive:false,
         plugins:{legend:{display:false}},
         scales:{
-          y:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'rgba(0,0,0,.05)'}},
-          x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}
+          y:{min:0, max:100, ticks:{stepSize:25, font:{size:9}}, grid:{color:'rgba(0,0,0,.05)'}},
+          x:{ticks:{font:{size:9}, maxRotation:45}, grid:{display:false}}
         }
       }
     });
   }
 
-  // 2フレーム待ってDOMレイアウト完了後に描画
-  requestAnimationFrame(()=>requestAnimationFrame(drawGrowthChart));
+  // display:none→block の後にレイアウトが確定するまで確実に待つ
+  setTimeout(drawGrowthChart, 100);
 }
 
 function setGrowthFilter(f){
@@ -2230,7 +2245,7 @@ function renderClubStats(recs) {
   if(clubNames.length >= 2){
     html += `<div class="card" style="margin-top:8px">
       <div class="card-title" style="margin-bottom:8px">クラブ比較レーダー</div>
-      <div class="radar-wrap"><canvas id="radar-chart" role="img" aria-label="クラブ別5軸レーダーチャート">レーダーチャート</canvas></div>
+      <div class="radar-wrap"><canvas id="radar-chart" style="display:block"></canvas></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
         ${clubNames.map((c,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--gray4)"><span style="width:10px;height:10px;border-radius:2px;background:${clubColors[i%clubColors.length]};display:inline-block"></span>${c}</span>`).join('')}
       </div>
@@ -2250,17 +2265,22 @@ function renderClubStats(recs) {
 
   div.innerHTML = html;
 
-  // radar chart — rAF で DOM 反映後に描画
+  // radar chart — explicit size for Safari
   if(clubNames.length >= 2){
     requestAnimationFrame(()=>{
       const rc = document.getElementById('radar-chart');
       if(!rc) return;
       if(radarChart) radarChart.destroy();
+      const W = rc.parentElement ? (rc.parentElement.offsetWidth||340) : 340;
+      rc.width  = W * (window.devicePixelRatio||1);
+      rc.height = 240 * (window.devicePixelRatio||1);
+      rc.style.width  = W + 'px';
+      rc.style.height = '240px';
       radarChart = new Chart(rc, {
         type: 'radar',
         data: { labels: axisLabels, datasets: radarDatasets },
         options: {
-          responsive: true, maintainAspectRatio: false,
+          responsive: false,
           plugins: { legend: { display: false } },
           scales: { r: {
             min: 0, max: 100,
