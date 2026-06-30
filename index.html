@@ -643,7 +643,7 @@ input:focus,select:focus{outline:none;border-color:var(--green);background:var(-
         <div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
           <div></div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
-          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+          <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">実測キャリー(y)</div>
           <div id="c-dir-hdr" style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
           <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">ラン込み(y)</div>
           <div></div>
@@ -1146,7 +1146,7 @@ function stepDist(i, delta){
 /* ── Shot state ── */
 // Each shot: {distErr, dirErr, dist, isChip}
 let dShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false,isMiss:false}));
-let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false,isMiss:false}));
+let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',measDist:'',totalDist:'',isChip:false,isMiss:false}));
 
 /* ── Flick Picker ── */
 // 距離誤差: 手前(マイナス)→オーバー(プラス)、0.5y刻み
@@ -1216,6 +1216,17 @@ function openPicker(prefix, shotIdx, field){
       {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
     ];
     title = '飛距離';
+  } else if(field==='measDist'){
+    // 実測キャリー距離。初期値は設定値（基準距離）
+    const setDist = getClubAvgDist(document.getElementById('c-club').value, currentSwing) || 150;
+    const cur = sh.measDist!==''&&sh.measDist!=null ? parseFloat(sh.measDist) : setDist;
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((cur - intPart) * 10);
+    colDefs = [
+      {label:'実測キャリー (y)', values:PICKER_DIST, current:intPart, isDistInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
+    ];
+    title = '実測キャリー距離';
   } else if(field==='totalDist'){
     const cur = sh.totalDist!==''&&sh.totalDist!=null ? parseFloat(sh.totalDist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
     const intPart = Math.trunc(cur);
@@ -1404,7 +1415,7 @@ function closePicker(apply){
       } else {
         val = Math.round((intVal - decVal/10) * 10) / 10;
       }
-    } else if(field==='dist' || field==='totalDist'){
+    } else if(field==='dist' || field==='totalDist' || field==='measDist'){
       // 整数部 + 小数部 を合算
       const intVal = getPickerValue(pickerCols[0]);
       const decVal = getPickerValue(pickerCols[1]);
@@ -1416,6 +1427,16 @@ function closePicker(apply){
     if(prefix==='edit'){
       // 編集モーダル用
       if(field==='dist') editTarget.dists[shotIdx]=val;
+      else if(field==='measDist'){
+        // 実測キャリー距離が入力されたら、設定値との差からdistErrを計算
+        const setDist = editTarget.setDist!=null ? editTarget.setDist : (getClubAvgDist(editTarget.club, editTarget.swing)||null);
+        if(setDist != null){
+          const newErr = Math.round((val - setDist) * 10) / 10;
+          editTarget.distErrs[shotIdx] = newErr;
+          if(editTarget.shots[shotIdx] && editTarget.shots[shotIdx]!=='chip')
+            editTarget.shots[shotIdx] = calcRating(newErr, editTarget.dirErrs[shotIdx], false);
+        }
+      }
       else if(field==='distErr'){
         editTarget.distErrs[shotIdx]=val;
         if(!editTarget.shots[shotIdx]||editTarget.shots[shotIdx]==='chip') {}
@@ -1429,6 +1450,13 @@ function closePicker(apply){
     } else {
       const shots = prefix==='c' ? cShots : dShots;
       shots[shotIdx][field] = val;
+      // 実測キャリー距離が入力されたら、設定値との差からdistErrを自動計算
+      if(field === 'measDist'){
+        const setDist = getClubAvgDist(document.getElementById('c-club').value, currentSwing);
+        if(setDist != null){
+          shots[shotIdx].distErr = Math.round((val - setDist) * 10) / 10;
+        }
+      }
       updateRow(prefix, shotIdx);
     }
   }
@@ -1482,10 +1510,12 @@ function buildRowInner(row, prefix, i, sh, isClub){
 
   if(isClub){
     const tdVal = sh.totalDist!==''&&sh.totalDist!=null ? sh.totalDist+'y' : '–';
+    // 距離誤差ではなく「実測キャリー距離」を直接表示・入力
+    const measVal = sh.measDist!==''&&sh.measDist!=null ? sh.measDist+'y' : '–';
     row.innerHTML = `
       <div class="sr-num">${i+1}</div>
       <div class="sr-badge ${bCls}">${bLbl}</div>
-      <button class="pick-btn${deVal==='–'?' empty':''}" onclick="openPicker('c',${i},'distErr')"${disabledStyle}>${deVal}</button>
+      <button class="pick-btn${measVal==='–'?' empty':''}" onclick="openPicker('c',${i},'measDist')"${disabledStyle}>${measVal}</button>
       <button class="pick-btn${drVal==='–'?' empty':''}" onclick="openPicker('c',${i},'dirErr')"${disabledStyle}>${drVal}</button>
       <button class="pick-btn${tdVal==='–'?' empty':''}" onclick="openPicker('c',${i},'totalDist')">${tdVal}</button>
       <div class="sr-actions">
@@ -1548,7 +1578,7 @@ function quickFill(prefix, type){
 
 function clearShots(prefix){
   if(prefix==='d') dShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',isChip:false,isMiss:false}));
-  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',isChip:false,isMiss:false}));
+  else cShots=Array(10).fill(null).map(()=>({distErr:'',dirErr:'',measDist:'',totalDist:'',isChip:false,isMiss:false}));
   buildShotGrid(prefix);
 }
 
@@ -2665,7 +2695,7 @@ function buildEditModalBody(){
   const colHdr = isClub
     ? `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
         <div></div><div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">評価</div>
-        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">距離誤差</div>
+        <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">実測キャリー(y)</div>
         <div style="font-size:10px;color:var(--gray3);font-weight:600;text-align:center">方向誤差</div>
         <div></div></div>`
     : `<div style="display:grid;grid-template-columns:22px 44px 1fr 1fr 40px;gap:6px;padding:0 8px 4px">
@@ -2682,7 +2712,10 @@ function buildEditModalBody(){
     const rCls = rating ? ROW_RATING_CLS[rating] : '';
     const deShow = fmtDistErr(distErrs[i]);
     const drShow = fmtDirErr(dirErrs[i]);
-    const distShow = dists[i]!=null ? dists[i]+'y' : '–';
+    // クラブ別: setDist+distErrから実測キャリーを逆算して表示
+    const measShow = (isClub && editTarget.setDist!=null && distErrs[i]!=null)
+      ? Math.round((editTarget.setDist + distErrs[i])*10)/10 + 'y'
+      : '–';
     const base = isClub ? 'shot-row-club' : 'shot-row';
     const chipActive = isChip?' active':'';
 
@@ -2690,7 +2723,7 @@ function buildEditModalBody(){
       return `<div class="${base}${rCls?' '+rCls:''}" id="edit-row-${i}">
         <div class="sr-num">${i+1}</div>
         <div class="sr-badge ${bCls}">${bLbl}</div>
-        <button class="pick-btn${deShow==='–'?' empty':''}" onclick="openEditPicker(${i},'distErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${deShow}</button>
+        <button class="pick-btn${measShow==='–'?' empty':''}" onclick="openEditPicker(${i},'measDist')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${measShow}</button>
         <button class="pick-btn${drShow==='–'?' empty':''}" onclick="openEditPicker(${i},'dirErr')"${isChip?' style="opacity:.4;pointer-events:none"':''}>${drShow}</button>
         <button class="sr-chip-btn${chipActive}" onclick="toggleEditChip(${i})">★</button>
       </div>`;
@@ -2753,7 +2786,7 @@ function buildEditModalBody(){
 }
 
 function updateEditRow(i){
-  const {isClub, shots, distErrs, dirErrs, dists} = editTarget;
+  const {isClub, shots, distErrs, dirErrs, dists, setDist} = editTarget;
   const s = shots[i];
   const isChip = s==='chip';
   const rating = s || null;
@@ -2763,7 +2796,9 @@ function updateEditRow(i){
   const base = isClub ? 'shot-row-club' : 'shot-row';
   const deShow = fmtDistErr(distErrs[i]);
   const drShow = fmtDirErr(dirErrs[i]);
-  const distShow = dists[i]!=null ? dists[i]+'y' : '–';
+  const measShow = (isClub && setDist!=null && distErrs[i]!=null)
+    ? Math.round((setDist + distErrs[i])*10)/10 + 'y'
+    : '–';
   const chipActive = isChip?' active':'';
   const row = document.getElementById(`edit-row-${i}`);
   if(!row) return;
@@ -2772,9 +2807,8 @@ function updateEditRow(i){
   row.querySelector('.sr-badge').textContent = bLbl;
   const btns = row.querySelectorAll('.pick-btn');
   if(isClub){
-    btns[0].textContent=deShow; btns[0].style.opacity=isChip?'.4':'1'; btns[0].style.pointerEvents=isChip?'none':'';
-    btns[1].textContent=drShow; btns[1].style.opacity=isChip?'.4':'1'; btns[1].style.pointerEvents=isChip?'none':'';
-    btns[2].textContent=distShow;
+    btns[0].textContent=measShow; btns[0].style.opacity=isChip?'.4':'1'; btns[0].style.pointerEvents=isChip?'none':'';
+    btns[1].textContent=drShow;   btns[1].style.opacity=isChip?'.4':'1'; btns[1].style.pointerEvents=isChip?'none':'';
   } else {
     btns[0].textContent=deShow; btns[0].style.opacity=isChip?'.4':'1'; btns[0].style.pointerEvents=isChip?'none':'';
     btns[1].textContent=drShow; btns[1].style.opacity=isChip?'.4':'1'; btns[1].style.pointerEvents=isChip?'none':'';
@@ -2813,6 +2847,17 @@ function openEditPicker(shotIdx, field){
       {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
     ];
     title='飛距離';
+  } else if(field==='measDist'){
+    // 実測キャリー距離。設定値+distErrから逆算、なければ設定値
+    const setDist = editTarget.setDist!=null ? editTarget.setDist : (getClubAvgDist(editTarget.club, editTarget.swing)||150);
+    const cur = distErrs[shotIdx]!=null ? setDist + distErrs[shotIdx] : setDist;
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((cur - intPart) * 10);
+    colDefs=[
+      {label:'実測キャリー (y)', values:PICKER_DIST, current:intPart, isDistInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
+    ];
+    title='実測キャリー距離';
   } else if(field==='distErr'){
     const cur = distErrs[shotIdx]!==undefined ? distErrs[shotIdx] : 0;
     const intPart = Math.trunc(cur);
