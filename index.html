@@ -1076,6 +1076,17 @@ function buildDirErrValues(){
   return vals;
 }
 
+// 方向誤差: 整数部(0〜max) + 小数部(0〜9) の2ドラム方式（左右それぞれに適用）
+function buildDirErrIntValues(){
+  const u = getDirUnit();
+  const max = u==='y' ? 20 : 10;
+  const vals = [];
+  for(let v=0; v<=max; v++) vals.push(v);
+  return vals;
+}
+const PICKER_DIR_DEC = [];
+for(let v=0; v<=9; v++) PICKER_DIR_DEC.push(v);
+
 /* ── Avg dist table in settings ── */
 function buildAvgDistTable(){
   const clubs = getClubs();
@@ -1139,6 +1150,13 @@ let cShots = Array(10).fill(null).map(()=>({distErr:'',dirErr:'',totalDist:'',is
 
 /* ── Flick Picker ── */
 // 距離誤差: 手前(マイナス)→オーバー(プラス)、0.5y刻み
+// 距離誤差: 整数部(手前/オーバー) + 小数部(0.1y刻み) の2ドラム方式
+const PICKER_DIST_ERR_INT = [];
+for(let v=-20; v<=20; v++) PICKER_DIST_ERR_INT.push(v);
+const PICKER_DIST_ERR_DEC = [];
+for(let v=0; v<=9; v++) PICKER_DIST_ERR_DEC.push(v);
+
+// 旧形式（互換性のため残置・未使用）
 const PICKER_DIST_ERR = [];
 for(let v=-20; v<=20; v+=0.5) PICKER_DIST_ERR.push(Math.round(v*10)/10);
 
@@ -1170,9 +1188,13 @@ function fmtDistErr(v){
   return n < 0 ? `手前${abs}y` : `オーバー${abs}y`;
 }
 
-// PICKER_DIST_ERR は動的（ラベル用）
+// PICKER_DIST は動的（ラベル用）
 const PICKER_DIST = [];
 for(let v=30; v<=350; v++) PICKER_DIST.push(v);
+
+// 飛距離・ラン込み飛距離: 整数部 + 小数部 の2ドラム方式
+const PICKER_DIST_DEC = [];
+for(let v=0; v<=9; v++) PICKER_DIST_DEC.push(v);
 
 let pickerTarget = null; // {prefix, shotIdx, field}
 let pickerCols = [];     // [{values, scrollEl, getIdx}]
@@ -1187,25 +1209,46 @@ function openPicker(prefix, shotIdx, field){
 
   if(field==='dist'){
     const cur = sh.dist!==''&&sh.dist!=null ? parseFloat(sh.dist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
-    colDefs = [{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((cur - intPart) * 10);
+    colDefs = [
+      {label:'飛距離 (y)', values:PICKER_DIST, current:intPart, isDistInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
+    ];
     title = '飛距離';
   } else if(field==='totalDist'){
     const cur = sh.totalDist!==''&&sh.totalDist!=null ? parseFloat(sh.totalDist) : (getClubAvgDist(document.getElementById('c-club').value, currentSwing)||150);
-    colDefs = [{label:'ラン込み飛距離 (y)', values:PICKER_DIST, current:cur}];
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((cur - intPart) * 10);
+    colDefs = [
+      {label:'ラン込み飛距離 (y)', values:PICKER_DIST, current:intPart, isDistInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
+    ];
     title = 'ラン込み飛距離';
   } else if(field==='distErr'){
     const cur = sh.distErr!=='' ? parseFloat(sh.distErr) : 0;
-    colDefs = [{label:'手前 ← 0 → オーバー (y)', values:PICKER_DIST_ERR, current:cur}];
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((Math.abs(cur) - Math.abs(intPart)) * 10);
+    colDefs = [
+      {label:'手前 ← 0 → オーバー', values:PICKER_DIST_ERR_INT, current:intPart, isDistErrInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_ERR_DEC, current:decPart, isDistErrDec:true}
+    ];
     title = '距離誤差';
   } else {
-    // 方向誤差: 左コラム(0〜max) + 右コラム(0〜max)
+    // 方向誤差: 左整数・左小数・右整数・右小数の4コラム
     const cur = sh.dirErr!=='' ? parseFloat(sh.dirErr) : 0;
-    const vals = buildDirErrValues();
-    const leftCur  = cur <= 0 ? Math.abs(cur) : 0;
-    const rightCur = cur >= 0 ? Math.abs(cur) : 0;
+    const intVals = buildDirErrIntValues();
+    const leftAbs  = cur <= 0 ? Math.abs(cur) : 0;
+    const rightAbs = cur >= 0 ? Math.abs(cur) : 0;
+    const leftInt  = Math.trunc(leftAbs);
+    const leftDec  = Math.round((leftAbs - leftInt) * 10);
+    const rightInt = Math.trunc(rightAbs);
+    const rightDec = Math.round((rightAbs - rightInt) * 10);
     colDefs = [
-      {label:`← 左 (${u})`, values:vals, current:leftCur, side:'left'},
-      {label:`右 → (${u})`, values:vals, current:rightCur, side:'right'}
+      {label:`← 左 (${u})`,  values:intVals,       current:leftInt,  side:'left',  isDirInt:true},
+      {label:'.',             values:PICKER_DIR_DEC, current:leftDec,  side:'left',  isDirDec:true},
+      {label:`右 → (${u})`,  values:intVals,       current:rightInt, side:'right', isDirInt:true},
+      {label:'.',             values:PICKER_DIR_DEC, current:rightDec, side:'right', isDirDec:true}
     ];
     title = '方向誤差';
   }
@@ -1241,6 +1284,12 @@ function buildPickerDOM(title, colDefs){
     const col = document.createElement('div');
     col.className = 'picker-col';
     col.style.position = 'relative';
+    // 小数ドラムは幅を狭くしてレイアウトを最適化
+    if(cd.isDistErrDec || cd.isDistDec || cd.isDirDec){
+      col.style.flex = '0 0 64px';
+    } else if(cd.isDirInt){
+      col.style.flex = '1.3';
+    }
 
     const lbl = document.createElement('div');
     lbl.className = 'picker-col-label';
@@ -1260,7 +1309,18 @@ function buildPickerDOM(title, colDefs){
       const item = document.createElement('div');
       item.className = 'picker-item';
       // distErrは手前/ジャスト/オーバー表示
-      if(pickerTarget && pickerTarget.field==='distErr'){
+      if(cd.isDistErrInt){
+        if(v===0) item.textContent = 'ジャスト';
+        else if(v<0) item.textContent = `手前${Math.abs(v)}`;
+        else item.textContent = `オーバー${v}`;
+        item.classList.add('long-text');
+      } else if(cd.isDistErrDec){
+        item.textContent = '.' + v;
+      } else if(cd.isDistDec || cd.isDirDec){
+        item.textContent = '.' + v;
+      } else if(cd.isDistInt || cd.isDirInt){
+        item.textContent = String(v);
+      } else if(pickerTarget && pickerTarget.field==='distErr'){
         if(v===0) item.textContent = 'ジャスト';
         else if(v<0) item.textContent = `手前${Math.abs(Number.isInteger(v)?v:parseFloat(v.toFixed(1)))}y`;
         else item.textContent = `オーバー${Number.isInteger(v)?v:parseFloat(v.toFixed(1))}y`;
@@ -1295,7 +1355,7 @@ function buildPickerDOM(title, colDefs){
     });
 
     scroll.addEventListener('scroll', ()=>updatePickerHighlight(scroll), {passive:true});
-    pickerCols.push({values:cd.values, scrollEl:scroll});
+    pickerCols.push({values:cd.values, scrollEl:scroll, isDistErrInt:cd.isDistErrInt, isDistErrDec:cd.isDistErrDec, isDistInt:cd.isDistInt, isDistDec:cd.isDistDec, isDirInt:cd.isDirInt, isDirDec:cd.isDirDec, side:cd.side});
   });
 }
 function updatePickerHighlight(scroll){
@@ -1322,12 +1382,33 @@ function closePicker(apply){
 
     let val;
     if(field==='dirErr'){
-      const leftVal  = getPickerValue(pickerCols[0]);
-      const rightVal = getPickerValue(pickerCols[1]);
+      // 4コラム: 左整数・左小数・右整数・右小数
+      const leftInt  = getPickerValue(pickerCols[0]);
+      const leftDec  = getPickerValue(pickerCols[1]);
+      const rightInt = getPickerValue(pickerCols[2]);
+      const rightDec = getPickerValue(pickerCols[3]);
+      const leftAbs  = Math.round((leftInt + leftDec/10) * 10) / 10;
+      const rightAbs = Math.round((rightInt + rightDec/10) * 10) / 10;
       val = 0;
-      if(rightVal > 0) val = rightVal;
-      if(leftVal > 0)  val = -leftVal;
-      if(leftVal > 0 && rightVal > 0) val = rightVal;
+      if(rightAbs > 0) val = rightAbs;
+      if(leftAbs > 0)  val = -leftAbs;
+      if(leftAbs > 0 && rightAbs > 0) val = rightAbs;
+    } else if(field==='distErr'){
+      // 整数部 + 小数部 を合算（符号は整数部に従う。整数0の場合は符号なしの小数値）
+      const intVal = getPickerValue(pickerCols[0]);
+      const decVal = getPickerValue(pickerCols[1]);
+      if(intVal === 0){
+        val = decVal / 10; // 0.x（オーバー扱い、手前にしたい場合は0未満の整数を選べばよい）
+      } else if(intVal > 0){
+        val = Math.round((intVal + decVal/10) * 10) / 10;
+      } else {
+        val = Math.round((intVal - decVal/10) * 10) / 10;
+      }
+    } else if(field==='dist' || field==='totalDist'){
+      // 整数部 + 小数部 を合算
+      const intVal = getPickerValue(pickerCols[0]);
+      const decVal = getPickerValue(pickerCols[1]);
+      val = Math.round((intVal + decVal/10) * 10) / 10;
     } else {
       val = getPickerValue(pickerCols[0]);
     }
@@ -2725,18 +2806,36 @@ function openEditPicker(shotIdx, field){
 
   if(field==='dist'){
     const cur = dists[shotIdx]!=null ? dists[shotIdx] : (getClubAvgDist(editTarget.club)||150);
-    colDefs=[{label:'飛距離 (y)', values:PICKER_DIST, current:cur}];
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((cur - intPart) * 10);
+    colDefs=[
+      {label:'飛距離 (y)', values:PICKER_DIST, current:intPart, isDistInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_DEC, current:decPart, isDistDec:true}
+    ];
     title='飛距離';
   } else if(field==='distErr'){
     const cur = distErrs[shotIdx]!==undefined ? distErrs[shotIdx] : 0;
-    colDefs=[{label:'手前 ← 0 → オーバー (y)', values:PICKER_DIST_ERR, current:cur}];
+    const intPart = Math.trunc(cur);
+    const decPart = Math.round((Math.abs(cur) - Math.abs(intPart)) * 10);
+    colDefs=[
+      {label:'手前 ← 0 → オーバー', values:PICKER_DIST_ERR_INT, current:intPart, isDistErrInt:true},
+      {label:'小数点 (.y)', values:PICKER_DIST_ERR_DEC, current:decPart, isDistErrDec:true}
+    ];
     title='距離誤差';
   } else {
     const cur = dirErrs[shotIdx]!==undefined ? dirErrs[shotIdx] : 0;
-    const vals = buildDirErrValues();
+    const intVals = buildDirErrIntValues();
+    const leftAbs  = cur<=0?Math.abs(cur):0;
+    const rightAbs = cur>=0?Math.abs(cur):0;
+    const leftInt  = Math.trunc(leftAbs);
+    const leftDec  = Math.round((leftAbs - leftInt) * 10);
+    const rightInt = Math.trunc(rightAbs);
+    const rightDec = Math.round((rightAbs - rightInt) * 10);
     colDefs=[
-      {label:`← 左 (${u})`, values:vals, current:cur<=0?Math.abs(cur):0, side:'left'},
-      {label:`右 → (${u})`, values:vals, current:cur>=0?Math.abs(cur):0, side:'right'}
+      {label:`← 左 (${u})`, values:intVals,       current:leftInt,  side:'left',  isDirInt:true},
+      {label:'.',            values:PICKER_DIR_DEC, current:leftDec,  side:'left',  isDirDec:true},
+      {label:`右 → (${u})`, values:intVals,       current:rightInt, side:'right', isDirInt:true},
+      {label:'.',            values:PICKER_DIR_DEC, current:rightDec, side:'right', isDirDec:true}
     ];
     title='方向誤差';
   }
