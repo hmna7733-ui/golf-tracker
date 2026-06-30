@@ -1672,25 +1672,6 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // SVGでグラフを直接描画（Chart.js依存を排除・iPad/iPhone両対応）
-  function drawGrowthSVG(){
-    const wrap1 = document.getElementById('growth-chart-wrap');
-    const wrap2 = document.getElementById('axes-chart-wrap');
-    if(!wrap1 || !wrap2) return;
-
-    const gspiData = points.map(p=>p.gspi);
-    const axesData = points.map(p=>p.axes);
-    const labs     = points.map(p=>p.label);
-
-    // 親要素の実際の幅を取得（iPad対応）
-    const W = Math.max(280, Math.min(700, wrap1.offsetWidth || wrap1.getBoundingClientRect().width || 340));
-
-    wrap1.innerHTML = makeSVGLine(W, labs, [{data:gspiData, color:'#c4902a', fill:'rgba(196,144,42,0.12)'}], 220, 0, 100);
-    wrap2.innerHTML = makeSVGLine(W, labs, ['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'].map((color,i)=>({
-      data: axesData.map(a=>a[i]), color, fill:'none'
-    })), 200, 0, 100);
-  }
-
   function makeSVGLine(W, labels, series, H, yMin, yMax){
     const padL=38, padR=12, padT=14, padB=34;
     const gW = W - padL - padR;
@@ -1744,12 +1725,27 @@ function renderGrowthStats(){
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px">${grid}${paths}${xLabels}</svg>`;
   }
 
-  // wrap の offsetWidth が確定してから描画
-  if(wrap1 && wrap1.offsetWidth > 0){
-    drawGrowthSVG();
-  } else {
-    setTimeout(drawGrowthSVG, 50);
+  // SVGでグラフを直接描画（Chart.js依存を排除・iPhone/iPad両対応）
+  function drawGrowthSVG(){
+    const wrap1 = document.getElementById('growth-chart-wrap');
+    const wrap2 = document.getElementById('axes-chart-wrap');
+    if(!wrap1 || !wrap2) return;
+
+    const gspiData = points.map(p=>p.gspi);
+    const axesData = points.map(p=>p.axes);
+    const labs     = points.map(p=>p.label);
+
+    // display:none の影響を受けないように window.innerWidth から幅を推定
+    // カード内の実効幅 = 画面幅 - パディング等 24px*2
+    const W = Math.max(280, Math.min(700, window.innerWidth - 48));
+
+    wrap1.innerHTML = makeSVGLine(W, labs, [{data:gspiData, color:'#c4902a', fill:'rgba(196,144,42,0.12)'}], 220, 0, 100);
+    wrap2.innerHTML = makeSVGLine(W, labs, ['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'].map((color,i)=>({
+      data: axesData.map(a=>a[i]), color, fill:'none'
+    })), 200, 0, 100);
   }
+
+  drawGrowthSVG();
 }
 
 function setGrowthFilter(f){
@@ -2272,11 +2268,11 @@ function renderClubStats(recs) {
   window._clubStatData = {byClub, clubNames, clubColors};
   generateClubAdvice(recs, byClub, clubNames, overallG);
 
-  // レーダーチャートをSVGで描画（iPad対応）
+  // レーダーチャートをSVGで描画（iPhone/iPad両対応）
   if(clubNames.length >= 2){
     const rc = document.getElementById('radar-chart-wrap');
     if(rc){
-      const svgW = Math.max(280, Math.min(600, rc.offsetWidth || rc.getBoundingClientRect().width || 320));
+      const svgW = Math.max(280, Math.min(600, window.innerWidth - 48));
       const svgH = Math.round(svgW * 0.75);
       const CX=svgW/2, CY=svgH*0.5, R=Math.min(svgW, svgH)*0.32;
       const axisLabels2 = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
