@@ -1672,7 +1672,7 @@ function renderGrowthStats(){
       </div>
     </div>`;
 
-  // SVGでグラフを直接描画（Chart.js依存を排除）
+  // SVGでグラフを直接描画（Chart.js依存を排除・iPad/iPhone両対応）
   function drawGrowthSVG(){
     const wrap1 = document.getElementById('growth-chart-wrap');
     const wrap2 = document.getElementById('axes-chart-wrap');
@@ -1682,52 +1682,50 @@ function renderGrowthStats(){
     const axesData = points.map(p=>p.axes);
     const labs     = points.map(p=>p.label);
 
-    wrap1.innerHTML = makeSVGLine(labs, [{data:gspiData, color:'#c4902a', fill:'rgba(196,144,42,0.12)'}], 220, 0, 100);
+    // 親要素の実際の幅を取得（iPad対応）
+    const W = Math.max(280, Math.min(700, wrap1.offsetWidth || wrap1.getBoundingClientRect().width || 340));
 
-    const axColors = ['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'];
-    wrap2.innerHTML = makeSVGLine(labs, axColors.map((color,i)=>({
+    wrap1.innerHTML = makeSVGLine(W, labs, [{data:gspiData, color:'#c4902a', fill:'rgba(196,144,42,0.12)'}], 220, 0, 100);
+    wrap2.innerHTML = makeSVGLine(W, labs, ['#1a3a6b','#c4902a','#d93025','#3d7016','#534AB7'].map((color,i)=>({
       data: axesData.map(a=>a[i]), color, fill:'none'
     })), 200, 0, 100);
   }
 
-  function makeSVGLine(labels, series, H, yMin, yMax){
-    const padL=36, padR=10, padT=12, padB=32;
-    // 画面幅から計算（モバイル想定で340px）
-    const W = 340;
+  function makeSVGLine(W, labels, series, H, yMin, yMax){
+    const padL=38, padR=12, padT=14, padB=34;
     const gW = W - padL - padR;
     const gH = H - padT - padB;
     const n  = labels.length;
-    const xStep = n > 1 ? gW / (n-1) : gW;
 
-    function xPos(i){ return padL + (n>1 ? i*xStep : gW/2); }
+    function xPos(i){ return padL + (n>1 ? i*(gW/(n-1)) : gW/2); }
     function yPos(v){ return padT + gH - ((v-yMin)/(yMax-yMin||1))*gH; }
 
-    // Y軸グリッド
+    // Y軸グリッド線とラベル
     let grid = '';
     [0,25,50,75,100].forEach(v=>{
       const y = yPos(v);
-      grid += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e8e8e0" stroke-width="1"/>`;
-      grid += `<text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#aaa">${v}</text>`;
+      grid += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#e8e8e0" stroke-width="1"/>`;
+      grid += `<text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="10" fill="#aaa" font-family="-apple-system,sans-serif">${v}</text>`;
     });
 
-    // 各系列の折れ線＋塗り
+    // 折れ線
     let paths = '';
     series.forEach(({data, color, fill})=>{
-      const pts = data.map((v,i)=>`${xPos(i)},${yPos(v)}`).join(' ');
+      const pts = data.map((v,i)=>`${xPos(i).toFixed(1)},${yPos(v).toFixed(1)}`).join(' ');
       if(fill && fill !== 'none'){
-        const first = `${xPos(0)},${yPos(yMin)}`;
-        const last  = `${xPos(data.length-1)},${yPos(yMin)}`;
-        paths += `<polygon points="${first} ${pts} ${last}" fill="${fill}" stroke="none"/>`;
+        const fx0 = xPos(0).toFixed(1), fxN = xPos(data.length-1).toFixed(1), fy0 = yPos(yMin).toFixed(1);
+        paths += `<polygon points="${fx0},${fy0} ${pts} ${fxN},${fy0}" fill="${fill}" stroke="none"/>`;
       }
       paths += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-      // 点
+      // 点と値ラベル（単一系列のみ）
       if(series.length === 1){
         data.forEach((v,i)=>{
-          paths += `<circle cx="${xPos(i)}" cy="${yPos(v)}" r="4" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
-          // 値ラベル（スペースがあれば）
-          if(n <= 8){
-            const ly = yPos(v) - 8;
-            paths += `<text x="${xPos(i)}" y="${ly < padT+8 ? yPos(v)+16 : ly}" text-anchor="middle" font-size="10" font-weight="700" fill="${color}">${v}</text>`;
+          const cx=xPos(i).toFixed(1), cy=yPos(v).toFixed(1);
+          paths += `<circle cx="${cx}" cy="${cy}" r="5" fill="${color}" stroke="#fff" stroke-width="2"/>`;
+          if(n <= 10){
+            const ly = parseFloat(cy) - 10;
+            const labelY = ly < padT+10 ? (parseFloat(cy)+18).toFixed(1) : ly.toFixed(1);
+            paths += `<text x="${cx}" y="${labelY}" text-anchor="middle" font-size="11" font-weight="700" fill="${color}" font-family="-apple-system,sans-serif">${v}</text>`;
           }
         });
       }
@@ -1735,19 +1733,23 @@ function renderGrowthStats(){
 
     // X軸ラベル
     let xLabels = '';
-    const step = n <= 6 ? 1 : n <= 12 ? 2 : Math.ceil(n/6);
+    const step = n<=6?1:n<=12?2:Math.ceil(n/6);
     labels.forEach((l,i)=>{
-      if(i % step === 0 || i === n-1){
-        xLabels += `<text x="${xPos(i)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#888">${l}</text>`;
+      if(i%step===0||i===n-1){
+        xLabels += `<text x="${xPos(i).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#888" font-family="-apple-system,sans-serif">${l}</text>`;
       }
     });
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible">
-      ${grid}${paths}${xLabels}
-    </svg>`;
+    // viewBoxをWに合わせることで任意の表示幅でも正しく描画
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block;width:100%;height:${H}px">${grid}${paths}${xLabels}</svg>`;
   }
 
-  drawGrowthSVG();
+  // wrap の offsetWidth が確定してから描画
+  if(wrap1 && wrap1.offsetWidth > 0){
+    drawGrowthSVG();
+  } else {
+    setTimeout(drawGrowthSVG, 50);
+  }
 }
 
 function setGrowthFilter(f){
@@ -2270,35 +2272,38 @@ function renderClubStats(recs) {
   window._clubStatData = {byClub, clubNames, clubColors};
   generateClubAdvice(recs, byClub, clubNames, overallG);
 
-  // レーダーチャートをSVGで描画
+  // レーダーチャートをSVGで描画（iPad対応）
   if(clubNames.length >= 2){
     const rc = document.getElementById('radar-chart-wrap');
     if(rc){
+      const svgW = Math.max(280, Math.min(600, rc.offsetWidth || rc.getBoundingClientRect().width || 320));
+      const svgH = Math.round(svgW * 0.75);
+      const CX=svgW/2, CY=svgH*0.5, R=Math.min(svgW, svgH)*0.32;
       const axisLabels2 = ['距離安定性','方向安定性','ミス耐性','精度','上振れ力'];
       const clubColors2 = ['#1D9E75','#378ADD','#D85A30','#7F77DD','#BA7517','#D4537E'];
       const N = axisLabels2.length;
-      const CX=160, CY=130, R=90;
       const angle = i => (i/N)*Math.PI*2 - Math.PI/2;
       const px = (r,i) => CX + r*Math.cos(angle(i));
       const py = (r,i) => CY + r*Math.sin(angle(i));
 
-      let svgContent = '<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 320 260" style="display:block">';
+      let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" style="display:block;width:100%;height:auto">`;
       [0.25,0.5,0.75,1].forEach(t=>{
-        const pts = Array.from({length:N},(_,i)=>`${px(R*t,i)},${py(R*t,i)}`).join(' ');
+        const pts = Array.from({length:N},(_,i)=>`${px(R*t,i).toFixed(1)},${py(R*t,i).toFixed(1)}`).join(' ');
         svgContent += `<polygon points="${pts}" fill="none" stroke="#e0e0d8" stroke-width="1"/>`;
       });
       for(let i=0;i<N;i++){
-        svgContent += `<line x1="${CX}" y1="${CY}" x2="${px(R,i)}" y2="${py(R,i)}" stroke="#e0e0d8" stroke-width="1"/>`;
-        const lx=px(R*1.22,i), ly=py(R*1.22,i);
-        svgContent += `<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="9" fill="#888">${axisLabels2[i]}</text>`;
+        svgContent += `<line x1="${CX.toFixed(1)}" y1="${CY.toFixed(1)}" x2="${px(R,i).toFixed(1)}" y2="${py(R,i).toFixed(1)}" stroke="#e0e0d8" stroke-width="1"/>`;
+        const lx=px(R*1.2,i), ly=py(R*1.2,i);
+        const fs = Math.max(8, Math.round(svgW/40));
+        svgContent += `<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="${fs}" fill="#888" font-family="-apple-system,sans-serif">${axisLabels2[i]}</text>`;
       }
       clubNames.slice(0,6).forEach((club,ci)=>{
         const g = calcGSPI(byClub[club]);
         const color = clubColors2[ci % clubColors2.length];
-        const pts = g.axes.map((v,i)=>`${px(R*v/100,i)},${py(R*v/100,i)}`).join(' ');
+        const pts = g.axes.map((v,i)=>`${px(R*v/100,i).toFixed(1)},${py(R*v/100,i).toFixed(1)}`).join(' ');
         svgContent += `<polygon points="${pts}" fill="${color}22" stroke="${color}" stroke-width="2"/>`;
         g.axes.forEach((v,i)=>{
-          svgContent += `<circle cx="${px(R*v/100,i)}" cy="${py(R*v/100,i)}" r="3" fill="${color}"/>`;
+          svgContent += `<circle cx="${px(R*v/100,i).toFixed(1)}" cy="${py(R*v/100,i).toFixed(1)}" r="3" fill="${color}"/>`;
         });
       });
       svgContent += '</svg>';
