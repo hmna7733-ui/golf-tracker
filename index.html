@@ -2103,7 +2103,7 @@ function renderClubStats(recs) {
       if(!cr.length) return;
 
       const setKey = `${club}-${sw}`;
-      const setCarry = setDistMap[setKey] || cr[0].setDist || null;
+      const setCarry = cr[0].setDist != null ? cr[0].setDist : (setDistMap[setKey] || null);
 
       // キャリー: 設定値 + 各球の距離誤差
       const carryVals = cr.flatMap(r=>{
@@ -2343,7 +2343,7 @@ function buildClubDetailPanel(inner, ci){
   // 実測平均飛距離 = 設定値 + 誤差平均
   const r0 = cr[0];
   const sw = r0.swing || 'full';
-  const setDistVal = getAvgDists()[`${r0.club}-${sw}`] || r0.setDist || null;
+  const setDistVal = r0.setDist != null ? r0.setDist : (getAvgDists()[`${r0.club}-${sw}`] || null);
   const avgDist = (setDistVal!=null && avgDE!=null)
     ? Math.round((setDistVal + parseFloat(avgDE)) * 10) / 10
     : null;
@@ -2564,6 +2564,8 @@ function openEditModal(id){
     date: rec.date,
     place: rec.place,
     club: rec.club,
+    swing: rec.swing||'full',
+    setDist: rec.setDist||null,
     targetDist: rec.targetDist||rec.dist
   };
 
@@ -2646,6 +2648,15 @@ function buildEditModalBody(){
                 <option value="full"${(editTarget.swing||'full')==='full'?' selected':''}>フルスイング</option>
               </select>
             </div>
+          </div>
+          <div class="fg" style="margin-top:4px">
+            <label>設定距離・キャリー (y)
+              <span style="font-size:10px;color:var(--gray4);font-weight:400;margin-left:4px">記録時の設定値。変更すると実測距離が再計算されます</span>
+            </label>
+            <input type="number" id="edit-setdist" inputmode="decimal"
+              value="${editTarget.setDist!=null?editTarget.setDist:''}"
+              placeholder="例: 155（未設定の場合は空欄）"
+              style="width:100%;height:40px;border:1.5px solid var(--gray2);border-radius:var(--radius-sm);font-size:15px;padding:0 12px;font-family:inherit;color:var(--gray5);background:var(--gray1)">
           </div>`
       }
     </div>
@@ -2754,18 +2765,45 @@ function saveEdit(){
     shots: [...editTarget.shots],
     distErrs: [...editTarget.distErrs],
     dirErrs:  [...editTarget.dirErrs],
-    dists:    editTarget.isClub ? [...(editTarget.dists||[])] : recs[idx].dists,
   };
+
   if(!editTarget.isClub){
     const distEl  = document.getElementById('edit-dist');
     const clubDEl = document.getElementById('edit-club-d');
     if(distEl)  recs[idx].targetDist = parseInt(distEl.value);
     if(clubDEl) recs[idx].club = clubDEl.value;
   } else {
-    const clubEl  = document.getElementById('edit-club');
-    const swingEl = document.getElementById('edit-swing');
+    const clubEl    = document.getElementById('edit-club');
+    const swingEl   = document.getElementById('edit-swing');
+    const setDistEl = document.getElementById('edit-setdist');
+
     if(clubEl)  recs[idx].club  = clubEl.value;
     if(swingEl) recs[idx].swing = swingEl.value;
+
+    // setDistを読み取り（数値でなければnull）
+    const newSetDist = setDistEl && setDistEl.value.trim() !== ''
+      ? parseFloat(setDistEl.value)
+      : null;
+    recs[idx].setDist = newSetDist;
+
+    // setDistが変わった場合、dists（キャリー実測）とrunsを再計算
+    if(newSetDist != null){
+      const distErrs = [...editTarget.distErrs];
+      recs[idx].dists = distErrs.map(e =>
+        e != null ? Math.round((newSetDist + e) * 10) / 10 : null
+      );
+      // ラン = ラン込み飛距離 - キャリー実測
+      const totalDists = recs[idx].totalDists || [];
+      recs[idx].runs = totalDists.map((td, i) =>
+        td != null && recs[idx].dists[i] != null
+          ? Math.round((td - recs[idx].dists[i]) * 10) / 10
+          : null
+      );
+    } else {
+      // setDistなしの場合はdists/runsをクリア
+      recs[idx].dists = null;
+      recs[idx].runs  = null;
+    }
   }
   saveRecs(recs);
   closeEditModal();
